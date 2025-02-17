@@ -1,0 +1,39 @@
+{
+    "CMC_API_KEY": "-",
+    "CMC_URL_QUOTES": "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest",
+    "CMC_URL_LISTINGS": "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest",
+    "BOT_TOKEN": "-",
+    "CMC_TOP10_URL": "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest",
+    "COINGECKO_URL": "https://api.coingecko.com/api/v3/coins",
+    "ETHERSCAN_API_KEY": "-",
+    "ETHERSCAN_GAS_API_URL": "https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey=",
+    "TELEGRAM_API_TOKEN_ARTICLES": "-",
+    "TELEGRAM_API_TOKEN_VALUE": "-",
+    "TELEGRAM_API_TOKEN_ALERTS": "-",
+    "TELEGRAM_CHAT_ID_FULL_DETAILS": [
+        "-"
+    ],
+    "TELEGRAM_CHAT_ID_PARTIAL_DATA": [],
+    "OPEN_AI_API": "-",
+    "SLEEP_DURATION": "1800",
+    "ALERT_THRESHOLD": 2,
+    "SEND_AI_SUMMARY": "True",
+    "SEND_HOURS": [
+        7,
+        11,
+        12,
+        18,
+        23
+    ],
+    "CRYPTOCURRENCIES": [
+        "BTC",
+        "ETH",
+        "SOL",
+        "ARB",
+        "FET",
+        "PEPE",
+        "ENA",
+        "SUI",
+        "LDO"
+    ]
+}
