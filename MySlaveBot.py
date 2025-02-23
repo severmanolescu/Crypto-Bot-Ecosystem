@@ -640,6 +640,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         help_text += """
     /buy <symbol> <amount> - Buy a cryptocurrency
     /sell <symbol> <amount> - Sell a cryptocurrency
+    /keyword <lsit> - List all the keywords
     /keyword <add/remove> <keyword> - Add or remove a keyword for news filtering
     /setvar list - Show all variables and their values
     /setvar <variable name> <new value> - Update a variable"""
