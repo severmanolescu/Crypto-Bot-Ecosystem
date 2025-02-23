@@ -6,7 +6,7 @@ import asyncio
 
 logger = logging.getLogger("main.py")
 
-logging.basicConfig(filename='log.log', level=logging.INFO)
+logging.basicConfig(filename='./log.log', level=logging.INFO)
 logger.info(f'{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Started!')
 
 from CryptoValue import CryptoValueBot
@@ -40,14 +40,14 @@ async def run():
         await cryptoNewsCheck.run()
 
         print("\n📤 Send crypto value!")
-        await cryptoValueBot.FetchData()
+        await cryptoValueBot.fetch_Data()
 
         nowDate = datetime.now()
 
         logger.info(f" Ran at: {nowDate.strftime('%H:%M')}")
         logger.info(f" Wait {sleepTime / 60:.2f} minutes")
 
-        print(f"\n ⌛Checked at: {nowDate.strftime('%H:%M')}")
+        print(f"\n⌛Checked at: {nowDate.strftime('%H:%M')}")
         print(f"⏳ Wait {sleepTime / 60:.2f} minutes!\n\n")
         await asyncio.sleep(sleepTime)
 

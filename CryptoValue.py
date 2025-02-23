@@ -13,7 +13,7 @@ from sdk import LoadVariables as load_variables
 
 logger = logging.getLogger("CryptoValue.py")
 
-logging.basicConfig(filename='log.log', level=logging.INFO)
+logging.basicConfig(filename='./log.log', level=logging.INFO)
 logger.info(f'{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Started!')
 
 def format_change(change):
@@ -236,7 +236,7 @@ class CryptoValueBot:
 
         if self.send_ai_summary == "True":
             message += '\n\n'
-            message += await self.openAIPrompt.getResponse(f"Based on the hour: {nowDate.hour} generate a quote")
+            message += await self.openAIPrompt.get_response(f"Based on the hour: {nowDate.hour} generate a quote")
         message += f"\n\n"
 
         for symbol, data in self.my_crypto.items():

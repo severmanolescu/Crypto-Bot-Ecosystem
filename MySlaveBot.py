@@ -7,15 +7,31 @@ from datetime import datetime
 
 logger = logging.getLogger("MySlaveBot.py")
 
-logging.basicConfig(filename='slave.log', level=logging.INFO)
+logging.basicConfig(filename='./slave.log', level=logging.INFO)
 logger.info(f'{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Started!')
 
-from telegram import Update
+from telegram import Update, ReplyKeyboardMarkup
 
-from telegram.ext import Application, CommandHandler, ContextTypes
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
 from sdk.CheckUsers import check_if_special_user
 from sdk import LoadVariables as load_variables
+
+# Persistent buttons for news commands
+NEWS_KEYBOARD = ReplyKeyboardMarkup(
+    [
+        ["🚨 Help"]
+    ],
+    resize_keyboard=True,  # Makes the buttons smaller and fit better
+    one_time_keyboard=False,  # Buttons stay visible after being clicked
+)
+
+# Command: /start
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "🤖 Welcome to the News Bot! Use the buttons below to get started:",
+        reply_markup=NEWS_KEYBOARD,
+    )
 
 # Function to fetch crypto data
 def get_crypto_data(symbol):
@@ -23,12 +39,12 @@ def get_crypto_data(symbol):
 
     variables = load_variables.load()
 
-    CMC_URL = variables.get('CMC_URL_QUOTES', '')
-    CMC_API_KEY = variables.get('CMC_API_KEY', '')
+    cmc_url = variables.get('CMC_URL_QUOTES', '')
+    cmc_api_key = variables.get('CMC_API_KEY', '')
 
-    HEADERS = {"X-CMC_PRO_API_KEY": CMC_API_KEY}
+    headers = {"X-CMC_PRO_API_KEY": cmc_api_key}
 
-    response = requests.get(CMC_URL, headers=HEADERS, params=params)
+    response = requests.get(cmc_url, headers=headers, params=params)
     data = response.json()
 
     if "data" in data and symbol.upper() in data["data"]:
@@ -55,12 +71,12 @@ def get_top_10():
     params = {"start": 1, "limit": 10, "convert": "USD"}
     variables = load_variables.load()
 
-    CMC_TOP10_URL = variables.get('CMC_TOP10_URL', '')
-    CMC_API_KEY = variables.get('CMC_API_KEY', '')
+    cmc_top10_url = variables.get('CMC_TOP10_URL', '')
+    cmc_api_key = variables.get('CMC_API_KEY', '')
 
-    HEADERS = {"X-CMC_PRO_API_KEY": CMC_API_KEY}
+    headers = {"X-CMC_PRO_API_KEY": cmc_api_key}
 
-    response = requests.get(CMC_TOP10_URL, headers=HEADERS, params=params)
+    response = requests.get(cmc_top10_url, headers=headers, params=params)
     data = response.json()
 
     if "data" in data:
@@ -86,7 +102,7 @@ def get_ath_from_coingecko(symbol):
     """
     variables = load_variables.load()
 
-    COINGECKO_URL = variables.get('COINGECKO_URL', '')
+    coingecko_url = variables.get('COINGECKO_URL', '')
 
     # Load the symbol-to-ID mapping
     symbol_to_id = load_variables.load_symbol_to_id()
@@ -96,7 +112,7 @@ def get_ath_from_coingecko(symbol):
     if not coin_id:
         return None  # Symbol not supported
 
-    response = requests.get(f"{COINGECKO_URL}/{coin_id}")
+    response = requests.get(f"{coingecko_url}/{coin_id}")
     data = response.json()
 
     if "market_data" in data:
@@ -445,6 +461,16 @@ async def sell(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logger.error(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Couldn't fetch data for {symbol}.")
         await update.message.reply_text(f"❌ Couldn't fetch data for {symbol}.")
 
+async def list_keywords(update, keywords):
+    logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: User {update.effective_chat.id} "
+                 f"requested keywords list")
+
+    keywords_message = "📋 *Current keywords:*\n\n"
+    for key in keywords:
+        keywords_message += f"🔹 *{key}*\n"
+
+    await update.message.reply_text(keywords_message, parse_mode="Markdown")
+
 async def keyword(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     Handle the /keyword command to add or remove keywords.
@@ -457,12 +483,23 @@ async def keyword(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("❌ You don't have the rigths to do this!")
         return
 
-    if len(context.args) < 2:
-        logger.error(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Usage: /keyword <add/remove> <keyword>")
-        await update.message.reply_text("❌ Usage: /keyword <add/remove> <keyword>")
+    if len(context.args) < 1:
+        logger.error(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Usage: /keyword <add/remove/list> <keyword>")
+        await update.message.reply_text("❌ Usage: /keyword <add/remove/list> <keyword>")
         return
 
     action = context.args[0].lower()
+
+    logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Requested: {action}")
+
+    # Load existing keywords
+    keywords = load_variables.load_keywords()
+
+    if action == "list":
+        await list_keywords(update, keywords)
+
+        return
+
     keyword = " ".join(context.args[1:]).strip()
 
     logger.error(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: User {update.effective_chat.id} "
@@ -470,13 +507,15 @@ async def keyword(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Requested: {action} {keyword}")
 
+    if len(context.args) < 2:
+        logger.error(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Usage: /keyword <add/remove> <keyword>")
+        await update.message.reply_text("❌ Usage: /keyword <add/remove/list> <keyword>")
+        return
+
     if not keyword:
         logger.error(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Please provide a valid keyword.")
         await update.message.reply_text("❌ Please provide a valid keyword.")
         return
-
-    # Load existing keywords
-    keywords = load_variables.load_keywords()
 
     if action == "add":
         if keyword in keywords:
@@ -582,6 +621,8 @@ async def setvar(update, context):
 
     await change_variable(update, context)
 
+
+
 # Handle `/help` command
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Requested: help")
@@ -608,6 +649,16 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     await update.message.reply_text(help_text, parse_mode="Markdown")
 
+
+# Handle button presses
+async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    text = update.message.text
+
+    special_user = True
+
+    if text == "🚨 Help":
+        await help_command(update, context)
+
 # Main function to start the bot
 def main():
     variables = load_variables.load()
@@ -617,6 +668,7 @@ def main():
     app = Application.builder().token(BOT_TOKEN).build()
 
     # Add command handlers
+    app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("details", details))
     app.add_handler(CommandHandler("top10", top10))
     app.add_handler(CommandHandler("compare", compare))
@@ -628,6 +680,8 @@ def main():
     app.add_handler(CommandHandler("keyword", keyword))
     app.add_handler(CommandHandler("setvar", setvar))  # Add this line
     app.add_handler(CommandHandler("help", help_command))
+
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons))
 
     # Start the bot
     logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Bot is running...")

@@ -15,7 +15,7 @@ from sdk import LoadVariables as load_variables
 
 logger = logging.getLogger("NewsCheck.py")
 
-logging.basicConfig(filename='log.log', level=logging.INFO)
+logging.basicConfig(filename='./log.log', level=logging.INFO)
 logger.info(f' Started {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}!')
 
 class CryptoNewsCheck:
@@ -38,9 +38,9 @@ class CryptoNewsCheck:
 
         # Files to track scraped articles
         self.scraped_articles_files = {
-            "crypto.news": "ConfigurationFiles\\scraped_articles_cryptonews.json",
-            "cointelegraph": "ConfigurationFiles\\scraped_articles_cointelegraph.json",
-            "bitcoinmagazine": "ConfigurationFiles\\scraped_articles_bitcoinmagazine.json"
+            "crypto.news": "./ConfigurationFiles/scraped_articles_cryptonews.json",
+            "cointelegraph": "./ConfigurationFiles/scraped_articles_cointelegraph.json",
+            "bitcoinmagazine": "./ConfigurationFiles/scraped_articles_bitcoinmagazine.json"
         }
         self.scraped_articles = {
             "crypto.news": set(),
@@ -225,7 +225,7 @@ class CryptoNewsCheck:
 
     async def generate_summary(self, link):
         """Generate article summary using OpenAI."""
-        return await self.openAIPrompt.generateSummary(link)
+        return await self.openAIPrompt.generate_summary(link)
 
     async def check_news(self, source):
         """Main function to scrape news from the given source and send articles."""

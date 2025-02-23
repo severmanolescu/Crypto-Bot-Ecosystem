@@ -4,12 +4,12 @@ import logging
 
 from datetime import datetime
 
-logger = logging.getLogger("LoadVariables.py")
+logger = logging.getLogger("./LoadVariables.py")
 
 logging.basicConfig(filename='../log.log', level=logging.INFO)
 logger.info(f'{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Started!')
 
-def load(file_path="ConfigurationFiles\\variables.json"):
+def load(file_path="./ConfigurationFiles/variables.json"):
     """
     Load global variables from a JSON file.
     :param file_path: Path to the JSON file.
@@ -34,7 +34,7 @@ def load(file_path="ConfigurationFiles\\variables.json"):
         print(f"❌ Error loading variables from '{file_path}': {e}. Using default values.")
         return {}
 
-def save(variables, file_path="ConfigurationFiles\\variables.json"):
+def save(variables, file_path="./ConfigurationFiles/variables.json"):
     """
     Save global variables to a JSON file.
     """
@@ -50,7 +50,7 @@ def save(variables, file_path="ConfigurationFiles\\variables.json"):
         logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Error saving variables: {e}")
         print(f"❌ Error saving variables: {e}")
 
-def get_int_variable(var_name, default=1800, file_path="ConfigurationFiles\\variables.json"):
+def get_int_variable(var_name, default=1800, file_path="./ConfigurationFiles/variables.json"):
     """
     Fetch an integer variable from the JSON file.
     If it is a string, attempt to convert it to an integer.
@@ -74,7 +74,7 @@ def get_int_variable(var_name, default=1800, file_path="ConfigurationFiles\\vari
         print(f"⚠️ Warning: '{var_name}' is not a valid type. Using default {default}.")
         return default
 
-def load_keyword_list(file_path="ConfigurationFiles\\keywords.json"):
+def load_keyword_list(file_path="./ConfigurationFiles/keywords.json"):
     """
     Load a list of keywords from a JSON file.
     Returns an empty list if the file is missing or invalid.
@@ -103,7 +103,7 @@ def load_keyword_list(file_path="ConfigurationFiles\\keywords.json"):
         print(f"❌ Error loading '{file_path}': {e}. Returning empty list.")
         return []
 
-def load_symbol_to_id(file_path="ConfigurationFiles\\symbol_to_id.json"):
+def load_symbol_to_id(file_path="./ConfigurationFiles/symbol_to_id.json"):
     """
     Load the symbol-to-ID mapping from a JSON file.
     :param file_path: Path to the JSON file.
@@ -128,7 +128,7 @@ def load_symbol_to_id(file_path="ConfigurationFiles\\symbol_to_id.json"):
         print(f"❌ Error loading symbol-to-ID mapping from '{file_path}': {e}. Using an empty mapping.")
         return {}
 
-def load_keywords(file_path="ConfigurationFiles\\keywords.json"):
+def load_keywords(file_path="./ConfigurationFiles/keywords.json"):
     """
     Load keywords from a JSON file.
     :param file_path: Path to the JSON file.
@@ -153,7 +153,7 @@ def load_keywords(file_path="ConfigurationFiles\\keywords.json"):
         print(f"❌ Error loading keywords from '{file_path}': {e}. Using an empty list.")
         return []
 
-def save_keywords(keywords, file_path="ConfigurationFiles\\keywords.json"):
+def save_keywords(keywords, file_path="./ConfigurationFiles/keywords.json"):
     """
     Save keywords to a JSON file.
     :param keywords: List of keywords to save.

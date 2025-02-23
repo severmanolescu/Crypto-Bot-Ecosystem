@@ -4,7 +4,7 @@ import logging
 
 logger = logging.getLogger("NewsCheckBot.py")
 
-logging.basicConfig(filename='bot.log', level=logging.INFO)
+logging.basicConfig(filename='./bot.log', level=logging.INFO)
 logger.info(f'{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Started!')
 
 from NewsCheck import CryptoNewsCheck
@@ -85,6 +85,16 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: User {update.effective_chat.id} wants to "
                     f"redo the articles for one of the pages, not special user send without the AI summary!")
+
+    else:
+        await update.message.reply_text("You have the needed rights, news sent with the AI summary!")
+
+        print(f"User {update.effective_chat.id} wants to "
+              f"redo the articles for one of the pages, special user send with the AI summary!")
+
+        logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: User {update.effective_chat.id} wants to "
+                    f"redo the articles for one of the pages, special user send with the AI summary!")
+
 
 # Main function to start the bot
 def run_bot():

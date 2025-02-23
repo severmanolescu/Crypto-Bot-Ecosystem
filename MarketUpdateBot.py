@@ -4,7 +4,7 @@ from datetime import datetime
 
 logger = logging.getLogger("MarketUpdateBot.py")
 
-logging.basicConfig(filename='bot.log', level=logging.INFO)
+logging.basicConfig(filename='./bot.log', level=logging.INFO)
 logger.info(f'{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Started!')
 
 from telegram import Update, ReplyKeyboardMarkup

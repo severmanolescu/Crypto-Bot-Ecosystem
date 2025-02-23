@@ -4,7 +4,7 @@ from datetime import datetime
 
 logger = logging.getLogger("CheckUsers.py")
 
-logging.basicConfig(filename='log.log', level=logging.INFO)
+logging.basicConfig(filename='./log.log', level=logging.INFO)
 logger.info(f'{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Started!')
 
 from sdk import LoadVariables as load_variables
