@@ -151,8 +151,11 @@ class CryptoNewsCheck:
                 found_keywords = [f"#{keyword.replace(' ', '')}" for keyword in self.keywords if
                                   keyword.lower() in headline_lower]
 
+
+
                 if link_url not in self.scraped_articles["crypto.news"] and self.contains_keywords(headline_text):
-                    articles.append({"headline": headline_text, "link": link_url, "highlights": found_keywords})
+                    articles.append({"headline": headline_text, "link": link_url,
+                                     "highlights": ' '.join(found_keywords) if found_keywords else "#GeneralNews"})
                     self.scraped_articles["crypto.news"].add(link_url)
 
         return articles
