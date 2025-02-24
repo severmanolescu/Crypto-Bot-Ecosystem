@@ -14,12 +14,12 @@ from NewsCheck import CryptoNewsCheck
 
 from sdk import LoadVariables as load_variables
 
+
 cryptoValueBot = CryptoValueBot()
 cryptoNewsCheck = CryptoNewsCheck()
 
 def read_variables():
     global cryptoValueBot
-    
     global cryptoNewsCheck
 
     cryptoValueBot.reload_the_data()
@@ -30,7 +30,6 @@ def read_variables():
 async def run():
     while True:
         global cryptoValueBot
-        
         global cryptoNewsCheck
 
         read_variables()

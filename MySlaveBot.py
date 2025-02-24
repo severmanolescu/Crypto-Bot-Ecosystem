@@ -502,11 +502,6 @@ async def keyword(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     keyword = " ".join(context.args[1:]).strip()
 
-    logger.error(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: User {update.effective_chat.id} "
-                 f"requested keyword ({action}) {keyword}")
-
-    logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Requested: {action} {keyword}")
-
     if len(context.args) < 2:
         logger.error(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Usage: /keyword <add/remove> <keyword>")
         await update.message.reply_text("❌ Usage: /keyword <add/remove/list> <keyword>")
@@ -640,7 +635,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         help_text += """
     /buy <symbol> <amount> - Buy a cryptocurrency
     /sell <symbol> <amount> - Sell a cryptocurrency
-    /keyword <list> - List all the keywords
+    /keyword <list> - Show all the available keywords
     /keyword <add/remove> <keyword> - Add or remove a keyword for news filtering
     /setvar list - Show all variables and their values
     /setvar <variable name> <new value> - Update a variable"""

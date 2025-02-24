@@ -61,9 +61,9 @@ class CryptoNewsCheck:
 
         self.keywords = load_variables.load_keyword_list()
 
-        OPEN_AI_API = variables.get('OPEN_AI_API', '')
+        ope_ai_api = variables.get('OPEN_AI_API', '')
 
-        self.openAIPrompt = OpenAIPrompt(OPEN_AI_API)
+        self.openAIPrompt = OpenAIPrompt(ope_ai_api)
 
         self.send_ai_summary = variables.get("SEND_AI_SUMMARY", "")
         
@@ -144,10 +144,15 @@ class CryptoNewsCheck:
 
             if headline and link:
                 headline_text = headline.text.strip()
+
                 link_url = link["href"]
 
+                headline_lower = headline_text.lower()
+                found_keywords = [f"#{keyword.replace(' ', '')}" for keyword in self.keywords if
+                                  keyword.lower() in headline_lower]
+
                 if link_url not in self.scraped_articles["crypto.news"] and self.contains_keywords(headline_text):
-                    articles.append({"headline": headline_text, "link": link_url})
+                    articles.append({"headline": headline_text, "link": link_url, "highlights": found_keywords})
                     self.scraped_articles["crypto.news"].add(link_url)
 
         return articles
@@ -170,10 +175,19 @@ class CryptoNewsCheck:
             link = self.extract_link(article, source, is_slider)
 
             if link and link not in self.scraped_articles[source] and self.contains_keywords(headline):
-                new_articles.append({"headline": headline, "link": link})
+                highlights = self.extract_highlights(headline)
+                new_articles.append({"headline": headline, "link": link, "highlights": highlights})
+
                 self.scraped_articles[source].add(link)
 
         return new_articles
+
+    def extract_highlights(self, headline):
+        """Return highlights found in headline."""
+        headline_lower = headline.lower()
+        found_keywords = [f"#{keyword.replace(' ', '')}" for keyword in self.keywords if
+                          keyword.lower() in headline_lower]
+        return ' '.join(found_keywords) if found_keywords else "#GeneralNews"
 
     def extract_headline(self, article, source, is_slider=False):
         """Extract headline based on the source and article type."""
@@ -248,12 +262,15 @@ class CryptoNewsCheck:
                         message = (f"📰 New Article Found!\n"
                                    f"📌 {article['headline']}\n"
                                    f"🔗 {article['link']}\n"
-                                   f"🤖 {await self.generate_summary(article['link'])}\n")
+                                   f"🤖 {await self.generate_summary(article['link'])}\n"
+                                   f"🔍 Highlights: {article['highlights']}\n")
 
                     else:
                         message = (f"📰 New Article Found!\n"
                                    f"📌 {article['headline']}\n"
-                                   f"🔗 {article['link']}\n")
+                                   f"🔗 {article['link']}\n"
+                                   f"🔍 Highlights: {article['highlights']}\n")
+
                     await message_handler.send_telegram_message(message, self.telegram_api_token,
                                                                 self.telegram_important_chat_id,
                                                                 self.telegram_not_important_chat_id)
