@@ -2,10 +2,14 @@ import logging
 
 from datetime import datetime
 
-logger = logging.getLogger("CryptoPriceAlertsBot.py")
+from logging.handlers import RotatingFileHandler
 
-logging.basicConfig(filename='./bot.log', level=logging.INFO)
-logger.info(f'{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Started!')
+handler = RotatingFileHandler('bot.log', maxBytes=100_000_000, backupCount=3)
+logging.basicConfig(
+    handlers=[handler],
+    level=logging.INFO,
+    format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
+)
 
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
@@ -43,26 +47,26 @@ async def start_the_alerts_check():
 async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
 
-    logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Check for Alerts")
+    logging.info(f" Check for Alerts")
 
     if text == "🚨 Check for Alerts":
         await update.message.reply_text("🚨 Searching for new alerts...")
 
-        alertAvailable = await start_the_alerts_check()
+        alert_available = await start_the_alerts_check()
 
-        if alertAvailable is False:
+        if alert_available is False:
             await update.message.reply_text("😔 No major price movement")
     else:
-        logger.error(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Invalid command. Please use the buttons below.")
+        logging.error(f" Invalid command. Please use the buttons below.")
         await update.message.reply_text("❌ Invalid command. Please use the buttons below.")
 
 # Main function to start the bot
 def run_bot():
     variables = load_variables.load("ConfigurationFiles/variables.json")
 
-    BOT_TOKEN = variables.get('TELEGRAM_API_TOKEN_ALERTS', '')
+    bot_token = variables.get('TELEGRAM_API_TOKEN_ALERTS', '')
 
-    app = Application.builder().token(BOT_TOKEN).build()
+    app = Application.builder().token(bot_token).build()
 
     # Add command and message handlers
     app.add_handler(CommandHandler("start", start))

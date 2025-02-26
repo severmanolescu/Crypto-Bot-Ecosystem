@@ -2,10 +2,14 @@ import logging
 
 from datetime import datetime
 
-logger = logging.getLogger("CheckUsers.py")
+from logging.handlers import RotatingFileHandler
 
-logging.basicConfig(filename='./log.log', level=logging.INFO)
-logger.info(f'{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Started!')
+handler = RotatingFileHandler('log.log', maxBytes=100_000_000, backupCount=3)
+logging.basicConfig(
+    handlers=[handler],
+    level=logging.INFO,
+    format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
+)
 
 from sdk import LoadVariables as load_variables
 
@@ -22,7 +26,7 @@ def check_if_special_user(user_id):
 
         # Ensure special_users is a list or set
         if not isinstance(special_users, (list, set)):
-            logger.info(f'{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Invalid format for TELEGRAM_CHAT_ID_FULL_DETAILS. Expected list or set.')
+            logging.info(f'Invalid format for TELEGRAM_CHAT_ID_FULL_DETAILS. Expected list or set.')
             print("❌ Invalid format for TELEGRAM_CHAT_ID_FULL_DETAILS. Expected list or set.")
             return False
 
@@ -32,6 +36,6 @@ def check_if_special_user(user_id):
         return user_id in map(str, special_users)  # Convert all IDs to string before checking
 
     except Exception as e:
-        logger.info(f'{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Error checking special user: {e}')
+        logging.info(f' Error checking special user: {e}')
         print(f"❌ Error checking special user: {e}")
         return False

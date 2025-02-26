@@ -2,10 +2,14 @@ import logging
 
 from datetime import datetime
 
-logger = logging.getLogger("MarketUpdateBot.py")
+from logging.handlers import RotatingFileHandler
 
-logging.basicConfig(filename='./bot.log', level=logging.INFO)
-logger.info(f'{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Started!')
+handler = RotatingFileHandler('bot.log', maxBytes=100_000_000, backupCount=3)
+logging.basicConfig(
+    handlers=[handler],
+    level=logging.INFO,
+    format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
+)
 
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
@@ -36,7 +40,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def market_update():
-    logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Requested: Market Update")
+    logging.info(f" Requested: Market Update")
 
     cryptoValueBot.reload_the_data()
 
@@ -45,14 +49,14 @@ async def market_update():
     await cryptoValueBot.send_market_update(datetime.now())
 
 async def eth_gas():
-    logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Requested: ETH Gas")
+    logging.info(f" Requested: ETH Gas")
 
     cryptoValueBot.reload_the_data()
 
     await cryptoValueBot.send_eth_gas_fee()
 
 async def portfolio_value():
-    logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Requested: Portfolio Value")
+    logging.info(f" Requested: Portfolio Value")
 
     cryptoValueBot.reload_the_data()
 
@@ -61,7 +65,7 @@ async def portfolio_value():
     await cryptoValueBot.send_portfolio_update()
 
 async def crypto_fear_and_greed():
-    logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Requested: Fear and Greed")
+    logging.info(f" Requested: Fear and Greed")
 
     cryptoValueBot.reload_the_data()
 
@@ -87,23 +91,23 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             await portfolio_value()
         else:
-            logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: User {user_id} wants to check the portfolio without rights!")
+            logging.info(f" User {user_id} wants to check the portfolio without rights!")
             await update.message.reply_text("You don't have the rights for this action!")
     elif text == "📊 Crypto Fear & Greed Index":
         await update.message.reply_text("📊 Showing Crypto Fear & Greed Index...")
 
         await crypto_fear_and_greed()
     else:
-        logger.error(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Invalid command. Please use the buttons below.")
+        logging.error(f" Invalid command. Please use the buttons below.")
         await update.message.reply_text("❌ Invalid command. Please use the buttons below.")
 
 # Main function to start the bot
 def run_bot():
     variables = load_variables.load("ConfigurationFiles/variables.json")
 
-    BOT_TOKEN = variables.get('TELEGRAM_API_TOKEN_VALUE', '')
+    bot_token = variables.get('TELEGRAM_API_TOKEN_VALUE', '')
 
-    app = Application.builder().token(BOT_TOKEN).build()
+    app = Application.builder().token(bot_token).build()
 
     # Add command and message handlers
     app.add_handler(CommandHandler("start", start))

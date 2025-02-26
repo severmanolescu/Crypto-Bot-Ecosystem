@@ -4,10 +4,14 @@ import logging
 
 import asyncio
 
-logger = logging.getLogger("main.py")
+from logging.handlers import RotatingFileHandler
 
-logging.basicConfig(filename='./log.log', level=logging.INFO)
-logger.info(f'{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Started!')
+handler = RotatingFileHandler('log.log', maxBytes=100_000_000, backupCount=3)
+logging.basicConfig(
+    handlers=[handler],
+    level=logging.INFO,
+    format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
+)
 
 from CryptoValue import CryptoValueBot
 from NewsCheck import CryptoNewsCheck
@@ -34,7 +38,7 @@ async def run():
 
         read_variables()
 
-        sleepTime = load_variables.get_int_variable("SLEEP_DURATION")
+        sleep_time = load_variables.get_int_variable("SLEEP_DURATION")
 
         print("\n🧐 Check for new articles!")
         await cryptoNewsCheck.run()
@@ -42,14 +46,14 @@ async def run():
         print("\n📤 Send crypto value!")
         await cryptoValueBot.fetch_Data()
 
-        nowDate = datetime.now()
+        now_date = datetime.now()
 
-        logger.info(f" Ran at: {nowDate.strftime('%H:%M')}")
-        logger.info(f" Wait {sleepTime / 60:.2f} minutes")
+        logging.info(f" Ran at: {now_date.strftime('%H:%M')}")
+        logging.info(f" Wait {sleep_time / 60:.2f} minutes")
 
-        print(f"\n⌛Checked at: {nowDate.strftime('%H:%M')}")
-        print(f"⏳ Wait {sleepTime / 60:.2f} minutes!\n\n")
-        await asyncio.sleep(sleepTime)
+        print(f"\n⌛Checked at: {now_date.strftime('%H:%M')}")
+        print(f"⏳ Wait {sleep_time / 60:.2f} minutes!\n\n")
+        await asyncio.sleep(sleep_time)
 
 # Run the script
 if __name__ == "__main__":

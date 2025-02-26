@@ -2,15 +2,20 @@ from datetime import datetime
 
 import logging
 
-logger = logging.getLogger("NewsCheckBot.py")
+from logging.handlers import RotatingFileHandler
 
-logging.basicConfig(filename='./bot.log', level=logging.INFO)
-logger.info(f'{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Started!')
+handler = RotatingFileHandler('bot.log', maxBytes=100_000_000, backupCount=3)
+logging.basicConfig(
+    handlers=[handler],
+    level=logging.INFO,
+    format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
+)
 
 from NewsCheck import CryptoNewsCheck
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
+from sdk.DataBase.DataBaseHandler import DataBaseHandler
 from sdk.CheckUsers import check_if_special_user
 from sdk import LoadVariables as load_variables
 
@@ -19,8 +24,7 @@ cryptoNewsCheck = CryptoNewsCheck()
 # Persistent buttons for news commands
 NEWS_KEYBOARD = ReplyKeyboardMarkup(
     [
-        ["🚨 Check for Articles", "🔍 All Articles crypto.news"],
-        ["🔍 All Articles CoinTelegraph", "🔍 All Articles Bitcoin Magazine"]
+        ["🚨 Check for Articles", "🔢 Show statistics"]
     ],
     resize_keyboard=True,  # Makes the buttons smaller and fit better
     one_time_keyboard=False,  # Buttons stay visible after being clicked
@@ -34,14 +38,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def start_the_articles_check():
-    logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Requested: Article Check")
+    logging.info(f" Requested: Article Check")
 
     cryptoNewsCheck.reload_the_data()
 
     await cryptoNewsCheck.run()
 
 async def start_all_articles(user_id, webpage):
-    logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Requested: All Articles from {webpage}")
+    logging.info(f" Requested: All Articles from {webpage}")
 
     cryptoNewsCheck.reload_the_data()
 
@@ -55,54 +59,27 @@ async def start_all_articles(user_id, webpage):
 async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
 
-    special_user = True
-
     if text == "🚨 Check for Articles":
         await update.message.reply_text("🚨 Check for articles...")
 
         await start_the_articles_check()
-    elif text == "🔍 All Articles crypto.news":
-        await update.message.reply_text("🔍 Showing all the articles from crypto.news...")
+    elif text == "🔢 Show statistics":
+        await update.message.reply_text("🔢 Showing the statistics...")
 
-        special_user = await start_all_articles(update.effective_chat.id, "crypto.news")
-    elif text == "🔍 All Articles CoinTelegraph":
-        await update.message.reply_text("🔍 Showing all the articles from CoinTelegraph...")
+        db = DataBaseHandler()
 
-        special_user = await start_all_articles(update.effective_chat.id, "cointelegraph")
-    elif text == "🔍 All Articles Bitcoin Magazine":
-        await update.message.reply_text("🔍 Showing all the articles from Bitcoin Magazine...")
-
-        special_user = await start_all_articles(update.effective_chat.id, "bitcoinmagazine")
+        await db.show_stats(update)
     else:
-        logger.error(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Invalid command. Please use the buttons below.")
-        special_user = await update.message.reply_text("❌ Invalid command. Please use the buttons below.")
-
-    if special_user is False:
-        await update.message.reply_text("You don't have the needed rights, news sent without the AI summary!")
-
-        print(f"User {update.effective_chat.id} wants to "
-                    f"redo the articles for one of the pages, not special user send without the AI summary!")
-
-        logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: User {update.effective_chat.id} wants to "
-                    f"redo the articles for one of the pages, not special user send without the AI summary!")
-
-    else:
-        await update.message.reply_text("You have the needed rights, news sent with the AI summary!")
-
-        print(f"User {update.effective_chat.id} wants to "
-              f"redo the articles for one of the pages, special user send with the AI summary!")
-
-        logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: User {update.effective_chat.id} wants to "
-                    f"redo the articles for one of the pages, special user send with the AI summary!")
-
+        logging.error(f" Invalid command. Please use the buttons below.")
+        await update.message.reply_text("❌ Invalid command. Please use the buttons below.")
 
 # Main function to start the bot
 def run_bot():
     variables = load_variables.load("ConfigurationFiles/variables.json")
 
-    BOT_TOKEN = variables.get('TELEGRAM_API_TOKEN_ARTICLES', '')
+    bot_token = variables.get('TELEGRAM_API_TOKEN_ARTICLES', '')
 
-    app = Application.builder().token(BOT_TOKEN).build()
+    app = Application.builder().token(bot_token).build()
 
     # Add command and message handlers
     app.add_handler(CommandHandler("start", start))

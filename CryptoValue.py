@@ -10,11 +10,14 @@ from sdk.OpenAIPrompt import OpenAIPrompt
 
 from sdk import SendTelegramMessage as message_handler
 from sdk import LoadVariables as load_variables
+from logging.handlers import RotatingFileHandler
 
-logger = logging.getLogger("CryptoValue.py")
-
-logging.basicConfig(filename='./log.log', level=logging.INFO)
-logger.info(f'{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Started!')
+handler = RotatingFileHandler('log.log', maxBytes=100_000_000, backupCount=3)
+logging.basicConfig(
+    handlers=[handler],
+    level=logging.INFO,
+    format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
+)
 
 def format_change(change):
     if change is None:
@@ -86,22 +89,22 @@ class CryptoValueBot:
         Load portfolio data from a JSON file.
         """
         if not os.path.exists(file_path):
-            logger.error(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:  Portfolio file '{file_path}' not found. Using an empty portfolio.")
+            logging.error(f"  Portfolio file '{file_path}' not found. Using an empty portfolio.")
             print(f"❌ Portfolio file '{file_path}' not found. Using an empty portfolio.")
             return {}
 
         try:
             with open(file_path, "r") as file:
                 portfolio = json.load(file)
-                logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Portfolio loaded from '{file_path}'.")
+                logging.info(f" Portfolio loaded from '{file_path}'.")
                 print(f"✅ Portfolio loaded from '{file_path}'.")
                 return portfolio
         except json.JSONDecodeError:
-            logger.error(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Invalid JSON in portfolio file '{file_path}'. Using an empty portfolio.")
+            logging.error(f" Invalid JSON in portfolio file '{file_path}'. Using an empty portfolio.")
             print(f"❌ Invalid JSON in portfolio file '{file_path}'. Using an empty portfolio.")
             return {}
         except Exception as e:
-            logger.error(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Error loading portfolio from '{file_path}': {e}. Using an empty portfolio.")
+            logging.error(f" Error loading portfolio from '{file_path}': {e}. Using an empty portfolio.")
             print(f"❌ Error loading portfolio from '{file_path}': {e}. Using an empty portfolio.")
             return {}
 
@@ -112,10 +115,10 @@ class CryptoValueBot:
         try:
             with open(file_path, "w") as file:
                 json.dump(self.portfolio, file, indent=4)
-            logger.info(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Portfolio saved to '{file_path}'.")
+            logging.info(f" Portfolio saved to '{file_path}'.")
             print(f"✅ Portfolio saved to '{file_path}'.")
         except Exception as e:
-            logger.error(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Error saving portfolio to '{file_path}': {e}")
+            logging.error(f" Error saving portfolio to '{file_path}': {e}")
             print(f"❌ Error saving portfolio to '{file_path}': {e}")
 
     # Function to calculate total portfolio value
@@ -184,11 +187,11 @@ class CryptoValueBot:
                 fast_gas = gas_data["FastGasPrice"]
                 return safe_gas, propose_gas, fast_gas
             else:
-                logger.error(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Failed to fetch ETH gas fees.")
+                logging.error(f" Failed to fetch ETH gas fees.")
                 print("❌ Failed to fetch ETH gas fees.")
                 return None, None, None
         except Exception as e:
-            logger.error(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Error fetching ETH gas fees: {e}")
+            logging.error(f" Error fetching ETH gas fees: {e}")
             print(f"❌ Error fetching ETH gas fees: {e}")
             return None, None, None
 
@@ -215,7 +218,7 @@ class CryptoValueBot:
                                                         self.telegram_not_important_chat_id, True)
 
         except Exception as e:
-            logger.error(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Error fetching Fear & Greed Index: {e}")
+            logging.error(f" Error fetching Fear & Greed Index: {e}")
             print(f"❌ Error fetching Fear & Greed Index: {e}")
 
     async def send_eth_gas_fee(self):
@@ -284,7 +287,7 @@ class CryptoValueBot:
 
             return True
         else:
-            logger.error(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: No major price movement!")
+            logging.error(f" No major price movement!")
             print(f"No major price movement at {nowDate.strftime('%H:%M')}")
 
         return False

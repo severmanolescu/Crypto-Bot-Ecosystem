@@ -3,10 +3,14 @@ import logging
 
 from datetime import datetime
 
-logger = logging.getLogger("OpenAIPrompt.py")
+from logging.handlers import RotatingFileHandler
 
-logging.basicConfig(filename='./log.log', level=logging.INFO)
-logger.info(f'{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Started!')
+handler = RotatingFileHandler('log.log', maxBytes=100_000_000, backupCount=3)
+logging.basicConfig(
+    handlers=[handler],
+    level=logging.INFO,
+    format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
+)
 
 class OpenAIPrompt:
     def __init__(self, openai_api_key):
@@ -32,5 +36,5 @@ class OpenAIPrompt:
             return summary
         except Exception as e:
             print(f"Error generating summary: {e}")
-            logger.info(f'{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}:Error generating summary: {e}')
+            logging.info(f'Error generating summary: {e}')
             return "No summary available."
