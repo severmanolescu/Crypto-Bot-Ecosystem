@@ -1,14 +1,8 @@
 import openai
-import logging
 
-from logging.handlers import RotatingFileHandler
-
-handler = RotatingFileHandler('log.log', maxBytes=100_000_000, backupCount=3)
-logging.basicConfig(
-    handlers=[handler],
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
-)
+from sdk.Logger import setup_logger
+logger = setup_logger("log.log")
+logger.info("Open AI Prompt started")
 
 class OpenAIPrompt:
     def __init__(self, openai_api_key):
@@ -34,5 +28,5 @@ class OpenAIPrompt:
             return summary
         except Exception as e:
             print(f"Error generating summary: {e}")
-            logging.info(f'Error generating summary: {e}')
+            logger.info(f'Error generating summary: {e}')
             return "No summary available."

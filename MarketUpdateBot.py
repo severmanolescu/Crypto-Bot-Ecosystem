@@ -1,16 +1,11 @@
-import logging
-
 from datetime import datetime
 
-from logging.handlers import RotatingFileHandler
 from sdk.SendTelegramMessage import TelegramMessagesHandler
 
-handler = RotatingFileHandler('bot.log', maxBytes=100_000_000, backupCount=3)
-logging.basicConfig(
-    handlers=[handler],
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
-)
+from sdk.Logger import setup_logger
+
+logger = setup_logger("log.log")
+logger.info("Market Update Bot started")
 
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
@@ -54,7 +49,7 @@ class MarketUpdateBot:
         )
 
     async def send_market_update(self, update):
-        logging.info(f" Requested: Market Update")
+        logger.info(f" Requested: Market Update")
 
         self.cryptoValueBot.reload_the_data()
 
@@ -63,14 +58,14 @@ class MarketUpdateBot:
         await self.cryptoValueBot.send_market_update(datetime.now(), update)
 
     async def send_eth_gas(self, update):
-        logging.info(f" Requested: ETH Gas")
+        logger.info(f" Requested: ETH Gas")
 
         self.cryptoValueBot.reload_the_data()
 
         await self.cryptoValueBot.send_eth_gas_fee(update)
 
     async def send_portfolio_value(self, update):
-        logging.info(f" Requested: Portfolio Value")
+        logger.info(f" Requested: Portfolio Value")
 
         self.cryptoValueBot.reload_the_data()
 
@@ -79,7 +74,7 @@ class MarketUpdateBot:
         await self.cryptoValueBot.send_portfolio_update(update)
 
     async def send_crypto_fear_and_greed(self, update):
-        logging.info(f" Requested: Fear and Greed")
+        logger.info(f" Requested: Fear and Greed")
 
         self.cryptoValueBot.reload_the_data()
 
@@ -105,14 +100,14 @@ class MarketUpdateBot:
 
                 await self.send_portfolio_value(update)
             else:
-                logging.info(f" User {user_id} wants to check the portfolio without rights!")
+                logger.info(f" User {user_id} wants to check the portfolio without rights!")
                 await update.message.reply_text("You don't have the rights for this action!")
         elif text == "📊 Crypto Fear & Greed Index":
             await update.message.reply_text("📊 Showing Crypto Fear & Greed Index...")
 
             await self.send_crypto_fear_and_greed(update)
         else:
-            logging.error(f" Invalid command. Please use the buttons below.")
+            logger.error(f" Invalid command. Please use the buttons below.")
             await update.message.reply_text("❌ Invalid command. Please use the buttons below.")
 
     # Main function to start the bot

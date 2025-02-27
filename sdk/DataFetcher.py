@@ -1,16 +1,10 @@
 import requests
-import logging
 
 from datetime import datetime
 
-from logging.handlers import RotatingFileHandler
-
-handler = RotatingFileHandler('log.log', maxBytes=100_000_000, backupCount=3)
-logging.basicConfig(
-    handlers=[handler],
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
-)
+from sdk.Logger import setup_logger
+logger = setup_logger("log.log")
+logger.info("Data Fetcher started")
 
 def get_eth_gas_fee(etherscan_api_url):
     try:
@@ -24,11 +18,11 @@ def get_eth_gas_fee(etherscan_api_url):
             fast_gas = gas_data["FastGasPrice"]
             return safe_gas, propose_gas, fast_gas
         else:
-            logging.error(f" Failed to fetch ETH gas fees.")
+            logger.error(f" Failed to fetch ETH gas fees.")
             print("❌ Failed to fetch ETH gas fees.")
             return None, None, None
     except Exception as e:
-        logging.error(f" Error fetching ETH gas fees: {e}")
+        logger.error(f" Error fetching ETH gas fees: {e}")
         print(f"❌ Error fetching ETH gas fees: {e}")
         return None, None, None
 
@@ -53,5 +47,5 @@ async def get_fear_and_greed():
         return message
 
     except Exception as e:
-        logging.error(f" Error fetching Fear & Greed Index: {e}")
+        logger.error(f" Error fetching Fear & Greed Index: {e}")
         print(f"❌ Error fetching Fear & Greed Index: {e}")

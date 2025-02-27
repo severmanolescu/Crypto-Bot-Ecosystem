@@ -1,18 +1,12 @@
 import argparse
 from datetime import datetime
 
-import logging
-
 import asyncio
 
-from logging.handlers import RotatingFileHandler
+from sdk.Logger import setup_logger
 
-handler = RotatingFileHandler('log.log', maxBytes=100_000_000, backupCount=3)
-logging.basicConfig(
-    handlers=[handler],
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
-)
+logger = setup_logger("log.log")
+logger.info("Main started")
 
 from CryptoValue import CryptoValueBot
 from NewsCheck import CryptoNewsCheck
@@ -48,8 +42,8 @@ async def run():
 
         now_date = datetime.now()
 
-        logging.info(f" Ran at: {now_date.strftime('%H:%M')}")
-        logging.info(f" Wait {sleep_time / 60:.2f} minutes")
+        logger.info(f" Ran at: {now_date.strftime('%H:%M')}")
+        logger.info(f" Wait {sleep_time / 60:.2f} minutes")
 
         print(f"\n⌛Checked at: {now_date.strftime('%H:%M')}")
         print(f"⏳ Wait {sleep_time / 60:.2f} minutes!\n\n")

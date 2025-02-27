@@ -1,6 +1,6 @@
 import requests
-import logging
 import json
+import time
 
 from datetime import datetime
 
@@ -10,15 +10,6 @@ from sdk.Alerts import AlertsHandler
 from sdk.DataFetcher import get_fear_and_greed
 from sdk.PortfolioManager import PortfolioManager
 from sdk.SendTelegramMessage import TelegramMessagesHandler
-
-from logging.handlers import RotatingFileHandler
-
-handler = RotatingFileHandler('log.log', maxBytes=100_000_000, backupCount=3)
-logging.basicConfig(
-    handlers=[handler],
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
-)
 
 class CryptoValueBot:
     def __init__(self):
@@ -34,6 +25,9 @@ class CryptoValueBot:
         self.send_hours = None
 
         self.telegram_api_token = None
+
+        self.last_api_call = 0
+        self.cache_duration = 60
 
         self.alert_handler = AlertsHandler()
         self.portfolio = PortfolioManager()
@@ -66,6 +60,10 @@ class CryptoValueBot:
 
     # Function to fetch cryptocurrency prices and price changes
     def get_my_crypto(self):
+        current_time = time.time()
+        if current_time - self.last_api_call < self.cache_duration:
+            return
+
         headers = {
             "Accepts": "application/json",
             "X-CMC_PRO_API_KEY": self.coinmarketcap_api_key,
@@ -112,20 +110,23 @@ class CryptoValueBot:
 
     # Scheduled market updates
     async def send_all_the_messages(self, now_date):
-        if now_date.hour in self.send_hours and self.lastSentHour != now_date.hour:
+        if self.lastSentHour != now_date.hour:
             self.lastSentHour = now_date.hour
 
-            await self.send_market_update(now_date)
+            if now_date.hour in self.send_hours:
+                await self.send_market_update(now_date)
 
-            await self.send_eth_gas_fee()
+                await self.send_eth_gas_fee()
 
-            if now_date.hour == sorted(self.send_hours)[0]:
-                await self.show_fear_and_greed()
+                if now_date.hour == sorted(self.send_hours)[0]:
+                    await self.show_fear_and_greed()
 
-            await self.send_portfolio_update()
+                await self.send_portfolio_update()
 
-    async def check_for_major_updates(self, now_date):
-        await self.alert_handler.check_for_alerts(now_date, self.top_100_crypto)
+            await self.check_for_major_updates(now_date)
+
+    async def check_for_major_updates(self, now_date, update = None):
+        await self.alert_handler.check_for_alerts(now_date, self.top_100_crypto, update)
 
     async def fetch_data(self):
         self.get_my_crypto()
@@ -133,5 +134,3 @@ class CryptoValueBot:
         now_date = datetime.now()
 
         await self.send_all_the_messages(now_date)
-
-        await self.check_for_major_updates(now_date)

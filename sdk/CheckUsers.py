@@ -1,13 +1,6 @@
-import logging
-
-from logging.handlers import RotatingFileHandler
-
-handler = RotatingFileHandler('log.log', maxBytes=100_000_000, backupCount=3)
-logging.basicConfig(
-    handlers=[handler],
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
-)
+from sdk.Logger import setup_logger
+logger = setup_logger("log.log")
+logger.info("User check started")
 
 from sdk import LoadVariables as LoadVariables
 
@@ -24,7 +17,7 @@ def check_if_special_user(user_id):
 
         # Ensure special_users is a list or set
         if not isinstance(special_users, (list, set)):
-            logging.info(f'Invalid format for TELEGRAM_CHAT_ID_FULL_DETAILS. Expected list or set.')
+            logger.info(f'Invalid format for TELEGRAM_CHAT_ID_FULL_DETAILS. Expected list or set.')
             print("❌ Invalid format for TELEGRAM_CHAT_ID_FULL_DETAILS. Expected list or set.")
             return False
 
@@ -34,6 +27,6 @@ def check_if_special_user(user_id):
         return user_id in map(str, special_users)  # Convert all IDs to string before checking
 
     except Exception as e:
-        logging.info(f' Error checking special user: {e}')
+        logger.info(f' Error checking special user: {e}')
         print(f"❌ Error checking special user: {e}")
         return False

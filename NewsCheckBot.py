@@ -1,20 +1,14 @@
-import logging
-
-from logging.handlers import RotatingFileHandler
-
-handler = RotatingFileHandler('bot.log', maxBytes=100_000_000, backupCount=3)
-logging.basicConfig(
-    handlers=[handler],
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
-)
-
 from NewsCheck import CryptoNewsCheck
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
 from sdk.DataBase.DataBaseHandler import DataBaseHandler
 from sdk import LoadVariables as LoadVariables
+
+from sdk.Logger import setup_logger
+
+logger = setup_logger("log.log")
+logger.info("News Check started")
 
 cryptoNewsCheck = CryptoNewsCheck()
 
@@ -38,7 +32,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def start_the_articles_check():
-    logging.info(f" Requested: Article Check")
+    logger.info(f" Requested: Article Check")
 
     cryptoNewsCheck.reload_the_data()
 
@@ -59,7 +53,7 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif text == "🚨 Help" or text.lower() == "help":
         await help_command(update, context)
     else:
-        logging.error(f" Invalid command. Please use the buttons below.")
+        logger.error(f" Invalid command. Please use the buttons below.")
         await update.message.reply_text("❌ Invalid command. Please use the buttons below.")
 
 # Command: /start
@@ -70,7 +64,7 @@ async def search(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     articles = await db.search_articles_by_tags(context.args)
 
-    print(f"Found {len(articles)} articles with {context.args} tags in the data base!")
+    print(f"\nFound {len(articles)} articles with {context.args} tags in the data base!\n")
 
     for article in articles:
         message = (
@@ -85,7 +79,7 @@ async def search(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Handle `/help` command
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    logging.info(f" Requested: help")
+    logger.info(f" Requested: help")
 
     help_text = """
     📢 *Crypto Bot Commands*:

@@ -1,4 +1,3 @@
-import logging
 import requests
 import asyncio
 import cloudscraper
@@ -16,15 +15,10 @@ from sdk import LoadVariables as LoadVariables
 from sdk.SendTelegramMessage import TelegramMessagesHandler
 from sdk.OpenAIPrompt import OpenAIPrompt
 
-# Logging configuration with rotating file handler
-from logging.handlers import RotatingFileHandler
+from sdk.Logger import setup_logger
 
-handler = RotatingFileHandler('log.log', maxBytes=100_000_000, backupCount=3)
-logging.basicConfig(
-    handlers=[handler],
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
-)
+logger = setup_logger("log.log")
+logger.info("News Check started")
 
 class CryptoNewsCheck:
     def __init__(self, db_path="./articles.db"):
@@ -85,27 +79,27 @@ class CryptoNewsCheck:
                 if response.status_code == 200:
                     return response.text
                 elif response.status_code in [403, 429]:
-                    logging.warning(
+                    logger.warning(
                         f"Blocked or Rate Limited (Status {response.status_code})! "
                         f"Retrying in {delay} seconds..."
                     )
                     await asyncio.sleep(delay)  # non-blocking delay
                 else:
-                    logging.warning(
+                    logger.warning(
                         f"Unexpected status code: {response.status_code}. Retrying in {delay}s..."
                     )
                     await asyncio.sleep(delay)
             except requests.exceptions.ConnectionError as e:
-                logging.warning(f"Connection error: {e}. Retrying in {delay} seconds...")
+                logger.warning(f"Connection error: {e}. Retrying in {delay} seconds...")
                 await asyncio.sleep(delay)
             except requests.exceptions.Timeout:
-                logging.warning(f"Request timed out. Retrying in {delay} seconds...")
+                logger.warning(f"Request timed out. Retrying in {delay} seconds...")
                 await asyncio.sleep(delay)
             except requests.exceptions.RequestException as e:
-                logging.warning(f"Other request error: {e}")
+                logger.warning(f"Other request error: {e}")
                 break  # Stop retrying on other request errors
 
-        logging.error(f"Max retries reached. Could not fetch {url}.")
+        logger.error(f"Max retries reached. Could not fetch {url}.")
         return None
 
     def scrape_articles(self, soup, source):
@@ -141,13 +135,13 @@ class CryptoNewsCheck:
         page_content = await self.fetch_page(self.urls[source])
         if page_content:
             print(f"\n✅ Connected to {source} successfully!")
-            logging.info(f"Connected to {source} successfully!")
+            logger.info(f"Connected to {source} successfully!")
             soup = BeautifulSoup(page_content, "html.parser")
             articles = self.scrape_articles(soup, source)
 
             if articles:
                 print(f"📰 Found {len(articles)} articles from {source}.")
-                logging.info(f"Found {len(articles)} articles from {source}.")
+                logger.info(f"Found {len(articles)} articles from {source}.")
                 for article in articles:
                     # Insert or ignore in DB
                     row_inserted = await self.data_base.save_article_to_db(
@@ -186,24 +180,21 @@ class CryptoNewsCheck:
                         await self.telegram_message.send_telegram_message(message, self.telegram_api_token)
                     else:
                         # Already in DB
-                        logging.info(f"Skipping existing article: {article['link']}")
+                        logger.info(f"Skipping existing article: {article['link']}")
             else:
-                logging.warning(f"No new articles found for {source}.")
+                logger.warning(f"No new articles found for {source}.")
         else:
-            logging.error(f"Failed to fetch {source}.")
+            logger.error(f"Failed to fetch {source}.")
 
     async def recreate_data_base(self):
         await self.data_base.recreate_data_base()
 
     async def run(self):
-        """
-        Initialize the DB if necessary, and launch the scrapers in parallel.
-        """
-        await self.data_base.init_db()  # create the table if not exist
+        await self.data_base.init_db()  # Ensure DB is ready
 
-        # Scrape all sources in parallel
-        await asyncio.gather(
+        tasks = [
             self.check_news("crypto.news"),
             self.check_news("cointelegraph"),
             self.check_news("bitcoinmagazine")
-        )
+        ]
+        await asyncio.gather(*tasks)  # Run all scrapers in parallel

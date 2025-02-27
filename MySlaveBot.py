@@ -1,17 +1,11 @@
 import os
 import json
-import logging
 import requests
 
-from logging.handlers import RotatingFileHandler
+from sdk.Logger import setup_logger
 
-handler = RotatingFileHandler('slave.log', maxBytes=100_000_000, backupCount=3)
-logging.basicConfig(
-    handlers=[handler],
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
-)
-
+logger = setup_logger("log.log")
+logger.info("My Slave Bot started")
 
 from telegram import Update, ReplyKeyboardMarkup
 
@@ -94,7 +88,7 @@ def get_top_10():
                        f"💰 Price: ${price:,.2f}\n"
                        f"🏦 Market Cap: ${market_cap:,.2f}\n\n")
         return result
-    logging.error(f" Error fetching top 10 cryptocurrencies.")
+    logger.error(f" Error fetching top 10 cryptocurrencies.")
     return "❌ Error fetching top 10 cryptocurrencies."
 
 def get_ath_from_coingecko(symbol):
@@ -145,19 +139,19 @@ async def get_details(data, symbol):
                 f"📆 7 Days: {data['change_7d']:.2f}%\n"
                 f"📅 30 Days: {data['change_30d']:.2f}%\n")
     else:
-        logging.error(f" Couldn't fetch details for {symbol}.")
+        logger.error(f" Couldn't fetch details for {symbol}.")
         return f"❌ Couldn't fetch details for {symbol}."
 
 # Handle `/details <symbol>` command
 async def details(update: Update, context: ContextTypes.DEFAULT_TYPE):
     symbol = context.args[0] if context.args else "BTC"
 
-    logging.error(f" User {update.effective_chat.id} "
+    logger.error(f" User {update.effective_chat.id} "
                  f"requested details for {symbol}")
 
     data = get_crypto_data(symbol)
 
-    logging.info(f" Requested: details {symbol}")
+    logger.info(f" Requested: details {symbol}")
 
     message = f"📌 Crypto Details: {data['name']} ({symbol.upper()})\n"
 
@@ -169,42 +163,45 @@ async def details(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def top10(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = get_top_10()
 
-    logging.error(f" User {update.effective_chat.id} "
+    logger.error(f" User {update.effective_chat.id} "
                  f"requested top 10")
 
-    logging.info(f" Requested: top 10")
+    logger.info(f" Requested: top 10")
 
     await update.message.reply_text(text, parse_mode="Markdown")
 
 # Handle `/compare <symbol1> <symbol2>` command
 async def compare(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if len(context.args) != 2:
-        logging.error(f" Please provide two cryptocurrency symbols to compare.")
         await update.message.reply_text("❌ Please provide two cryptocurrency symbols to compare.")
         return
 
     symbol1, symbol2 = context.args
-    data1 = get_crypto_data(symbol1)
-    data2 = get_crypto_data(symbol2)
-
-    logging.error(f" User {update.effective_chat.id} "
-                 f"requested compare between {symbol1} and {symbol1}")
-
-    logging.info(f" Requested: compare {symbol1} {symbol2}")
+    data1, data2 = get_crypto_data(symbol1), get_crypto_data(symbol2)
 
     if data1 and data2:
-        await update.message.reply_text(f"📊 *Comparison between {symbol1.upper()} and {symbol2.upper()}*:\n", parse_mode="Markdown")
-        await update.message.reply_text(f"🔹 *{symbol1.upper()}*", parse_mode="Markdown")
+        message = f"""
+📊 *Comparison: {symbol1.upper()} vs {symbol2.upper()}*
 
-        await update.message.reply_text(await get_details(data1, symbol1), parse_mode="Markdown")
+💰 *Price*:
+- {symbol1.upper()}: ${data1["price"]:.2f}
+- {symbol2.upper()}: ${data2["price"]:.2f}
 
-        await update.message.reply_text(f"🔹 *{symbol2.upper()}*", parse_mode="Markdown")
+🏦 *Market Cap*:
+- {symbol1.upper()}: ${data1["market_cap"]:.2f}
+- {symbol2.upper()}: ${data2["market_cap"]:.2f}
 
-        await update.message.reply_text(await get_details(data2, symbol2), parse_mode="Markdown")
+📈 *24h Change*:
+- {symbol1.upper()}: {data1["change_24h"]:.2f}%
+- {symbol2.upper()}: {data2["change_24h"]:.2f}%
+"""
 
+        print(message)  # To preview before sending via Telegram
+
+        await update.message.reply_text(message, parse_mode="Markdown")
     else:
-        logging.error(f" Couldn't fetch data for one or both symbols.")
         await update.message.reply_text("❌ Couldn't fetch data for one or both symbols.")
+
 
 # Function to convert cryptocurrency
 def convert_crypto(amount, from_symbol, to_symbol):
@@ -231,7 +228,7 @@ def convert_crypto(amount, from_symbol, to_symbol):
 # Handle `/convert <amount> <from_symbol> <to_symbol>` command
 async def convert(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if len(context.args) != 3:
-        logging.error(f" Usage: /convert <amount> <from symbol> <to symbol>")
+        logger.error(f" Usage: /convert <amount> <from symbol> <to symbol>")
         await update.message.reply_text("❌ Usage: /convert <amount> <from symbol> <to symbol>")
         return
 
@@ -240,68 +237,68 @@ async def convert(update: Update, context: ContextTypes.DEFAULT_TYPE):
         from_symbol = context.args[1]
         to_symbol = context.args[2]
 
-        logging.error(f" User {update.effective_chat.id} "
+        logger.error(f" User {update.effective_chat.id} "
                      f"requested convert from {from_symbol} to {to_symbol} with amount {amount}")
 
     except ValueError:
-        logging.error(f" Invalid amount. Please provide a valid number.")
+        logger.error(f" Invalid amount. Please provide a valid number.")
         await update.message.reply_text("❌ Invalid amount. Please provide a valid number.")
         return
 
     converted_amount = convert_crypto(amount, from_symbol, to_symbol)
 
-    logging.info(f" Requested: convert {amount} {from_symbol} {to_symbol}")
+    logger.info(f" Requested: convert {amount} {from_symbol} {to_symbol}")
 
     if converted_amount is not None:
         text = f"🔁 *Conversion Result:*\n{amount} {from_symbol.upper()} = {converted_amount:.2f} {to_symbol.upper()}"
         await update.message.reply_text(text, parse_mode="Markdown")
     else:
-        logging.error(f" Couldn't convert {from_symbol.upper()} to {to_symbol.upper()}.")
+        logger.error(f" Couldn't convert {from_symbol.upper()} to {to_symbol.upper()}.")
         await update.message.reply_text(f"❌ Couldn't convert {from_symbol.upper()} to {to_symbol.upper()}.")
 
 # Handle `/mcap_change <symbol>` command
 async def mcap_change(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if len(context.args) != 1:
-        logging.error(f" Usage: /mcap_change <symbol>")
+        logger.error(f" Usage: /mcap_change <symbol>")
         await update.message.reply_text("❌ Usage: /mcap_change <symbol>")
         return
 
     symbol = context.args[0].upper()
     data = get_crypto_data(symbol)
 
-    logging.error(f" User {update.effective_chat.id} "
+    logger.error(f" User {update.effective_chat.id} "
                  f"requested market cap change for {symbol}")
 
-    logging.info(f" Requested: mcap change {symbol}")
+    logger.info(f" Requested: mcap change {symbol}")
 
     if data:
         change_24h = data["change_24h"]
         text = f"📊 *Market Cap Change for {symbol} (24h):* {change_24h:.2f}%"
         await update.message.reply_text(text, parse_mode="Markdown")
     else:
-        logging.error(f" Couldn't fetch market cap change for {symbol}.")
+        logger.error(f" Couldn't fetch market cap change for {symbol}.")
         await update.message.reply_text(f"❌ Couldn't fetch market cap change for {symbol}.")
 
 # Handle `/roi <symbol> <initial_investment>` command
 async def roi(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if len(context.args) != 3:
-        logging.error(f" Usage: /roi <symbol> <initial_investment> <initial_price>")
+        logger.error(f" Usage: /roi <symbol> <initial_investment> <initial_price>")
         await update.message.reply_text("❌ Usage: /roi <symbol> <initial_investment> <initial_price>")
         return
 
     symbol = context.args[0].upper()
 
-    logging.info(f" Requested: roi {symbol}")
+    logger.info(f" Requested: roi {symbol}")
 
     try:
         initial_investment = float(context.args[1])
         initial_price = float(context.args[2])
     except ValueError:
-        logging.error(f" Invalid input. Please provide valid numbers.")
+        logger.error(f" Invalid input. Please provide valid numbers.")
         await update.message.reply_text("❌ Invalid input. Please provide valid numbers.")
         return
 
-    logging.error(f" User {update.effective_chat.id} "
+    logger.error(f" User {update.effective_chat.id} "
                  f"requested ROI for {symbol} with investment {initial_investment} "
                  f"and initial price {initial_price}")
 
@@ -321,7 +318,7 @@ async def roi(update: Update, context: ContextTypes.DEFAULT_TYPE):
 """
         await update.message.reply_text(text, parse_mode="Markdown")
     else:
-        logging.error(f" Couldn't fetch ROI data for {symbol}.")
+        logger.error(f" Couldn't fetch ROI data for {symbol}.")
         await update.message.reply_text(f"❌ Couldn't fetch ROI data for {symbol}.")
 
 # Function to update the portfolio
@@ -355,15 +352,15 @@ def update_portfolio(symbol, amount, action):
                 if portfolio[symbol] == 0:  # Remove symbol if amount reaches zero
                     del portfolio[symbol]
             else:
-                logging.error(f" Not enough {symbol} to sell. Available: {portfolio[symbol]}, Requested: {amount}")
+                logger.error(f" Not enough {symbol} to sell. Available: {portfolio[symbol]}, Requested: {amount}")
                 print(f"❌ Not enough {symbol} to sell. Available: {portfolio[symbol]}, Requested: {amount}")
                 return False
         else:
-            logging.error(f" {symbol} not found in portfolio.")
+            logger.error(f" {symbol} not found in portfolio.")
             print(f"❌ {symbol} not found in portfolio.")
             return False
     else:
-        logging.error(f" Invalid action: {action}. Use 'buy' or 'sell'.")
+        logger.error(f" Invalid action: {action}. Use 'buy' or 'sell'.")
         print(f"❌ Invalid action: {action}. Use 'buy' or 'sell'.")
         return False
 
@@ -375,13 +372,13 @@ def update_portfolio(symbol, amount, action):
 # Handle `/buy <symbol> <amount>` command
 async def buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if check_if_special_user(update.effective_chat.id) is False:
-        logging.error(f" User {update.effective_chat.id}: without rigths "
+        logger.error(f" User {update.effective_chat.id}: without rigths "
                      f"wants to buy")
         await update.message.reply_text("❌ You don't have the rigths to do this!")
         return
 
     if len(context.args) != 2:
-        logging.error(f" Usage: /buy <symbol> <amount>")
+        logger.error(f" Usage: /buy <symbol> <amount>")
         await update.message.reply_text("❌ Usage: /buy <symbol> <amount>")
         return
 
@@ -389,7 +386,7 @@ async def buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         amount = float(context.args[1])
     except ValueError:
-        logging.error(f" Invalid amount. Please provide a valid number.")
+        logger.error(f" Invalid amount. Please provide a valid number.")
         await update.message.reply_text("❌ Invalid amount. Please provide a valid number.")
         return
 
@@ -398,7 +395,7 @@ async def buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
         price = data['price']
         total_cost = amount * price
 
-        logging.error(f" User {update.effective_chat.id} "
+        logger.error(f" User {update.effective_chat.id} "
                      f"requested buy for {symbol} price {price} and total cost of {total_cost}")
 
         # Update the portfolio
@@ -412,22 +409,22 @@ async def buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
             text = f"✅ *Buy Order Executed:*\n{transaction}"
             await update.message.reply_text(text, parse_mode="Markdown")
         else:
-            logging.error(f" Failed to update portfolio for {symbol}.")
+            logger.error(f" Failed to update portfolio for {symbol}.")
             await update.message.reply_text(f"❌ Failed to update portfolio for {symbol}.")
     else:
-        logging.error(f" Couldn't fetch data for {symbol}.")
+        logger.error(f" Couldn't fetch data for {symbol}.")
         await update.message.reply_text(f"❌ Couldn't fetch data for {symbol}.")
 
 # Handle `/sell <symbol> <amount>` command
 async def sell(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if check_if_special_user(update.effective_chat.id) is False:
-        logging.error(f" User {update.effective_chat.id}: without rigths "
+        logger.error(f" User {update.effective_chat.id}: without rigths "
                      f"wants to sell")
         await update.message.reply_text("❌ You don't have the rigths to do this!")
         return
 
     if len(context.args) != 2:
-        logging.error(f" Usage: /sell <symbol> <amount>")
+        logger.error(f" Usage: /sell <symbol> <amount>")
         await update.message.reply_text("❌ Usage: /sell <symbol> <amount>")
         return
 
@@ -435,7 +432,7 @@ async def sell(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         amount = float(context.args[1])
     except ValueError:
-        logging.error(f" Invalid amount. Please provide a valid number.")
+        logger.error(f" Invalid amount. Please provide a valid number.")
         await update.message.reply_text("❌ Invalid amount. Please provide a valid number.")
         return
 
@@ -444,7 +441,7 @@ async def sell(update: Update, context: ContextTypes.DEFAULT_TYPE):
         price = data['price']
         total_value = amount * price
 
-        logging.error(f" User {update.effective_chat.id} "
+        logger.error(f" User {update.effective_chat.id} "
                      f"requested sell for {symbol} price {price} and total cost of {total_value}")
 
         # Update the portfolio
@@ -458,14 +455,14 @@ async def sell(update: Update, context: ContextTypes.DEFAULT_TYPE):
             text = f"✅ *Sell Order Executed:*\n{transaction}"
             await update.message.reply_text(text, parse_mode="Markdown")
         else:
-            logging.error(f" Failed to update portfolio for {symbol}.")
+            logger.error(f" Failed to update portfolio for {symbol}.")
             await update.message.reply_text(f"❌ Failed to update portfolio for {symbol}.")
     else:
-        logging.error(f" Couldn't fetch data for {symbol}.")
+        logger.error(f" Couldn't fetch data for {symbol}.")
         await update.message.reply_text(f"❌ Couldn't fetch data for {symbol}.")
 
 async def list_keywords(update, keywords):
-    logging.info(f" User {update.effective_chat.id} "
+    logger.info(f" User {update.effective_chat.id} "
                  f"requested keywords list")
 
     keywords_message = "📋 *Current keywords:*\n\n"
@@ -480,20 +477,20 @@ async def keyword(update: Update, context: ContextTypes.DEFAULT_TYPE):
     Usage: /keyword <add/remove> <keyword>
     """
     if check_if_special_user(update.effective_chat.id) is False:
-        logging.error(f" User {update.effective_chat.id}: without rigths "
+        logger.error(f" User {update.effective_chat.id}: without rigths "
                      f"wants to update the keywords")
 
         await update.message.reply_text("❌ You don't have the rigths to do this!")
         return
 
     if len(context.args) < 1:
-        logging.error(f" Usage: /keyword <add/remove/list> <keyword>")
+        logger.error(f" Usage: /keyword <add/remove/list> <keyword>")
         await update.message.reply_text("❌ Usage: /keyword <add/remove/list> <keyword>")
         return
 
     action = context.args[0].lower()
 
-    logging.info(f" Requested: {action}")
+    logger.info(f" Requested: {action}")
 
     # Load existing keywords
     keywords = load_variables.load_keywords()
@@ -506,12 +503,12 @@ async def keyword(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyword = " ".join(context.args[1:]).strip()
 
     if len(context.args) < 2:
-        logging.error(f" Usage: /keyword <add/remove> <keyword>")
+        logger.error(f" Usage: /keyword <add/remove> <keyword>")
         await update.message.reply_text("❌ Usage: /keyword <add/remove/list> <keyword>")
         return
 
     if not keyword:
-        logging.error(f" Please provide a valid keyword.")
+        logger.error(f" Please provide a valid keyword.")
         await update.message.reply_text("❌ Please provide a valid keyword.")
         return
 
@@ -532,11 +529,11 @@ async def keyword(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(f"ℹ️ The keyword '{keyword}' is not in the list.")
 
     else:
-        logging.error(f" Invalid action. Use 'add' or 'remove'.")
+        logger.error(f" Invalid action. Use 'add' or 'remove'.")
         await update.message.reply_text("❌ Invalid action. Use 'add' or 'remove'.")
 
 async def list_variables(update):
-    logging.error(f" User {update.effective_chat.id} "
+    logger.error(f" User {update.effective_chat.id} "
                  f"requested setvar list")
 
     variables = load_variables.load()
@@ -555,7 +552,7 @@ async def change_variable(update, context):
     variable_name = context.args[0].upper()
     new_value = " ".join(context.args[1:]).strip()
 
-    logging.error(f" User {update.effective_chat.id} "
+    logger.error(f" User {update.effective_chat.id} "
                  f"requested setvar {variable_name}: {new_value}")
     # Try to convert to integer if the value is numeric
     if new_value.isdigit():
@@ -566,7 +563,7 @@ async def change_variable(update, context):
         try:
             new_value = set(map(int, new_value.split(",")))
         except ValueError:
-            logging.error(
+            logger.error(
                 f" SEND_HOURS should be a list of numbers, e.g., '7,12,18,0'")
             await update.message.reply_text("❌ SEND_HOURS should be a list of numbers, e.g., '7,12,18,0'")
             return
@@ -596,13 +593,13 @@ async def setvar(update, context):
     - /setvar <variable_name> <new_value>: Update a variable.
     """
     if check_if_special_user(update.effective_chat.id) is False:
-        logging.error(f" User {update.effective_chat.id}: without rigths "
+        logger.error(f" User {update.effective_chat.id}: without rigths "
                      f"wants to update the variables")
         await update.message.reply_text("❌ You don't have the rigths to do this!")
         return
 
     if not context.args:
-        logging.error(f" Usage: /setvar list OR /setvar <variable_name> <new_value>")
+        logger.error(f" Usage: /setvar list OR /setvar <variable_name> <new_value>")
         await update.message.reply_text("❌ Usage: /setvar list OR /setvar <variable_name> <new_value>")
         return
 
@@ -613,7 +610,7 @@ async def setvar(update, context):
         return
 
     if len(context.args) < 2:
-        logging.error(f" Usage: /setvar <variable_name> <new_value>")
+        logger.error(f" Usage: /setvar <variable_name> <new_value>")
         await update.message.reply_text("❌ Usage: /setvar <variable_name> <new_value>")
         return
 
@@ -621,7 +618,7 @@ async def setvar(update, context):
 
 # Handle `/help` command
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    logging.info(f" Requested: help")
+    logger.info(f" Requested: help")
 
     help_text = """
     📢 *Crypto Bot Commands*:
@@ -660,9 +657,9 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def main():
     variables = load_variables.load()
 
-    BOT_TOKEN = variables.get('BOT_TOKEN', '')
+    bot_token = variables.get('BOT_TOKEN', '')
 
-    app = Application.builder().token(BOT_TOKEN).build()
+    app = Application.builder().token(bot_token).build()
 
     # Add command handlers
     app.add_handler(CommandHandler("start", start))
@@ -681,7 +678,7 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons))
 
     # Start the bot
-    logging.info(f" Bot is running...")
+    logger.info(f" Bot is running...")
     print("🤖 Bot is running...")
     app.run_polling()
 

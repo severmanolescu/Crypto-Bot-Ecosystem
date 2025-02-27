@@ -1,20 +1,14 @@
-import logging
-
 from datetime import datetime
 
-from logging.handlers import RotatingFileHandler
+from sdk.Logger import setup_logger
 
-handler = RotatingFileHandler('bot.log', maxBytes=100_000_000, backupCount=3)
-logging.basicConfig(
-    handlers=[handler],
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
-)
+logger = setup_logger("log.log")
+logger.info("Crypto price Alerts bot started")
 
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
-from sdk import LoadVariables as load_variables
+from sdk import LoadVariables as LoadVariables
 
 from CryptoValue import CryptoValueBot
 
@@ -36,18 +30,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 cryptoValueBot = CryptoValueBot()
 
-async def start_the_alerts_check():
+async def start_the_alerts_check(update = None):
     cryptoValueBot.reload_the_data()
 
     cryptoValueBot.get_my_crypto()
 
-    return await cryptoValueBot.check_for_major_updates(datetime.now())
+    return await cryptoValueBot.check_for_major_updates(datetime.now(), update)
 
 # Handle button presses
 async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
 
-    logging.info(f" Check for Alerts")
+    logger.info(f" Check for Alerts")
 
     if text == "🚨 Check for Alerts":
         await update.message.reply_text("🚨 Searching for new alerts...")
@@ -57,12 +51,12 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if alert_available is False:
             await update.message.reply_text("😔 No major price movement")
     else:
-        logging.error(f" Invalid command. Please use the buttons below.")
+        logger.error(f" Invalid command. Please use the buttons below.")
         await update.message.reply_text("❌ Invalid command. Please use the buttons below.")
 
 # Main function to start the bot
 def run_bot():
-    variables = load_variables.load("ConfigurationFiles/variables.json")
+    variables = LoadVariables.load("ConfigurationFiles/variables.json")
 
     bot_token = variables.get('TELEGRAM_API_TOKEN_ALERTS', '')
 

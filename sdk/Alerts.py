@@ -1,16 +1,9 @@
-import logging
-
 from sdk.SendTelegramMessage import TelegramMessagesHandler
 from sdk import LoadVariables as LoadVariables
 
-from logging.handlers import RotatingFileHandler
-
-handler = RotatingFileHandler('log.log', maxBytes=100_000_000, backupCount=3)
-logging.basicConfig(
-    handlers=[handler],
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
-)
+from sdk.Logger import setup_logger
+logger = setup_logger("log.log")
+logger.info("Alerts scrtipt started")
 
 def format_change(change):
     if change is None:
@@ -46,7 +39,7 @@ class AlertsHandler:
         self.telegram_message.reload_the_data()
 
     # Check for alerts every 30 minutes
-    async def check_for_major_updates_1h(self, now_date, top_100_crypto):
+    async def check_for_major_updates_1h(self, now_date, top_100_crypto, update = None):
         alert_message = "🚨 *Crypto Alert!* Significant 1-hour change detected:\n\n"
         alerts_found = False
 
@@ -58,16 +51,17 @@ class AlertsHandler:
                 alert_message += f"*{symbol}* → {format_change(change_1h)}\n"
 
         if alerts_found:
-            await self.telegram_message.send_telegram_message(alert_message, self.telegram_api_token_alerts, False)
+            await self.telegram_message.send_telegram_message(alert_message, self.telegram_api_token_alerts,
+                                                              False, update)
 
             return True
         else:
-            logging.error(f" No major price movement!")
+            logger.error(f" No major price movement!")
             print(f"No major 1h price movement at {now_date.strftime('%H:%M')}")
 
         return False
 
-    async def check_for_major_updates_24h(self, now_date, top_100_crypto):
+    async def check_for_major_updates_24h(self, now_date, top_100_crypto, update = None):
         alert_message = "🚨 *Crypto Alert!* Significant 24-hours change detected:\n\n"
         alerts_found = False
 
@@ -79,16 +73,17 @@ class AlertsHandler:
                 alert_message += f"*{symbol}* → {format_change(change_24h)}\n"
 
         if alerts_found:
-            await self.telegram_message.send_telegram_message(alert_message, self.telegram_api_token_alerts, False)
+            await self.telegram_message.send_telegram_message(alert_message, self.telegram_api_token_alerts,
+                                                              False, update)
 
             return True
         else:
-            logging.error(f" No major price movement!")
+            logger.error(f" No major price movement!")
             print(f"No major 24h price movement at {now_date.strftime('%H:%M')}")
 
         return False
 
-    async def check_for_major_updates_7d(self, now_date, top_100_crypto):
+    async def check_for_major_updates_7d(self, now_date, top_100_crypto, update = None):
         alert_message = "🚨 *Crypto Alert!* Significant 7-days change detected:\n\n"
         alerts_found = False
 
@@ -100,16 +95,17 @@ class AlertsHandler:
                 alert_message += f"*{symbol}* → {format_change(change_7d)}\n"
 
         if alerts_found:
-            await self.telegram_message.send_telegram_message(alert_message, self.telegram_api_token_alerts, False)
+            await self.telegram_message.send_telegram_message(alert_message, self.telegram_api_token_alerts,
+                                                              False, update)
 
             return True
         else:
-            logging.error(f" No major price movement!")
+            logger.error(f" No major price movement!")
             print(f"No major 7d price movement at {now_date.strftime('%H:%M')}")
 
         return False
 
-    async def check_for_major_updates_30d(self, now_date, top_100_crypto):
+    async def check_for_major_updates_30d(self, now_date, top_100_crypto, update = None):
         alert_message = "🚨 *Crypto Alert!* Significant 30-days change detected:\n\n"
         alerts_found = False
 
@@ -121,17 +117,18 @@ class AlertsHandler:
                 alert_message += f"*{symbol}* → {format_change(change_30d)}\n"
 
         if alerts_found:
-            await self.telegram_message.send_telegram_message(alert_message, self.telegram_api_token_alerts, False)
+            await self.telegram_message.send_telegram_message(alert_message, self.telegram_api_token_alerts,
+                                                              False, update)
 
             return True
         else:
-            logging.error(f" No major price movement!")
+            logger.error(f" No major price movement!")
             print(f"No major 30d price movement at {now_date.strftime('%H:%M')}")
 
         return False
 
-    async def check_for_alerts(self, now_date, top_100_crypto):
-        await self.check_for_major_updates_1h(now_date, top_100_crypto)
-        await self.check_for_major_updates_24h(now_date, top_100_crypto)
-        await self.check_for_major_updates_7d(now_date, top_100_crypto)
-        await self.check_for_major_updates_30d(now_date, top_100_crypto)
+    async def check_for_alerts(self, now_date, top_100_crypto, update = None):
+        await self.check_for_major_updates_1h(now_date, top_100_crypto, update)
+        await self.check_for_major_updates_24h(now_date, top_100_crypto, update)
+        await self.check_for_major_updates_7d(now_date, top_100_crypto, update)
+        await self.check_for_major_updates_30d(now_date, top_100_crypto, update)

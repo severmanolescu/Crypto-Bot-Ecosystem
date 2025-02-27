@@ -1,19 +1,12 @@
 from telegram import Bot
 
-import logging
-
-from logging.handlers import RotatingFileHandler
-
 from sdk import LoadVariables as LoadVariables
 from sdk.OpenAIPrompt import OpenAIPrompt
 from sdk.DataFetcher import get_eth_gas_fee
+from sdk.Logger import setup_logger
 
-handler = RotatingFileHandler('log.log', maxBytes=100_000_000, backupCount=3)
-logging.basicConfig(
-    handlers=[handler],
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
-)
+logger = setup_logger("log.log")
+logger.info("Telegram message handler started")
 
 def format_change(change):
     if change is None:
@@ -81,7 +74,7 @@ class TelegramMessagesHandler:
                 await bot.send_message(chat_id=chat_id, text=message, parse_mode="Markdown")
         except Exception as e:
             error_message = f" Error sending message: {e}"
-            logging.error(error_message)
+            logger.error(error_message)
             print(error_message)
 
     async def send_eth_gas_fee(self, telegram_api_token, update = None):

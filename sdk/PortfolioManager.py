@@ -1,19 +1,12 @@
-import logging
 import json
 import os
 
-from logging.handlers import RotatingFileHandler
-
 from sdk.SendTelegramMessage import TelegramMessagesHandler
-
+from sdk.Logger import setup_logger
 from sdk import LoadVariables
 
-handler = RotatingFileHandler('log.log', maxBytes=100_000_000, backupCount=3)
-logging.basicConfig(
-    handlers=[handler],
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
-)
+logger = setup_logger("log.log")
+logger.info("Open AI Prompt started")
 
 class PortfolioManager:
     def __init__(self):
@@ -39,22 +32,22 @@ class PortfolioManager:
         Load portfolio data from a JSON file.
         """
         if not os.path.exists(self.file_path):
-            logging.error(f"  Portfolio file '{self.file_path}' not found. Using an empty portfolio.")
+            logger.error(f"  Portfolio file '{self.file_path}' not found. Using an empty portfolio.")
             print(f"❌ Portfolio file '{self.file_path}' not found. Using an empty portfolio.")
             return {}
 
         try:
             with open(self.file_path, "r") as file:
                 portfolio = json.load(file)
-                logging.info(f" Portfolio loaded from '{self.file_path}'.")
+                logger.info(f" Portfolio loaded from '{self.file_path}'.")
                 print(f"✅ Portfolio loaded from '{self.file_path}'.")
                 return portfolio
         except json.JSONDecodeError:
-            logging.error(f" Invalid JSON in portfolio file '{self.file_path}'. Using an empty portfolio.")
+            logger.error(f" Invalid JSON in portfolio file '{self.file_path}'. Using an empty portfolio.")
             print(f"❌ Invalid JSON in portfolio file '{self.file_path}'. Using an empty portfolio.")
             return {}
         except Exception as e:
-            logging.error(f" Error loading portfolio from '{self.file_path}': {e}. Using an empty portfolio.")
+            logger.error(f" Error loading portfolio from '{self.file_path}': {e}. Using an empty portfolio.")
             print(f"❌ Error loading portfolio from '{self.file_path}': {e}. Using an empty portfolio.")
             return {}
 
@@ -65,10 +58,10 @@ class PortfolioManager:
         try:
             with open(self.file_path, "w") as file:
                 json.dump(self.portfolio, file, indent=4)
-            logging.info(f" Portfolio saved to '{self.file_path}'.")
+            logger.info(f" Portfolio saved to '{self.file_path}'.")
             print(f"✅ Portfolio saved to '{self.file_path}'.")
         except Exception as e:
-            logging.error(f" Error saving portfolio to '{self.file_path}': {e}")
+            logger.error(f" Error saving portfolio to '{self.file_path}': {e}")
             print(f"❌ Error saving portfolio to '{self.file_path}': {e}")
 
     # Function to calculate total portfolio value
