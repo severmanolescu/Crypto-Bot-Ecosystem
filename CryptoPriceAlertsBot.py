@@ -46,7 +46,7 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if text == "🚨 Check for Alerts":
         await update.message.reply_text("🚨 Searching for new alerts...")
 
-        alert_available = await start_the_alerts_check()
+        alert_available = await start_the_alerts_check(update)
 
         if alert_available is False:
             await update.message.reply_text("😔 No major price movement")
