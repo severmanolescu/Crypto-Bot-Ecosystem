@@ -16,7 +16,7 @@ logging.basicConfig(
 from CryptoValue import CryptoValueBot
 from NewsCheck import CryptoNewsCheck
 
-from sdk import LoadVariables as load_variables
+from sdk import LoadVariables as LoadVariables
 
 
 cryptoValueBot = CryptoValueBot()
@@ -30,7 +30,6 @@ def read_variables():
 
     cryptoNewsCheck.reload_the_data()
 
-
 async def run():
     while True:
         global cryptoValueBot
@@ -38,13 +37,13 @@ async def run():
 
         read_variables()
 
-        sleep_time = load_variables.get_int_variable("SLEEP_DURATION")
+        sleep_time = LoadVariables.get_int_variable("SLEEP_DURATION")
 
         print("\n🧐 Check for new articles!")
-        await cryptoNewsCheck.run()
+        # await cryptoNewsCheck.run()
 
         print("\n📤 Send crypto value!")
-        await cryptoValueBot.fetch_Data()
+        await cryptoValueBot.fetch_data()
 
         now_date = datetime.now()
 

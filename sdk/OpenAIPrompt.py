@@ -1,8 +1,6 @@
 import openai
 import logging
 
-from datetime import datetime
-
 from logging.handlers import RotatingFileHandler
 
 handler = RotatingFileHandler('log.log', maxBytes=100_000_000, backupCount=3)

@@ -1,7 +1,5 @@
 import logging
 
-from datetime import datetime
-
 from logging.handlers import RotatingFileHandler
 
 handler = RotatingFileHandler('log.log', maxBytes=100_000_000, backupCount=3)
@@ -11,7 +9,7 @@ logging.basicConfig(
     format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
 )
 
-from sdk import LoadVariables as load_variables
+from sdk import LoadVariables as LoadVariables
 
 def check_if_special_user(user_id):
     """
@@ -21,7 +19,7 @@ def check_if_special_user(user_id):
     :return: True if user_id is in the special user list, otherwise False.
     """
     try:
-        variables = load_variables.load()
+        variables = LoadVariables.load()
         special_users = variables.get("TELEGRAM_CHAT_ID_FULL_DETAILS", [])
 
         # Ensure special_users is a list or set

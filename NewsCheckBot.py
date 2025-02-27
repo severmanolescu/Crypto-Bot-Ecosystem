@@ -1,5 +1,3 @@
-from datetime import datetime
-
 import logging
 
 from logging.handlers import RotatingFileHandler
@@ -16,15 +14,17 @@ from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
 from sdk.DataBase.DataBaseHandler import DataBaseHandler
-from sdk.CheckUsers import check_if_special_user
-from sdk import LoadVariables as load_variables
+from sdk import LoadVariables as LoadVariables
 
 cryptoNewsCheck = CryptoNewsCheck()
+
+db = DataBaseHandler()
 
 # Persistent buttons for news commands
 NEWS_KEYBOARD = ReplyKeyboardMarkup(
     [
-        ["🚨 Check for Articles", "🔢 Show statistics"]
+        ["🚨 Check for Articles", "🔢 Show statistics"],
+        ["🚨 Help"]
     ],
     resize_keyboard=True,  # Makes the buttons smaller and fit better
     one_time_keyboard=False,  # Buttons stay visible after being clicked
@@ -44,17 +44,6 @@ async def start_the_articles_check():
 
     await cryptoNewsCheck.run()
 
-async def start_all_articles(user_id, webpage):
-    logging.info(f" Requested: All Articles from {webpage}")
-
-    cryptoNewsCheck.reload_the_data()
-
-    special_user = check_if_special_user(user_id)
-
-    await cryptoNewsCheck.reload_the_news(webpage, user_id, special_user)
-
-    return special_user
-
 # Handle button presses
 async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
@@ -66,16 +55,52 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif text == "🔢 Show statistics":
         await update.message.reply_text("🔢 Showing the statistics...")
 
-        db = DataBaseHandler()
-
         await db.show_stats(update)
+    elif text == "🚨 Help" or text.lower() == "help":
+        await help_command(update, context)
     else:
         logging.error(f" Invalid command. Please use the buttons below.")
         await update.message.reply_text("❌ Invalid command. Please use the buttons below.")
 
+# Command: /start
+async def search(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not context.args:
+        await update.message.reply_text("❌ Usage: /search <tags>")
+        return
+
+    articles = await db.search_articles_by_tags(context.args)
+
+    print(f"Found {len(articles)} articles with {context.args} tags in the data base!")
+
+    for article in articles:
+        message = (
+            f"📰 Article Found!\n"
+            f"📌 {article[1]}\n"
+            f"🔗 {article[2]}\n"
+            f"🤖 {article[4]}\n"
+            f"🔍 Highlights: {article[3]}\n"
+        )
+
+        await update.message.reply_text(message)
+
+# Handle `/help` command
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logging.info(f" Requested: help")
+
+    help_text = """
+    📢 *Crypto Bot Commands*:
+    /start - Show buttons
+    /search <tags> - Search articles with tags
+    /help - Show this help message
+    
+    Example:
+    /search BTC Crypto
+    """
+    await update.message.reply_text(help_text, parse_mode="Markdown")
+
 # Main function to start the bot
 def run_bot():
-    variables = load_variables.load("ConfigurationFiles/variables.json")
+    variables = LoadVariables.load("ConfigurationFiles/variables.json")
 
     bot_token = variables.get('TELEGRAM_API_TOKEN_ARTICLES', '')
 
@@ -83,6 +108,8 @@ def run_bot():
 
     # Add command and message handlers
     app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("search", search))
+    app.add_handler(CommandHandler("help", help_command))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons))
 
     # Start the bot

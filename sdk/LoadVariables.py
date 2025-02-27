@@ -2,8 +2,6 @@ import os
 import json
 import logging
 
-from datetime import datetime
-
 from logging.handlers import RotatingFileHandler
 
 handler = RotatingFileHandler('log.log', maxBytes=100_000_000, backupCount=3)
@@ -26,7 +24,6 @@ def load(file_path="./ConfigurationFiles/variables.json"):
     try:
         with open(file_path, "r") as file:
             variables = json.load(file)
-            print(f"✅ Variables loaded from '{file_path}'.")
             return variables
     except json.JSONDecodeError:
         logging.info(f" Invalid JSON in variables file '{file_path}'. Using default values.")

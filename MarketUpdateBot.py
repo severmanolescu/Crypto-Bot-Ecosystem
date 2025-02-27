@@ -3,6 +3,7 @@ import logging
 from datetime import datetime
 
 from logging.handlers import RotatingFileHandler
+from sdk.SendTelegramMessage import TelegramMessagesHandler
 
 handler = RotatingFileHandler('bot.log', maxBytes=100_000_000, backupCount=3)
 logging.basicConfig(
@@ -14,7 +15,7 @@ logging.basicConfig(
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
-from sdk import LoadVariables as load_variables
+from sdk import LoadVariables as LoadVariables
 
 from sdk.CheckUsers import check_if_special_user
 
@@ -30,92 +31,108 @@ NEWS_KEYBOARD = ReplyKeyboardMarkup(
     one_time_keyboard=False,  # Buttons stay visible after being clicked
 )
 
-cryptoValueBot = CryptoValueBot()
+class MarketUpdateBot:
+    def __init__(self):
+        self.cryptoValueBot = CryptoValueBot()
 
-# Command: /start
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        "🤖 Welcome to the Market Update! Use the buttons below to get started:",
-        reply_markup=NEWS_KEYBOARD,
-    )
+        self.telegram_message = TelegramMessagesHandler()
 
-async def market_update():
-    logging.info(f" Requested: Market Update")
+        self.telegram_api_token = None
 
-    cryptoValueBot.reload_the_data()
+    def reload_the_data(self):
+        variables = LoadVariables.load()
 
-    cryptoValueBot.get_my_crypto()
+        self.telegram_api_token = variables.get("TELEGRAM_API_TOKEN_VALUE", "")
 
-    await cryptoValueBot.send_market_update(datetime.now())
+        self.telegram_message.reload_the_data()
 
-async def eth_gas():
-    logging.info(f" Requested: ETH Gas")
+    # Command: /start
+    async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        await update.message.reply_text(
+            "🤖 Welcome to the Market Update! Use the buttons below to get started:",
+            reply_markup=NEWS_KEYBOARD,
+        )
 
-    cryptoValueBot.reload_the_data()
+    async def send_market_update(self, update):
+        logging.info(f" Requested: Market Update")
 
-    await cryptoValueBot.send_eth_gas_fee()
+        self.cryptoValueBot.reload_the_data()
 
-async def portfolio_value():
-    logging.info(f" Requested: Portfolio Value")
+        self.cryptoValueBot.get_my_crypto()
 
-    cryptoValueBot.reload_the_data()
+        await self.cryptoValueBot.send_market_update(datetime.now(), update)
 
-    cryptoValueBot.get_my_crypto()
+    async def send_eth_gas(self, update):
+        logging.info(f" Requested: ETH Gas")
 
-    await cryptoValueBot.send_portfolio_update()
+        self.cryptoValueBot.reload_the_data()
 
-async def crypto_fear_and_greed():
-    logging.info(f" Requested: Fear and Greed")
+        await self.cryptoValueBot.send_eth_gas_fee(update)
 
-    cryptoValueBot.reload_the_data()
+    async def send_portfolio_value(self, update):
+        logging.info(f" Requested: Portfolio Value")
 
-    await cryptoValueBot.show_fear_and_greed()
+        self.cryptoValueBot.reload_the_data()
 
-# Handle button presses
-async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = update.message.text
+        self.cryptoValueBot.get_my_crypto()
 
-    if text == "🕒 Market Update":
-        await update.message.reply_text("🕒 Showing Market Update...")
+        await self.cryptoValueBot.send_portfolio_update(update)
 
-        await market_update()
-    elif text == "⛽ ETH Gas Fees":
-        await update.message.reply_text("⛽ Showing ETH Gas Fees...")
+    async def send_crypto_fear_and_greed(self, update):
+        logging.info(f" Requested: Fear and Greed")
 
-        await eth_gas()
-    elif text == "📊 Portfolio Value Update":
-        user_id = update.effective_chat.id
+        self.cryptoValueBot.reload_the_data()
 
-        if check_if_special_user(user_id):
-            await update.message.reply_text("📊 Calculating Portfolio Value...")
+        await self.cryptoValueBot.show_fear_and_greed(update)
 
-            await portfolio_value()
+    # Handle button presses
+    async def handle_buttons(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        text = update.message.text
+
+        if text == "🕒 Market Update":
+            await update.message.reply_text("🕒 Showing Market Update...")
+
+            await self.send_market_update(update)
+        elif text == "⛽ ETH Gas Fees":
+            await update.message.reply_text("⛽ Showing ETH Gas Fees...")
+
+            await self.send_eth_gas(update)
+        elif text == "📊 Portfolio Value Update":
+            user_id = update.effective_chat.id
+
+            if check_if_special_user(user_id):
+                await update.message.reply_text("📊 Calculating Portfolio Value...")
+
+                await self.send_portfolio_value(update)
+            else:
+                logging.info(f" User {user_id} wants to check the portfolio without rights!")
+                await update.message.reply_text("You don't have the rights for this action!")
+        elif text == "📊 Crypto Fear & Greed Index":
+            await update.message.reply_text("📊 Showing Crypto Fear & Greed Index...")
+
+            await self.send_crypto_fear_and_greed(update)
         else:
-            logging.info(f" User {user_id} wants to check the portfolio without rights!")
-            await update.message.reply_text("You don't have the rights for this action!")
-    elif text == "📊 Crypto Fear & Greed Index":
-        await update.message.reply_text("📊 Showing Crypto Fear & Greed Index...")
+            logging.error(f" Invalid command. Please use the buttons below.")
+            await update.message.reply_text("❌ Invalid command. Please use the buttons below.")
 
-        await crypto_fear_and_greed()
-    else:
-        logging.error(f" Invalid command. Please use the buttons below.")
-        await update.message.reply_text("❌ Invalid command. Please use the buttons below.")
+    # Main function to start the bot
+    def run_bot(self):
+        variables = LoadVariables.load("ConfigurationFiles/variables.json")
 
-# Main function to start the bot
-def run_bot():
-    variables = load_variables.load("ConfigurationFiles/variables.json")
+        bot_token = variables.get('TELEGRAM_API_TOKEN_VALUE', '')
 
-    bot_token = variables.get('TELEGRAM_API_TOKEN_VALUE', '')
+        app = Application.builder().token(bot_token).build()
 
-    app = Application.builder().token(bot_token).build()
+        # Add command and message handlers
+        app.add_handler(CommandHandler("start", self.start))
+        app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_buttons))
 
-    # Add command and message handlers
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons))
+        # Start the bot
+        print("🤖 Market Update Bot is running...")
+        app.run_polling()
 
-    # Start the bot
-    print("🤖 Market Update Bot is running...")
-    app.run_polling()
-
+# Run the bot
 if __name__ == "__main__":
-    run_bot()
+    updateBot = MarketUpdateBot()
+
+    updateBot.run_bot()

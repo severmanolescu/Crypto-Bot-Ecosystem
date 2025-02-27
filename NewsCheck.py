@@ -12,8 +12,8 @@ from sdk.scrapers.bitcoin_magazine_scraper import BitcoinMagazineScraper
 
 # Import your SDK modules
 from sdk.DataBase.DataBaseHandler import DataBaseHandler
-from sdk import LoadVariables as load_variables
-from sdk import SendTelegramMessage as message_handler
+from sdk import LoadVariables as LoadVariables
+from sdk.SendTelegramMessage import TelegramMessagesHandler
 from sdk.OpenAIPrompt import OpenAIPrompt
 
 # Logging configuration with rotating file handler
@@ -25,7 +25,6 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
 )
-
 
 class CryptoNewsCheck:
     def __init__(self, db_path="./articles.db"):
@@ -56,19 +55,23 @@ class CryptoNewsCheck:
         # Retry settings
         self.max_retries = 5
 
+        self.telegram_message = TelegramMessagesHandler()
+
     def reload_the_data(self):
         """
         Reload environment variables, API tokens, and so forth.
         """
-        variables = load_variables.load()
+        variables = LoadVariables.load()
         self.telegram_api_token = variables.get("TELEGRAM_API_TOKEN_ARTICLES", "")
         self.telegram_important_chat_id = variables.get("TELEGRAM_CHAT_ID_FULL_DETAILS", [])
         self.telegram_not_important_chat_id = variables.get("TELEGRAM_CHAT_ID_PARTIAL_DATA", [])
-        self.keywords = load_variables.load_keyword_list()
+        self.keywords = LoadVariables.load_keyword_list()
 
         open_ai_api = variables.get('OPEN_AI_API', '')
         self.openAIPrompt = OpenAIPrompt(open_ai_api)
         self.send_ai_summary = variables.get("SEND_AI_SUMMARY", "")
+
+        self.telegram_message.reload_the_data()
 
     async def fetch_page(self, url):
         """
@@ -180,12 +183,7 @@ class CryptoNewsCheck:
                             )
 
                         # Send Telegram message
-                        await message_handler.send_telegram_message(
-                            message,
-                            self.telegram_api_token,
-                            self.telegram_important_chat_id,
-                            self.telegram_not_important_chat_id
-                        )
+                        await self.telegram_message.send_telegram_message(message, self.telegram_api_token)
                     else:
                         # Already in DB
                         logging.info(f"Skipping existing article: {article['link']}")
@@ -193,21 +191,6 @@ class CryptoNewsCheck:
                 logging.warning(f"No new articles found for {source}.")
         else:
             logging.error(f"Failed to fetch {source}.")
-
-    async def reload_the_news(self, source, user_id, special_user=False):
-        """
-        Force a re-check of one specific source for a specific user.
-        """
-        # Adjust which Telegram chat the message goes to
-        if not special_user:
-            self.telegram_important_chat_id = []
-            self.telegram_not_important_chat_id = [user_id]
-            self.send_ai_summary = False
-        else:
-            self.telegram_important_chat_id = [user_id]
-            self.telegram_not_important_chat_id = []
-
-        await self.check_news(source)
 
     async def run(self):
         """
