@@ -41,6 +41,11 @@ class DataBaseHandler:
                 """)
                 await db.commit()
 
+    async def recreate_data_base(self):
+        os.remove(self.db_path)
+
+        await self.init_db()
+
     async def update_article_summary_in_db(self, link, summary):
         """Update the openai_summary for the article matching the given link."""
         try:
@@ -116,6 +121,9 @@ class DataBaseHandler:
         """
         if not tags:
             return []
+
+        if len(tags) == 1:
+            return await self.search_articles_by_tag(tags[0])
 
         # Build query dynamically
         conditions = []

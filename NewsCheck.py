@@ -192,6 +192,9 @@ class CryptoNewsCheck:
         else:
             logging.error(f"Failed to fetch {source}.")
 
+    async def recreate_data_base(self):
+        await self.data_base.recreate_data_base()
+
     async def run(self):
         """
         Initialize the DB if necessary, and launch the scrapers in parallel.
