@@ -10,6 +10,7 @@ BOTS=(
     "MarketUpdateBot.py"
     "MySlaveBot.py"
     "NewsCheckBot.py"
+    "main.py"
 )
 
 # Function to start a bot in a detached screen session
