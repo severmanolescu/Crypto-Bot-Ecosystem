@@ -128,7 +128,7 @@ class CryptoNewsCheck:
         """
         return await self.openAIPrompt.generate_summary(link)
 
-    async def check_news(self, source):
+    async def check_news(self, source, update = None):
         """
         Orchestrates the scraping and notification for a single source.
         """
@@ -177,7 +177,8 @@ class CryptoNewsCheck:
                             )
 
                         # Send Telegram message
-                        await self.telegram_message.send_telegram_message(message, self.telegram_api_token)
+                        await self.telegram_message.send_telegram_message(message, self.telegram_api_token,
+                                                                          update=update)
                     else:
                         # Already in DB
                         logger.info(f"Skipping existing article: {article['link']}")
@@ -188,6 +189,16 @@ class CryptoNewsCheck:
 
     async def recreate_data_base(self):
         await self.data_base.recreate_data_base()
+
+    async def run_from_bot(self, update):
+        await self.data_base.init_db()  # Ensure DB is ready
+
+        tasks = [
+            self.check_news("crypto.news", update),
+            self.check_news("cointelegraph", update),
+            self.check_news("bitcoinmagazine", update)
+        ]
+        await asyncio.gather(*tasks)  # Run all scrapers in parallel
 
     async def run(self):
         await self.data_base.init_db()  # Ensure DB is ready

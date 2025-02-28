@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sdk.SendTelegramMessage import TelegramMessagesHandler
 from sdk import LoadVariables as LoadVariables
 
@@ -49,7 +51,7 @@ class AlertsHandler:
         self.telegram_message.reload_the_data()
 
     # Check for alerts every 30 minutes
-    async def check_for_major_updates_1h(self, now_date, top_100_crypto, update = None):
+    async def check_for_major_updates_1h(self, top_100_crypto, update = None):
         alert_message = "🚨 *Crypto Alert!* Significant 1-hour change detected:\n\n"
         alerts_found = False
 
@@ -67,11 +69,11 @@ class AlertsHandler:
             return True
         else:
             logger.error(f"No major price movement!")
-            print(f"\nNo major 1h price movement at {now_date.strftime('%H:%M')}\n")
+            print(f"\nNo major 1h price movement at {datetime.now()}\n")
 
         return False
 
-    async def check_for_major_updates_24h(self, now_date, top_100_crypto, update = None):
+    async def check_for_major_updates_24h(self, top_100_crypto, update = None):
         alert_message = "🚨 *Crypto Alert!* Significant 24-hours change detected:\n\n"
         alerts_found = False
 
@@ -89,11 +91,11 @@ class AlertsHandler:
             return True
         else:
             logger.error(f" No major price movement!")
-            print(f"No major 24h price movement at {now_date.strftime('%H:%M')}")
+            print(f"No major 24h price movement at {datetime.now()}")
 
         return False
 
-    async def check_for_major_updates_7d(self, now_date, top_100_crypto, update = None):
+    async def check_for_major_updates_7d(self, top_100_crypto, update = None):
         alert_message = "🚨 *Crypto Alert!* Significant 7-days change detected:\n\n"
         alerts_found = False
 
@@ -111,11 +113,11 @@ class AlertsHandler:
             return True
         else:
             logger.error(f" No major price movement!")
-            print(f"\nNo major 7d price movement at {now_date.strftime('%H:%M')}\n")
+            print(f"\nNo major 7d price movement at {datetime.now()}\n")
 
         return False
 
-    async def check_for_major_updates_30d(self, now_date, top_100_crypto, update = None):
+    async def check_for_major_updates_30d(self, top_100_crypto, update = None):
         alert_message = "🚨 *Crypto Alert!* Significant 30-days change detected:\n\n"
         alerts_found = False
 
@@ -133,19 +135,19 @@ class AlertsHandler:
             return True
         else:
             logger.error(f" No major price movement!")
-            print(f"\nNo major 30d price movement at {now_date.strftime('%H:%M')}\n")
+            print(f"\nNo major 30d price movement at {datetime.now()}\n")
 
         return False
 
     async def check_for_alerts(self, now_date, top_100_crypto, update = None):
-        await self.check_for_major_updates_1h(now_date, top_100_crypto, update)
+        await self.check_for_major_updates_1h(top_100_crypto, update)
 
-        if self.lastSentHour != now_date.hour:
-            self.lastSentHour = now_date.hour
+        if now_date is None or self.lastSentHour != now_date.hour:
+            self.lastSentHour = datetime.now()
 
-            if now_date.hour in self.alert_send_hours_24h:
-                await self.check_for_major_updates_24h(now_date, top_100_crypto, update)
-            if now_date.hour in self.alert_send_hours_7D:
-                await self.check_for_major_updates_7d(now_date, top_100_crypto, update)
-            if now_date.hour in self.alert_send_hours_30D:
-                await self.check_for_major_updates_30d(now_date, top_100_crypto, update)
+            if now_date is None or now_date.hour in self.alert_send_hours_24h:
+                await self.check_for_major_updates_24h(top_100_crypto, update)
+            if now_date is None or now_date.hour in self.alert_send_hours_7D:
+                await self.check_for_major_updates_7d(top_100_crypto, update)
+            if now_date is None or now_date.hour in self.alert_send_hours_30D:
+                await self.check_for_major_updates_30d(top_100_crypto, update)

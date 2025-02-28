@@ -31,12 +31,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=NEWS_KEYBOARD,
     )
 
-async def start_the_articles_check():
+async def start_the_articles_check(update):
     logger.info(f" Requested: Article Check")
 
     cryptoNewsCheck.reload_the_data()
 
-    await cryptoNewsCheck.run()
+    await cryptoNewsCheck.run_from_bot(update)
 
 # Handle button presses
 async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -45,7 +45,7 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if text == "🚨 Check for Articles":
         await update.message.reply_text("🚨 Check for articles...")
 
-        await start_the_articles_check()
+        await start_the_articles_check(update)
     elif text == "🔢 Show statistics":
         await update.message.reply_text("🔢 Showing the statistics...")
 

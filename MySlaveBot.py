@@ -599,7 +599,7 @@ async def change_variable(update, context):
 
     await update.message.reply_text(f"✅ Updated variable '{variable_name}' to '{new_value}'.")
 
-async def setvar(update, context):
+async def var(update, context):
     """
     Handle the /setvar command to modify or list global variables.
     Usage:
@@ -649,8 +649,8 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     /sell <symbol> <amount> - Sell a cryptocurrency
     /keyword <list> - Show all the available keywords
     /keyword <add/remove> <keyword> - Add or remove a keyword for news filtering
-    /setvar list - Show all variables and their values
-    /setvar <variable name> <new value> - Update a variable"""
+    /var list - Show all variables and their values
+    /var <variable name> <new value> - Update a variable"""
 
     help_text += """
     /help - Show this help message
@@ -686,7 +686,7 @@ def main():
     app.add_handler(CommandHandler("buy", buy))
     app.add_handler(CommandHandler("sell", sell))
     app.add_handler(CommandHandler("keyword", keyword))
-    app.add_handler(CommandHandler("setvar", setvar))
+    app.add_handler(CommandHandler("var", var))
     app.add_handler(CommandHandler("help", help_command))
 
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons))

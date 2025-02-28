@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from sdk.Logger import setup_logger
 
 logger = setup_logger("log.log")
@@ -35,7 +33,7 @@ async def start_the_alerts_check(update = None):
 
     cryptoValueBot.get_my_crypto()
 
-    return await cryptoValueBot.check_for_major_updates(datetime.now(), update)
+    return await cryptoValueBot.check_for_major_updates(None, update)
 
 # Handle button presses
 async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
