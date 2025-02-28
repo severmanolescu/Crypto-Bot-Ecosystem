@@ -3,6 +3,8 @@ import os
 import aiosqlite
 
 from sdk.Logger import setup_logger
+from sdk.SendTelegramMessage import send_telegram_message_update
+
 logger = setup_logger("log.log")
 logger.info("Data Base handler started")
 
