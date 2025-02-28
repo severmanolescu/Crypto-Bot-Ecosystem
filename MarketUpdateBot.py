@@ -20,7 +20,7 @@ from CryptoValue import CryptoValueBot
 NEWS_KEYBOARD = ReplyKeyboardMarkup(
     [
         ["🕒 Market Update", "⛽ ETH Gas Fees"],
-        ["📊 Portfolio Value Update", "📊 Crypto Fear & Greed Index"]
+        ["📊 Detailed Portfolio Update", "📊 Crypto Fear & Greed Index"],
     ],
     resize_keyboard=True,  # Makes the buttons smaller and fit better
     one_time_keyboard=False,  # Buttons stay visible after being clicked
@@ -71,7 +71,7 @@ class MarketUpdateBot:
 
         self.cryptoValueBot.get_my_crypto()
 
-        await self.cryptoValueBot.send_portfolio_update(update)
+        await self.cryptoValueBot.send_portfolio_update(update, True)
 
     async def send_crypto_fear_and_greed(self, update):
         logger.info(f" Requested: Fear and Greed")
@@ -92,7 +92,7 @@ class MarketUpdateBot:
             await update.message.reply_text("⛽ Showing ETH Gas Fees...")
 
             await self.send_eth_gas(update)
-        elif text == "📊 Portfolio Value Update":
+        elif text == "📊 Detailed Portfolio Update":
             user_id = update.effective_chat.id
 
             if check_if_special_user(user_id):

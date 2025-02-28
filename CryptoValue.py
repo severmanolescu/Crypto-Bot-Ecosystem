@@ -38,7 +38,7 @@ class CryptoValueBot:
 
         self.telegram_api_token = variables.get("TELEGRAM_API_TOKEN_VALUE", "")
 
-        self.send_hours = variables.get("SEND_HOURS", "")
+        self.send_hours = variables.get("SEND_HOURS_VALUES", "")
 
         self.my_crypto = {}
         self.top_100_crypto = {}
@@ -102,8 +102,8 @@ class CryptoValueBot:
     async def send_market_update(self, now_date, update = None):
         await self.telegram_message.send_market_update(self.telegram_api_token, now_date, self.my_crypto, update)
 
-    async def send_portfolio_update(self, update = None):
-        await self.portfolio.send_portfolio_update(self.my_crypto, update)
+    async def send_portfolio_update(self, update = None, detailed = False):
+        await self.portfolio.send_portfolio_update(self.my_crypto, update, detailed)
 
     async def send_eth_gas_fee(self, update = None):
         await self.telegram_message.send_eth_gas_fee(self.telegram_api_token, update)
@@ -122,7 +122,6 @@ class CryptoValueBot:
                     await self.show_fear_and_greed()
 
                 await self.send_portfolio_update()
-
             await self.check_for_major_updates(now_date)
 
     async def check_for_major_updates(self, now_date, update = None):

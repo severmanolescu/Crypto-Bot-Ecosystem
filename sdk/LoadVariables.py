@@ -1,6 +1,8 @@
 import os
 import json
 
+from datetime import datetime, timezone
+
 from sdk.Logger import setup_logger
 logger = setup_logger("log.log")
 logger.info("Load variables started")
@@ -68,6 +70,49 @@ def get_int_variable(var_name, default=1800, file_path="./ConfigurationFiles/var
         logger.info(f" Warning: '{var_name}' is not a valid type. Using default {default}.")
         print(f"⚠️ Warning: '{var_name}' is not a valid type. Using default {default}.")
         return default
+
+def load_portfolio_from_file(file_path = 'ConfigurationFiles/portfolio.json'):
+    """
+    Load portfolio data from a JSON file.
+    """
+    if not os.path.exists(file_path):
+        logger.error(f"  Portfolio file '{file_path}' not found. Using an empty portfolio.")
+        print(f"❌ Portfolio file '{file_path}' not found. Using an empty portfolio.")
+        return {}
+
+    try:
+        with open(file_path, "r") as file:
+            portfolio = json.load(file)
+            logger.info(f" Portfolio loaded from '{file_path}'.")
+            print(f"✅ Portfolio loaded from '{file_path}'.")
+            return portfolio
+    except json.JSONDecodeError:
+        logger.error(f" Invalid JSON in portfolio file '{file_path}'. Using an empty portfolio.")
+        print(f"❌ Invalid JSON in portfolio file '{file_path}'. Using an empty portfolio.")
+        return {}
+    except Exception as e:
+        logger.error(f" Error loading portfolio from '{file_path}': {e}. Using an empty portfolio.")
+        print(f"❌ Error loading portfolio from '{file_path}': {e}. Using an empty portfolio.")
+        return {}
+
+def save_data_to_json_file(file_path, data):
+    """ Save JSON data to a file. """
+    with open(file_path, "w") as file:
+        json.dump(data, file, indent=4)
+
+def save_transaction(symbol, action, amount, price, file_path = 'ConfigurationFiles/transactions.json'):
+    """ Records a transaction in the transactions file. """
+    transactions = load_portfolio_from_file(file_path)
+    transaction = {
+        "symbol": symbol,
+        "action": action.upper(),
+        "amount": round(amount, 6),
+        "price": round(price, 6),
+        "total": round(amount * price, 2),
+        "timestamp": datetime.now(timezone.utc).isoformat()  # Fixes deprecation warning
+    }
+    transactions.append(transaction)
+    save_data_to_json_file(file_path, transactions)
 
 def load_keyword_list(file_path="./ConfigurationFiles/keywords.json"):
     """

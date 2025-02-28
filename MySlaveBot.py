@@ -1,6 +1,6 @@
-import os
-import json
 import requests
+
+from datetime import datetime, timezone
 
 from sdk.Logger import setup_logger
 
@@ -11,6 +11,11 @@ from telegram import Update, ReplyKeyboardMarkup
 
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
+from sdk.LoadVariables import (
+load_portfolio_from_file,
+save_data_to_json_file,
+save_transaction
+)
 from sdk.CheckUsers import check_if_special_user
 from sdk import LoadVariables as load_variables
 
@@ -321,60 +326,76 @@ async def roi(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logger.error(f" Couldn't fetch ROI data for {symbol}.")
         await update.message.reply_text(f"❌ Couldn't fetch ROI data for {symbol}.")
 
-# Function to update the portfolio
-def update_portfolio(symbol, amount, action):
+def update_buy(portfolio, symbol, amount, price):
+    """ Handles buying a cryptocurrency and updating the portfolio correctly. """
+    if symbol in portfolio:
+        current_quantity = portfolio[symbol]["quantity"]
+        current_avg_price = portfolio[symbol]["average_price"]
+        current_total_investment = portfolio[symbol]["total_investment"]
+
+        # Weighted average price calculation
+        new_quantity = current_quantity + amount
+        new_avg_price = ((current_quantity * current_avg_price) + (amount * price)) / new_quantity
+        new_total_investment = current_total_investment + (amount * price)
+    else:
+        # If it's a new asset, initialize with all required fields
+        new_quantity = amount
+        new_avg_price = price
+        new_total_investment = round(amount * price, 2)
+
+    portfolio[symbol] = {
+        "quantity": round(new_quantity, 6),
+        "average_price": round(new_avg_price, 6),
+        "total_investment": round(new_total_investment, 2),
+        "allocation_percentage": None  # To be calculated later
+    }
+
+def update_sell(portfolio, symbol, amount):
+    """ Handles selling a cryptocurrency and updating the portfolio correctly. """
+    if symbol not in portfolio or portfolio[symbol]["quantity"] < amount:
+        logger.error(f"❌ Not enough {symbol} to sell. Available: {portfolio.get(symbol, {}).get('quantity', 0)}, Requested: {amount}")
+        return False
+
+    portfolio[symbol]["quantity"] -= amount
+    portfolio[symbol]["total_investment"] -= round(amount * portfolio[symbol]["average_price"], 2)
+
+    # Remove asset if quantity reaches zero
+    if portfolio[symbol]["quantity"] <= 0:
+        del portfolio[symbol]
+
+    return True
+
+def update_portfolio(symbol, amount, price, action):
     """
     Update the portfolio based on a buy or sell transaction.
     :param symbol: The cryptocurrency symbol (e.g., "BTC").
     :param amount: The amount of the cryptocurrency to buy or sell.
+    :param price: The price of the asset at the time of the transaction.
     :param action: "buy" or "sell".
     """
     symbol = symbol.upper()
-
-    # Load portfolio from file
-    if not os.path.exists("ConfigurationFiles/portfolio.json"):
-        portfolio = {}
-    else:
-        with open("ConfigurationFiles/portfolio.json", "r") as file:
-            portfolio = json.load(file)
+    portfolio = load_portfolio_from_file()
 
     if action == "buy":
-
-        if symbol in portfolio:
-            portfolio[symbol] += amount
-        else:
-            portfolio[symbol] = amount
+        update_buy(portfolio, symbol, amount, price)
     elif action == "sell":
-
-        if symbol in portfolio:
-            if portfolio[symbol] >= amount:
-                portfolio[symbol] -= amount
-                if portfolio[symbol] == 0:  # Remove symbol if amount reaches zero
-                    del portfolio[symbol]
-            else:
-                logger.error(f" Not enough {symbol} to sell. Available: {portfolio[symbol]}, Requested: {amount}")
-                print(f"❌ Not enough {symbol} to sell. Available: {portfolio[symbol]}, Requested: {amount}")
-                return False
-        else:
-            logger.error(f" {symbol} not found in portfolio.")
-            print(f"❌ {symbol} not found in portfolio.")
+        if not update_sell(portfolio, symbol, amount):
             return False
     else:
-        logger.error(f" Invalid action: {action}. Use 'buy' or 'sell'.")
-        print(f"❌ Invalid action: {action}. Use 'buy' or 'sell'.")
+        logger.error(f"❌ Invalid action: {action}. Use 'buy' or 'sell'.")
         return False
 
-    # Save the updated portfolio to the file
-    with open("ConfigurationFiles/portfolio.json", "w") as file:
-        json.dump(portfolio, file, indent=4)
+    # Save updated portfolio and transaction
+    save_data_to_json_file("ConfigurationFiles/portfolio.json", portfolio)
+    save_transaction(symbol, action, amount, price)
+
     return True
 
 # Handle `/buy <symbol> <amount>` command
 async def buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if check_if_special_user(update.effective_chat.id) is False:
-        logger.error(f" User {update.effective_chat.id}: without rigths "
-                     f"wants to buy")
-        await update.message.reply_text("❌ You don't have the rigths to do this!")
+        logger.error(f" User {update.effective_chat.id}: without rights wants to buy")
+        await update.message.reply_text("❌ You don't have the rights to do this!")
         return
 
     if len(context.args) != 2:
@@ -395,32 +416,28 @@ async def buy(update: Update, context: ContextTypes.DEFAULT_TYPE):
         price = data['price']
         total_cost = amount * price
 
-        logger.error(f" User {update.effective_chat.id} "
-                     f"requested buy for {symbol} price {price} and total cost of {total_cost}")
+        logger.info(f" User {update.effective_chat.id} requested buy for {symbol} at ${price:.2f}, total cost: ${total_cost:.2f}")
 
-        # Update the portfolio
-        if update_portfolio(symbol, amount, "buy"):
-            transaction = f"BUY {amount} {symbol} at ${price:.2f} each. Total Cost: ${total_cost:.2f}\n"
-
-            # Save the transaction to a file
-            with open("ConfigurationFiles/transactions.txt", "a") as file:
-                file.write(transaction)
-
-            text = f"✅ *Buy Order Executed:*\n{transaction}"
+        # Update portfolio and save transaction
+        if update_portfolio(symbol, amount, price, "buy"):
+            text = (
+                f"✅ *Buy Order Executed:*\n"
+                f"📈 *{amount} {symbol}* at *${price:.2f}* each\n"
+                f"💰 *Total Cost:* ${total_cost:.2f}\n"
+                f"🕒 *Timestamp:* {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}"
+            )
             await update.message.reply_text(text, parse_mode="Markdown")
         else:
-            logger.error(f" Failed to update portfolio for {symbol}.")
             await update.message.reply_text(f"❌ Failed to update portfolio for {symbol}.")
     else:
-        logger.error(f" Couldn't fetch data for {symbol}.")
         await update.message.reply_text(f"❌ Couldn't fetch data for {symbol}.")
+
 
 # Handle `/sell <symbol> <amount>` command
 async def sell(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if check_if_special_user(update.effective_chat.id) is False:
-        logger.error(f" User {update.effective_chat.id}: without rigths "
-                     f"wants to sell")
-        await update.message.reply_text("❌ You don't have the rigths to do this!")
+        logger.error(f" User {update.effective_chat.id}: without rights wants to sell")
+        await update.message.reply_text("❌ You don't have the rights to do this!")
         return
 
     if len(context.args) != 2:
@@ -441,25 +458,22 @@ async def sell(update: Update, context: ContextTypes.DEFAULT_TYPE):
         price = data['price']
         total_value = amount * price
 
-        logger.error(f" User {update.effective_chat.id} "
-                     f"requested sell for {symbol} price {price} and total cost of {total_value}")
+        logger.info(f" User {update.effective_chat.id} requested sell for {symbol} at ${price:.2f}, total value: ${total_value:.2f}")
 
-        # Update the portfolio
-        if update_portfolio(symbol, amount, "sell"):
-            transaction = f"SELL {amount} {symbol} at ${price:.2f} each. Total Value: ${total_value:.2f}\n"
-
-            # Save the transaction to a file
-            with open("ConfigurationFiles/transactions.txt", "a") as file:
-                file.write(transaction)
-
-            text = f"✅ *Sell Order Executed:*\n{transaction}"
+        # Update portfolio and save transaction
+        if update_portfolio(symbol, amount, price, "sell"):
+            text = (
+                f"✅ *Sell Order Executed:*\n"
+                f"📉 *{amount} {symbol}* at *${price:.2f}* each\n"
+                f"💰 *Total Value:* ${total_value:.2f}\n"
+                f"🕒 *Timestamp:* {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}"
+            )
             await update.message.reply_text(text, parse_mode="Markdown")
         else:
-            logger.error(f" Failed to update portfolio for {symbol}.")
             await update.message.reply_text(f"❌ Failed to update portfolio for {symbol}.")
     else:
-        logger.error(f" Couldn't fetch data for {symbol}.")
         await update.message.reply_text(f"❌ Couldn't fetch data for {symbol}.")
+
 
 async def list_keywords(update, keywords):
     logger.info(f" User {update.effective_chat.id} "

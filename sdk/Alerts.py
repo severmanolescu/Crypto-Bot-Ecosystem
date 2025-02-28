@@ -20,7 +20,13 @@ class AlertsHandler:
         self.alert_threshold_7d = None
         self.alert_threshold_30d = None
 
+        self.alert_send_hours_24h = None
+        self.alert_send_hours_7D = None
+        self.alert_send_hours_30D = None
+
         self.telegram_api_token_alerts = None
+
+        self.lastSentHour = None
 
         self.telegram_message = TelegramMessagesHandler()
 
@@ -31,10 +37,14 @@ class AlertsHandler:
 
         self.telegram_api_token_alerts = variables.get("TELEGRAM_API_TOKEN_ALERTS", "")
 
-        self.alert_threshold_1h = LoadVariables.get_int_variable("ALERT_THRESHOLD_1h", 2.5)
-        self.alert_threshold_24h = LoadVariables.get_int_variable("ALERT_THRESHOLD_24h", 5)
-        self.alert_threshold_7d = LoadVariables.get_int_variable("ALERT_THRESHOLD_7d", 10)
-        self.alert_threshold_30d = LoadVariables.get_int_variable("ALERT_THRESHOLD_30d", 10)
+        self.alert_threshold_1h = variables.get("ALERT_THRESHOLD_1H", 2.5)
+        self.alert_threshold_24h = variables.get("ALERT_THRESHOLD_24H", 5)
+        self.alert_threshold_7d = variables.get("ALERT_THRESHOLD_7D", 10)
+        self.alert_threshold_30d = variables.get("ALERT_THRESHOLD_30D", 10)
+
+        self.alert_send_hours_24h = variables.get("24H_ALERTS_SEND_HOURS", "")
+        self.alert_send_hours_7D = variables.get("7D_ALERTS_SEND_HOURS", "")
+        self.alert_send_hours_30D = variables.get("30D_ALERTS_SEND_HOURS", "")
 
         self.telegram_message.reload_the_data()
 
@@ -56,8 +66,8 @@ class AlertsHandler:
 
             return True
         else:
-            logger.error(f" No major price movement!")
-            print(f"No major 1h price movement at {now_date.strftime('%H:%M')}")
+            logger.error(f"No major price movement!")
+            print(f"\nNo major 1h price movement at {now_date.strftime('%H:%M')}\n")
 
         return False
 
@@ -101,7 +111,7 @@ class AlertsHandler:
             return True
         else:
             logger.error(f" No major price movement!")
-            print(f"No major 7d price movement at {now_date.strftime('%H:%M')}")
+            print(f"\nNo major 7d price movement at {now_date.strftime('%H:%M')}\n")
 
         return False
 
@@ -123,12 +133,19 @@ class AlertsHandler:
             return True
         else:
             logger.error(f" No major price movement!")
-            print(f"No major 30d price movement at {now_date.strftime('%H:%M')}")
+            print(f"\nNo major 30d price movement at {now_date.strftime('%H:%M')}\n")
 
         return False
 
     async def check_for_alerts(self, now_date, top_100_crypto, update = None):
         await self.check_for_major_updates_1h(now_date, top_100_crypto, update)
-        await self.check_for_major_updates_24h(now_date, top_100_crypto, update)
-        await self.check_for_major_updates_7d(now_date, top_100_crypto, update)
-        await self.check_for_major_updates_30d(now_date, top_100_crypto, update)
+
+        if self.lastSentHour != now_date.hour:
+            self.lastSentHour = now_date.hour
+
+            if now_date.hour in self.alert_send_hours_24h:
+                await self.check_for_major_updates_24h(now_date, top_100_crypto, update)
+            if now_date.hour in self.alert_send_hours_7D:
+                await self.check_for_major_updates_7d(now_date, top_100_crypto, update)
+            if now_date.hour in self.alert_send_hours_30D:
+                await self.check_for_major_updates_30d(now_date, top_100_crypto, update)

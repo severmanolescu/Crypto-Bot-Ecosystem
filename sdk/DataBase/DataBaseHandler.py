@@ -1,18 +1,10 @@
 import os
 
 import aiosqlite
-import logging
 
-from logging.handlers import RotatingFileHandler
-
-from sdk.SendTelegramMessage import send_telegram_message_update
-
-handler = RotatingFileHandler('log.log', maxBytes=100_000_000, backupCount=3)
-logging.basicConfig(
-    handlers=[handler],
-    level=logging.INFO,
-    format='%(asctime)s | %(levelname)s | %(name)s | %(message)s'
-)
+from sdk.Logger import setup_logger
+logger = setup_logger("log.log")
+logger.info("Data Base handler started")
 
 class DataBaseHandler:
     def __init__(self, db_path="./articles.db"):
@@ -57,7 +49,7 @@ class DataBaseHandler:
                 """, (summary, link))
                 await db.commit()
         except Exception as e:
-            logging.error(f"Error updating article summary in DB: {e}")
+            logger.error(f"Error updating article summary in DB: {e}")
             print(f"Error updating article summary in DB: {e}")
 
     async def save_article_to_db(self, source, headline, link, highlights):
@@ -85,7 +77,7 @@ class DataBaseHandler:
             return row_inserted
 
         except Exception as e:
-            logging.error(f"Error saving article to DB: {e}")
+            logger.error(f"Error saving article to DB: {e}")
             print(f"Error saving article to DB: {e}")
             return 0
 
