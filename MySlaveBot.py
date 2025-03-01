@@ -17,7 +17,7 @@ save_data_to_json_file,
 save_transaction
 )
 from sdk.CheckUsers import check_if_special_user
-from sdk import LoadVariables as load_variables
+from sdk import LoadVariables as LoadVariables
 
 # Persistent buttons for news commands
 NEWS_KEYBOARD = ReplyKeyboardMarkup(
@@ -36,7 +36,7 @@ class SlaveBot:
         self.headers = None
 
     def reload_the_data(self):
-        variables = load_variables.load()
+        variables = LoadVariables.load()
 
         self.cmc_url = variables.get('CMC_URL_QUOTES', '')
         self.cmc_top10_url = variables.get('CMC_TOP10_URL', '')
@@ -115,14 +115,14 @@ class SlaveBot:
         self.reload_the_data()
 
         # Load the symbol-to-ID mapping
-        symbol_to_id = load_variables.load_symbol_to_id()
+        symbol_to_id = LoadVariables.load_symbol_to_id()
 
         coin_id = symbol_to_id.get(symbol.upper())
 
         if not coin_id:
             return None  # Symbol not supported
 
-        response = requests.get(f"{self.coingecko_url}/{coin_id}")
+        response = requests.get(f"{self.coingecko_url}/coins/{coin_id}")
         data = response.json()
 
         if "market_data" in data:
@@ -521,7 +521,7 @@ class SlaveBot:
         logger.info(f" Requested: {action}")
 
         # Load existing keywords
-        keywords = load_variables.load_keywords()
+        keywords = LoadVariables.load_keywords()
 
         if action == "list":
             await self.list_keywords(update, keywords)
@@ -545,13 +545,13 @@ class SlaveBot:
                 await update.message.reply_text(f"ℹ️ The keyword '{keyword}' is already in the list.")
             else:
                 keywords.append(keyword)
-                load_variables.save_keywords(keywords)
+                LoadVariables.save_keywords(keywords)
                 await update.message.reply_text(f"✅ Added keyword: '{keyword}'.")
 
         elif action == "remove":
             if keyword in keywords:
                 keywords.remove(keyword)
-                load_variables.save_keywords(keywords)
+                LoadVariables.save_keywords(keywords)
                 await update.message.reply_text(f"✅ Removed keyword: '{keyword}'.")
             else:
                 await update.message.reply_text(f"ℹ️ The keyword '{keyword}' is not in the list.")
@@ -564,7 +564,7 @@ class SlaveBot:
         logger.error(f" User {update.effective_chat.id} "
                      f"requested setvar list")
 
-        variables = load_variables.load()
+        variables = LoadVariables.load()
 
         if not variables:
             await update.message.reply_text("ℹ️ No variables found.")
@@ -605,11 +605,11 @@ class SlaveBot:
             new_value = str(new_value)
 
         # Load existing variables
-        variables = load_variables.load()
+        variables = LoadVariables.load()
 
         # Update the variable
         variables[variable_name] = new_value
-        load_variables.save(variables)
+        LoadVariables.save(variables)
 
         await update.message.reply_text(f"✅ Updated variable '{variable_name}' to '{new_value}'.")
 
@@ -683,9 +683,9 @@ class SlaveBot:
 
     # Main function to start the bot
     def run_bot(self):
-        variables = load_variables.load()
+        variables = LoadVariables.load()
 
-        bot_token = variables.get('BOT_TOKEN', '')
+        bot_token = variables.get('TELEGRAM_API_TOKEN_SLAVE', '')
 
         app = Application.builder().token(bot_token).build()
 

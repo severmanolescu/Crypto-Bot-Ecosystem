@@ -2,28 +2,42 @@
     "CMC_API_KEY": "-",
     "CMC_URL_QUOTES": "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest",
     "CMC_URL_LISTINGS": "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest",
-    "BOT_TOKEN": "-",
     "CMC_TOP10_URL": "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest",
-    "COINGECKO_URL": "https://api.coingecko.com/api/v3/coins",
+    "COINGECKO_URL": "https://api.coingecko.com/api/v3",
+    "COINGECKO_API_KEY": "-",
     "ETHERSCAN_API_KEY": "-",
     "ETHERSCAN_GAS_API_URL": "https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey=",
+    "TELEGRAM_API_TOKEN_SLAVE": "-",
     "TELEGRAM_API_TOKEN_ARTICLES": "-",
     "TELEGRAM_API_TOKEN_VALUE": "-",
-    "TELEGRAM_API_TOKEN_ALERTS": "-",
+    "TELEGRAM_API_TOKEN_ALERTS": "--PZgmKRuqM",
+    "OPEN_AI_API": "-",
+    "SLEEP_DURATION": "1800",
+    "ALERT_THRESHOLD_1H": 3,
+    "ALERT_THRESHOLD_24H": 10,
+    "ALERT_THRESHOLD_7D": 20,
+    "ALERT_THRESHOLD_30D": 40,
+    "SEND_AI_SUMMARY": "False",
+    "TELEGRAM_CHAT_ID_PARTIAL_DATA": [],
     "TELEGRAM_CHAT_ID_FULL_DETAILS": [
         "-"
     ],
-    "TELEGRAM_CHAT_ID_PARTIAL_DATA": [],
-    "OPEN_AI_API": "-",
-    "SLEEP_DURATION": "1800",
-    "ALERT_THRESHOLD": 2,
-    "SEND_AI_SUMMARY": "True",
-    "SEND_HOURS": [
+    "SEND_HOURS_VALUES": [
         7,
         11,
-        12,
+        13,
         18,
-        23
+        0
+    ],
+    "24H_ALERTS_SEND_HOURS": [
+        0,
+        15
+    ],
+    "7D_ALERTS_SEND_HOURS": [
+        0
+    ],
+    "30D_ALERTS_SEND_HOURS": [
+        0
     ],
     "CRYPTOCURRENCIES": [
         "BTC",
@@ -33,7 +47,9 @@
         "FET",
         "PEPE",
         "ENA",
-        "SUI",
-        "LDO"
+        "SEI",
+        "LDO",
+        "SEI",
+        "USDT"
     ]
 }

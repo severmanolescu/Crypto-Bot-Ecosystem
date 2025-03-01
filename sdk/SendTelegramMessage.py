@@ -22,6 +22,11 @@ async def send_telegram_message_update(message, update):
 
     await update.message.reply_text(message)
 
+async def send_plot_to_telegram(image_path, update):
+    """ Send the generated plot image to a Telegram chat asynchronously. """
+    if update is not None:
+        with open(image_path, "rb") as img:
+            await update.message.reply_photo(photo=img)
 
 class TelegramMessagesHandler:
     def __init__(self):

@@ -12,8 +12,8 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 
 from sdk import LoadVariables as LoadVariables
 
+from sdk.PlotCryptoTrades import PlotTrades
 from sdk.CheckUsers import check_if_special_user
-
 from CryptoValue import CryptoValueBot
 
 # Persistent buttons for news commands
@@ -21,6 +21,7 @@ NEWS_KEYBOARD = ReplyKeyboardMarkup(
     [
         ["🕒 Market Update", "⛽ ETH Gas Fees"],
         ["📊 Detailed Portfolio Update", "📊 Crypto Fear & Greed Index"],
+        ["📈 Show plots for the entire portfolio", "🚨 Help"]
     ],
     resize_keyboard=True,  # Makes the buttons smaller and fit better
     one_time_keyboard=False,  # Buttons stay visible after being clicked
@@ -32,6 +33,8 @@ class MarketUpdateBot:
 
         self.telegram_message = TelegramMessagesHandler()
 
+        self.plot_trades = PlotTrades()
+
         self.telegram_api_token = None
 
     def reload_the_data(self):
@@ -39,7 +42,11 @@ class MarketUpdateBot:
 
         self.telegram_api_token = variables.get("TELEGRAM_API_TOKEN_VALUE", "")
 
+        self.cryptoValueBot.reload_the_data()
+
         self.telegram_message.reload_the_data()
+
+        self.plot_trades.reload_the_data()
 
     # Command: /start
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -80,6 +87,35 @@ class MarketUpdateBot:
 
         await self.cryptoValueBot.show_fear_and_greed(update)
 
+    async def send_crypto_plots(self, update):
+        self.plot_trades.reload_the_data()
+
+        await self.plot_trades.send_all_plots(update)
+
+    async def send_crypto_plot(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        self.plot_trades.reload_the_data()
+
+        if not context.args:
+            logger.error(f" Usage: /plot <symbol>")
+            await update.message.reply_text("❌ Usage: /plot <symbol>")
+            return
+
+        action = context.args[0].lower()
+
+        await self.plot_trades.plot_crypto_trades(action, update)
+
+    # Handle `/help` command
+    async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        logger.info(f" Requested: help")
+
+        help_text = """
+📢 *Crypto Bot Commands*:
+/start - Show buttons
+/plot <symbol> - Show the plot for the wanted symbol
+/help - Show this help message
+"""
+        await update.message.reply_text(help_text, parse_mode="Markdown")
+
     # Handle button presses
     async def handle_buttons(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         text = update.message.text
@@ -106,6 +142,10 @@ class MarketUpdateBot:
             await update.message.reply_text("📊 Showing Crypto Fear & Greed Index...")
 
             await self.send_crypto_fear_and_greed(update)
+        elif text == "📈 Show plots for the entire portfolio":
+            await self.send_crypto_plots(update)
+        elif text == "🚨 Help":
+            await self.help_command(update, context)
         else:
             logger.error(f" Invalid command. Please use the buttons below.")
             await update.message.reply_text("❌ Invalid command. Please use the buttons below.")
@@ -120,6 +160,9 @@ class MarketUpdateBot:
 
         # Add command and message handlers
         app.add_handler(CommandHandler("start", self.start))
+        app.add_handler(CommandHandler("help", self.help_command))
+        app.add_handler(CommandHandler("plot", self.send_crypto_plot))
+
         app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_buttons))
 
         # Start the bot

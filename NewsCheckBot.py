@@ -82,13 +82,13 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.info(f" Requested: help")
 
     help_text = """
-    📢 *Crypto Bot Commands*:
-    /start - Show buttons
-    /search <tags> - Search articles with tags
-    /help - Show this help message
-    
-    Example:
-    /search BTC Crypto
+📢 *Crypto Bot Commands*:
+/start - Show buttons
+/search <tags> - Search articles with tags
+/help - Show this help message
+
+Example:
+/search BTC Crypto
     """
     await update.message.reply_text(help_text, parse_mode="Markdown")
 
