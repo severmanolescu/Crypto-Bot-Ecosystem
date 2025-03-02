@@ -5,7 +5,15 @@ from datetime import datetime, timedelta, timezone
 
 import sdk.LoadVariables as LoadVariables
 
-from sdk.SendTelegramMessage import send_plot_to_telegram
+from sdk.SendTelegramMessage import (
+send_plot_to_telegram,
+send_telegram_message_update
+)
+
+from sdk.Logger import setup_logger
+
+logger = setup_logger("log.log")
+logger.info("Market Update Bot started")
 
 class PlotTrades:
     def __init__(self):
@@ -20,16 +28,21 @@ class PlotTrades:
 
     def fetch_historical_prices(self, symbol):
         """ Fetch historical price data from CoinGecko Free API (limited to 1 year). """
+        logger.info(f"Fetching historical prices for {symbol}")
+        print(f"Fetching historical prices for {symbol}")
+
         url = f"{self.coingecko_base_url}/coins/{symbol}/market_chart?vs_currency=usd&days=365&interval=daily"
         headers = {"x-cg-demo-api-key": self.coingecko_api_key} if self.coingecko_api_key else {}
 
         response = requests.get(url, headers=headers)
+
         if response.status_code == 200:
             data = response.json()
             dates = [datetime.fromtimestamp(int(price[0] / 1000), tz=timezone.utc) for price in data['prices']]
             prices = [price[1] for price in data['prices']]
             return pd.DataFrame({'date': dates, 'price': prices})
         else:
+            logger.error(f"Error fetching price data from CoinGecko: {response.text}")
             print(f"Error fetching price data from CoinGecko: {response.text}")
             return pd.DataFrame()
 
@@ -37,7 +50,8 @@ class PlotTrades:
         """ Generate a crypto price chart with buy/sell points and correct average buy price. """
         transactions = LoadVariables.load_transactions(transactions_file)
         if not transactions:
-            print("No transactions found.")
+            logger.info(f"No transactions found for {symbol}")
+            print(f"No transactions found for {symbol}")
             await update.message.reply_text("No transactions found.")
             return
 
@@ -46,6 +60,9 @@ class PlotTrades:
         transaction_df = transaction_df[transaction_df["symbol"] == symbol.upper()]
 
         if transaction_df.empty:
+            logger.info(f"No transactions found for {symbol.upper()}!")
+            print(f"No transactions found for {symbol.upper()}!")
+
             await update.message.reply_text(f"No transactions found for {symbol.upper()}!")
             return
 
@@ -71,7 +88,9 @@ class PlotTrades:
 
         price_data = self.fetch_historical_prices(coin_id)
         if price_data.empty:
+            logger.info("No price data available.")
             print("No price data available.")
+
             await update.message.reply_text("No price data available.")
             return
 
@@ -113,6 +132,9 @@ class PlotTrades:
         # Save plot and send to Telegram
         image_path = f"{symbol}_price_chart.png"
         plt.savefig(image_path, dpi=300)
+
+        await send_telegram_message_update(f"📈 Plot for: {symbol.upper()}", update)
+
         await send_plot_to_telegram(image_path, update)
         plt.close()
 

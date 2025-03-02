@@ -19,6 +19,9 @@ class DataBaseHandler:
         """
         db_file_exists = os.path.exists(self.db_path)
 
+        logger.info("Creating the data base...")
+        print("Creating the data base...")
+
         async with aiosqlite.connect(self.db_path) as db:
             # If the file doesn't exist, we create the table for the first time
             if not db_file_exists:
@@ -36,6 +39,9 @@ class DataBaseHandler:
                 await db.commit()
 
     async def recreate_data_base(self):
+        logger.info("Recreating the data base...")
+        print("Recreating the data base...")
+
         os.remove(self.db_path)
 
         await self.init_db()

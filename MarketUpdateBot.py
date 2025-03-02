@@ -56,7 +56,7 @@ class MarketUpdateBot:
         )
 
     async def send_market_update(self, update):
-        logger.info(f" Requested: Market Update")
+        logger.info(f"Requested: Market Update")
 
         self.cryptoValueBot.reload_the_data()
 
@@ -81,13 +81,15 @@ class MarketUpdateBot:
         await self.cryptoValueBot.send_portfolio_update(update, True)
 
     async def send_crypto_fear_and_greed(self, update):
-        logger.info(f" Requested: Fear and Greed")
+        logger.info(f"Requested: Fear and Greed")
 
         self.cryptoValueBot.reload_the_data()
 
         await self.cryptoValueBot.show_fear_and_greed(update)
 
     async def send_crypto_plots(self, update):
+        logger.info(f"Requested: All plots")
+
         self.plot_trades.reload_the_data()
 
         await self.plot_trades.send_all_plots(update)
@@ -95,18 +97,22 @@ class MarketUpdateBot:
     async def send_crypto_plot(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         self.plot_trades.reload_the_data()
 
+        await update.message.reply_text("Creating the plot...")
+
         if not context.args:
-            logger.error(f" Usage: /plot <symbol>")
+            logger.error(f" Wrong usage: /plot <symbol>")
             await update.message.reply_text("❌ Usage: /plot <symbol>")
             return
 
-        action = context.args[0].lower()
+        symbol = context.args[0].lower()
 
-        await self.plot_trades.plot_crypto_trades(action, update)
+        logger.info(f"Requested: Crypto plot for {symbol}")
+
+        await self.plot_trades.plot_crypto_trades(symbol, update)
 
     # Handle `/help` command
     async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        logger.info(f" Requested: help")
+        logger.info(f"Requested: help")
 
         help_text = """
 📢 *Crypto Bot Commands*:
@@ -143,6 +149,8 @@ class MarketUpdateBot:
 
             await self.send_crypto_fear_and_greed(update)
         elif text == "📈 Show plots for the entire portfolio":
+            await update.message.reply_text("📈 Creating the plots for every symbol from the portfolio...")
+
             await self.send_crypto_plots(update)
         elif text == "🚨 Help":
             await self.help_command(update, context)

@@ -5,7 +5,7 @@ from sdk import LoadVariables as LoadVariables
 
 from sdk.Logger import setup_logger
 logger = setup_logger("log.log")
-logger.info("Alerts scrtipt started")
+logger.info("Alerts script started")
 
 def format_change(change):
     if change is None:
