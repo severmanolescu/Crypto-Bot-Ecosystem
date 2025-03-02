@@ -33,16 +33,15 @@ class PlotTrades:
             print(f"Error fetching price data from CoinGecko: {response.text}")
             return pd.DataFrame()
 
-
     async def plot_crypto_trades(self, symbol, update, transactions_file='ConfigurationFiles/transactions.json'):
-        """ Generate a cleaner and more visually appealing crypto price chart with buy and sell points. """
+        """ Generate a crypto price chart with buy/sell points and correct average buy price. """
         transactions = LoadVariables.load_transactions(transactions_file)
         if not transactions:
             print("No transactions found.")
-            update.message.reply_text("No transactions found.")
+            await update.message.reply_text("No transactions found.")
             return
 
-        # Filter transactions for the specific symbol
+        # Load all transactions (including older than 1 year)
         transaction_df = pd.DataFrame(transactions)
         transaction_df = transaction_df[transaction_df["symbol"] == symbol.upper()]
 
@@ -50,25 +49,33 @@ class PlotTrades:
             await update.message.reply_text(f"No transactions found for {symbol.upper()}!")
             return
 
+        # Compute Average Buy Price using ALL historical transactions
+        buy_transactions_all = transaction_df[transaction_df["action"] == "BUY"]
+
+        if not buy_transactions_all.empty:
+            total_cost = (buy_transactions_all["price"] * buy_transactions_all["amount"]).sum()
+            total_amount = buy_transactions_all["amount"].sum()
+            avg_buy_price = total_cost / total_amount if total_amount > 0 else None
+        else:
+            avg_buy_price = None
+
+        # Now filter transactions only for the last 365 days for plotting
         transaction_df["date"] = pd.to_datetime(transaction_df["timestamp"], utc=True)
         latest_date = datetime.now(timezone.utc)
         earliest_allowed_date = latest_date - timedelta(days=365)
+        transaction_df = transaction_df[transaction_df["date"] >= earliest_allowed_date]
 
         # Fetch historical prices (only the last 365 days due to API limits)
         symbol_to_id = LoadVariables.load_symbol_to_id()
-
         coin_id = symbol_to_id.get(symbol.upper())
 
         price_data = self.fetch_historical_prices(coin_id)
         if price_data.empty:
             print("No price data available.")
-            update.message.reply_text("No price data available.")
+            await update.message.reply_text("No price data available.")
             return
 
-        # Filter transactions within the last 365 days
-        transaction_df = transaction_df[transaction_df["date"] >= earliest_allowed_date]
-
-        # Filter buy and sell transactions
+        # Filter buy and sell transactions (for plotting)
         buy_transactions = transaction_df[transaction_df["action"] == "BUY"]
         sell_transactions = transaction_df[transaction_df["action"] == "SELL"]
 
@@ -78,17 +85,25 @@ class PlotTrades:
                  linestyle="-", linewidth=1.5)
 
         # Plot buy points with enhanced visibility
-        plt.scatter(buy_transactions["date"], buy_transactions["price"], color="limegreen", edgecolors="black", marker="^",
+        plt.scatter(buy_transactions["date"], buy_transactions["price"], color="limegreen", edgecolors="black",
+                    marker="^",
                     s=200, label="Buy Points", zorder=3, linewidth=1.5)
 
         # Plot sell points with enhanced visibility
-        plt.scatter(sell_transactions["date"], sell_transactions["price"], color="crimson", edgecolors="black", marker="v",
+        plt.scatter(sell_transactions["date"], sell_transactions["price"], color="crimson", edgecolors="black",
+                    marker="v",
                     s=200, label="Sell Points", zorder=3, linewidth=1.5)
+
+        # Plot average buy price as a horizontal line (calculated from all transactions)
+        if avg_buy_price:
+            plt.axhline(y=avg_buy_price, color="orange", linestyle="--", linewidth=2,
+                        label=f"Avg Buy Price: ${avg_buy_price:.2f}")
 
         # Labels and legend
         plt.xlabel("Date", fontsize=12)
         plt.ylabel("Price (USD)", fontsize=12)
-        plt.title(f"{symbol.upper()} Price Chart with Buy & Sell Points (Last 365 Days)", fontsize=14, fontweight="bold")
+        plt.title(f"{symbol.upper()} Price Chart with Buy & Sell Points (Last 365 Days)", fontsize=14,
+                  fontweight="bold")
         plt.legend(fontsize=12, frameon=True, loc="best")
         plt.grid(True, linestyle="--", alpha=0.6)
         plt.xticks(rotation=45, fontsize=10)
@@ -99,7 +114,7 @@ class PlotTrades:
         image_path = f"{symbol}_price_chart.png"
         plt.savefig(image_path, dpi=300)
         await send_plot_to_telegram(image_path, update)
-        # plt.show()
+        plt.close()
 
     async def send_all_plots(self, update):
         await self.plot_crypto_trades("ETH", update)
