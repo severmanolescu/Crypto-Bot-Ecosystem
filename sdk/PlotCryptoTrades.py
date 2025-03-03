@@ -133,7 +133,7 @@ class PlotTrades:
         image_path = f"{symbol}_price_chart.png"
         plt.savefig(image_path, dpi=300)
 
-        await send_telegram_message_update(f"📈 Plot for: {symbol.upper()}", update)
+        await send_telegram_message_update(f"📈 Plot for: #{symbol.upper()}", update)
 
         await send_plot_to_telegram(image_path, update)
         plt.close()

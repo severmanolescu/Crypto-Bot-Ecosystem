@@ -221,5 +221,7 @@ class DataBaseHandler:
 
         final_message = "\n".join(lines)
 
+        final_message += "\n #Statistics"
+
         # Optionally send to Telegram
         await send_telegram_message_update(final_message, update)

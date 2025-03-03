@@ -1,5 +1,8 @@
+import datetime
 import json
 import os
+
+import pytz
 
 from sdk.SendTelegramMessage import TelegramMessagesHandler
 from sdk.LoadVariables import load_portfolio_from_file
@@ -57,7 +60,7 @@ class PortfolioManager:
         return message
 
     # Function to calculate total portfolio value with detailed breakdown
-    def calculate_portfolio_value_detailed(self, my_crypto):
+    def calculate_portfolio_value_detailed(self, my_crypto, save_data = False):
         total_value = 0
         total_investment = 0
         message = "📊 *Portfolio Value Update:*\n\n"
@@ -107,13 +110,56 @@ class PortfolioManager:
         from datetime import datetime
         message += f"\n⏳ *Last Update:* {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}"
 
+        if save_data:
+            self.save_portfolio_history(total_value, total_investment, total_profit_loss, total_profit_loss_percentage)
+
         return message
 
+    def save_portfolio_history(self, total_value, total_investment, total_profit_loss, total_profit_loss_percentage):
+        history_file = "ConfigurationFiles/portfolio_history.json"
+
+        # Define your time zone (replace 'Europe/Bucharest' if needed)
+        local_tz = pytz.timezone('Europe/Bucharest')
+        now = datetime.datetime.now(local_tz)
+
+        # Load existing history if available
+        if os.path.exists(history_file):
+            with open(history_file, "r") as file:
+                try:
+                    history_data = json.load(file)
+                except json.JSONDecodeError:
+                    history_data = []
+        else:
+            history_data = []
+
+        # Create a new entry with date and time
+        new_entry = {
+            "datetime": now.strftime("%Y-%m-%d %H:%M:%S"),  # Format: YYYY-MM-DD HH:MM:SS
+            "total_value": total_value,
+            "total_investment": total_investment,
+            "profit_loss": total_profit_loss,
+            "profit_loss_percentage": total_profit_loss_percentage
+        }
+
+        # Append new entry
+        history_data.append(new_entry)
+
+        # Save back to file
+        with open(history_file, "w") as file:
+            json.dump(history_data, file, indent=4)
+
+        logger.info(f"Portfolio history updated at {new_entry['datetime']} (Local Time).")
+        print(f"✅ Portfolio history saved at {new_entry['datetime']} (Local Time).")
+
     # Fetch portfolio value and send via Telegram
-    async def send_portfolio_update(self, my_crypto, update, detailed = False):
+    async def send_portfolio_update(self, my_crypto, update, detailed = False, save_data = False):
         if detailed:
-            message = self.calculate_portfolio_value_detailed(my_crypto)
+            message = self.calculate_portfolio_value_detailed(my_crypto, save_data=save_data)
+
+            message += "\n#DetailedPortfolio"
         else:
             message = self.calculate_portfolio_value(my_crypto)
+
+            message += "\n#Portfolio"
 
         await self.telegram_message.send_telegram_message(message, self.telegram_api_token, True, update)

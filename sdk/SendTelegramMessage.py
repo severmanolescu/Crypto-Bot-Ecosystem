@@ -67,7 +67,7 @@ class TelegramMessagesHandler:
         #if message.count("*") % 2 == 1:
         #    message = message.replace("*", "\*")
 
-        print(f"\nSent to Telegram:\n {message}")
+        print(f"\n\nSent to Telegram:\n {message}")
         print(f"To {len(self.telegram_important_chat_id)} important users!")
         print(f"To {len(self.telegram_not_important_chat_id)} not important users!")
 
@@ -91,6 +91,7 @@ class TelegramMessagesHandler:
                 f"🐢 Safe: {safe_gas}\n"
                 f"🚗 Propose: {propose_gas}\n"
                 f"🚀 Fast: {fast_gas}\n\n"
+                f"#GasFee"
             )
         await self.send_telegram_message(message, telegram_api_token, False, update)
 
@@ -103,7 +104,6 @@ class TelegramMessagesHandler:
             prompt = f"Generate a short quote about the crypto market. Hour: {now_date.hour}, changes:\n{changes_text}"
 
             message += await self.open_ai_prompt.get_response(prompt)
-        message += f"\n\n"
 
         for symbol, data in my_crypto.items():
             message += (
@@ -112,7 +112,9 @@ class TelegramMessagesHandler:
                 f"1h: {format_change(data['change_1h'])}\n"
                 f"24h: {format_change(data['change_24h'])}\n"
                 f"7d: {format_change(data['change_7d'])}\n"
-                f"30d: {format_change(data['change_30d'])}\n\n"
+                f"30d: {format_change(data['change_30d'])}\n"
             )
+
+        message += f"#MarketUpdate\n\n"
 
         await self.send_telegram_message(message, telegram_api_token, False, update)

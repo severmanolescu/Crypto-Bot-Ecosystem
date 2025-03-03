@@ -42,7 +42,8 @@ async def get_fear_and_greed():
         message = f"📊 *Crypto Fear & Greed Index*:\n" \
                   f"💡 *Score*: {index_value} / 100\n" \
                   f"🔎 *Sentiment*: {index_text}\n" \
-                  f"🕒 Last Updated: {last_update_date}"
+                  f"🕒 Last Updated: {last_update_date}\n" \
+                  f"#FearAndGreed"
 
         return message
 

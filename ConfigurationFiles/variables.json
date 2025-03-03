@@ -10,7 +10,7 @@
     "TELEGRAM_API_TOKEN_SLAVE": "-",
     "TELEGRAM_API_TOKEN_ARTICLES": "-",
     "TELEGRAM_API_TOKEN_VALUE": "-",
-    "TELEGRAM_API_TOKEN_ALERTS": "--PZgmKRuqM",
+    "TELEGRAM_API_TOKEN_ALERTS": "-",
     "OPEN_AI_API": "-",
     "SLEEP_DURATION": "1800",
     "ALERT_THRESHOLD_1H": 3,
@@ -38,6 +38,9 @@
     ],
     "30D_ALERTS_SEND_HOURS": [
         0
+    ],
+    "PORTFOLIO_SAVE_HOURS": [
+        20
     ],
     "CRYPTOCURRENCIES": [
         "BTC",

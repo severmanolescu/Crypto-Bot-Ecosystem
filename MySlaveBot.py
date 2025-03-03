@@ -562,7 +562,7 @@ class SlaveBot:
 
     async def list_variables(self, update):
         logger.error(f" User {update.effective_chat.id} "
-                     f"requested setvar list")
+                     f"requested var list")
 
         variables = LoadVariables.load()
 
@@ -581,7 +581,7 @@ class SlaveBot:
         new_value = " ".join(context.args[1:]).strip()
 
         logger.error(f" User {update.effective_chat.id} "
-                     f"requested setvar {variable_name}: {new_value}")
+                     f"requested var {variable_name}: {new_value}")
         # Try to convert to integer if the value is numeric
         if new_value.isdigit():
             new_value = int(new_value)
@@ -615,10 +615,10 @@ class SlaveBot:
 
     async def var(self, update, context):
         """
-        Handle the /setvar command to modify or list global variables.
+        Handle the /var command to modify or list global variables.
         Usage:
-        - /setvar list: Show all variables.
-        - /setvar <variable_name> <new_value>: Update a variable.
+        - /var list: Show all variables.
+        - /var <variable_name> <new_value>: Update a variable.
         """
         if check_if_special_user(update.effective_chat.id) is False:
             logger.error(f" User {update.effective_chat.id}: without rigths "
@@ -627,8 +627,8 @@ class SlaveBot:
             return
 
         if not context.args:
-            logger.error(f" Usage: /setvar list OR /setvar <variable_name> <new_value>")
-            await update.message.reply_text("❌ Usage: /setvar list OR /setvar <variable_name> <new_value>")
+            logger.error(f" Usage: /var list OR /var <variable_name> <new_value>")
+            await update.message.reply_text("❌ Usage: /var list OR /var <variable_name> <new_value>")
             return
 
         action = context.args[0].lower()
@@ -638,8 +638,8 @@ class SlaveBot:
             return
 
         if len(context.args) < 2:
-            logger.error(f" Usage: /setvar <variable_name> <new_value>")
-            await update.message.reply_text("❌ Usage: /setvar <variable_name> <new_value>")
+            logger.error(f" Usage: /var <variable_name> <new_value>")
+            await update.message.reply_text("❌ Usage: /var <variable_name> <new_value>")
             return
 
         await self.change_variable(update, context)
