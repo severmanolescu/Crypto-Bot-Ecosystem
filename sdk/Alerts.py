@@ -1,19 +1,12 @@
 from datetime import datetime
 
-from sdk.SendTelegramMessage import TelegramMessagesHandler
 from sdk import LoadVariables as LoadVariables
-
+from sdk.SendTelegramMessage import TelegramMessagesHandler
 from sdk.Logger import setup_logger
+from sdk.Utils import format_change
+
 logger = setup_logger("log.log")
 logger.info("Alerts script started")
-
-def format_change(change):
-    if change is None:
-        return "N/A"
-    if change < 0:
-        return f"`🔴 {change:.2f}%`"  # Negative change in monospace
-    else:
-        return f"`🟢 +{change:.2f}%`"  # Positive change in monospace
 
 class AlertsHandler:
     def __init__(self):

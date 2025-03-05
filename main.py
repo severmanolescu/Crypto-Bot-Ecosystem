@@ -32,7 +32,7 @@ async def run():
 
         read_variables()
 
-        sleep_time = LoadVariables.get_int_variable("SLEEP_DURATION")
+        sleep_time = LoadVariables.get_int_variable("SLEEP_DURATION", 1800)
 
         print("\n🧐 Check for new articles!")
         await cryptoNewsCheck.run()

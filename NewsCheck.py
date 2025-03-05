@@ -132,6 +132,8 @@ class CryptoNewsCheck:
         """
         Orchestrates the scraping and notification for a single source.
         """
+        found_articles = False
+
         page_content = await self.fetch_page(self.urls[source])
         if page_content:
             print(f"\n✅ Connected to {source} successfully!")
@@ -142,6 +144,7 @@ class CryptoNewsCheck:
             if articles:
                 print(f"📰 Found {len(articles)} articles from {source}.")
                 logger.info(f"Found {len(articles)} articles from {source}.")
+
                 for article in articles:
                     # Insert or ignore in DB
                     row_inserted = await self.data_base.save_article_to_db(
@@ -176,6 +179,8 @@ class CryptoNewsCheck:
                                 f"🔍 Highlights: {article['highlights']}\n"
                             )
 
+                        found_articles = True
+
                         # Send Telegram message
                         await self.telegram_message.send_telegram_message(message, self.telegram_api_token,
                                                                           update=update)
@@ -186,6 +191,8 @@ class CryptoNewsCheck:
                 logger.warning(f"No new articles found for {source}.")
         else:
             logger.error(f"Failed to fetch {source}.")
+
+        return found_articles
 
     async def recreate_data_base(self):
         await self.data_base.recreate_data_base()
@@ -198,7 +205,11 @@ class CryptoNewsCheck:
             self.check_news("cointelegraph", update),
             self.check_news("bitcoinmagazine", update)
         ]
-        await asyncio.gather(*tasks)  # Run all scrapers in parallel
+        results = await asyncio.gather(*tasks)  # Run all scrapers in parallel
+
+        if not any(results):
+            await self.telegram_message.send_telegram_message("❌ Didn't find any new article.",
+                                                              self.telegram_api_token, update=update)
 
     async def run(self):
         await self.data_base.init_db()  # Ensure DB is ready

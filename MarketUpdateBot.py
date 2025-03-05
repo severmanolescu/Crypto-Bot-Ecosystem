@@ -160,11 +160,9 @@ class MarketUpdateBot:
 
     # Main function to start the bot
     def run_bot(self):
-        variables = LoadVariables.load("ConfigurationFiles/variables.json")
+        self.reload_the_data()
 
-        bot_token = variables.get('TELEGRAM_API_TOKEN_VALUE', '')
-
-        app = Application.builder().token(bot_token).build()
+        app = Application.builder().token(self.telegram_api_token).build()
 
         # Add command and message handlers
         app.add_handler(CommandHandler("start", self.start))

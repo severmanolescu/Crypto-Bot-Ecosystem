@@ -34,17 +34,22 @@ class PlotTrades:
         url = f"{self.coingecko_base_url}/coins/{symbol}/market_chart?vs_currency=usd&days=365&interval=daily"
         headers = {"x-cg-demo-api-key": self.coingecko_api_key} if self.coingecko_api_key else {}
 
-        response = requests.get(url, headers=headers)
+        try:
+            response = requests.get(url, headers=headers)
 
-        if response.status_code == 200:
-            data = response.json()
-            dates = [datetime.fromtimestamp(int(price[0] / 1000), tz=timezone.utc) for price in data['prices']]
-            prices = [price[1] for price in data['prices']]
-            return pd.DataFrame({'date': dates, 'price': prices})
-        else:
-            logger.error(f"Error fetching price data from CoinGecko: {response.text}")
-            print(f"Error fetching price data from CoinGecko: {response.text}")
-            return pd.DataFrame()
+            if response.status_code == 200:
+                data = response.json()
+                dates = [datetime.fromtimestamp(int(price[0] / 1000), tz=timezone.utc) for price in data['prices']]
+                prices = [price[1] for price in data['prices']]
+                return pd.DataFrame({'date': dates, 'price': prices})
+            else:
+                logger.error(f"Error fetching price data from CoinGecko: {response.text}")
+                print(f"Error fetching price data from CoinGecko: {response.text}")
+                return pd.DataFrame()
+        except Exception as e:
+            logger.error("Error during getting historical prices")
+            print("Error during getting historical prices")
+            pd.DataFrame()
 
     async def plot_crypto_trades(self, symbol, update, transactions_file='ConfigurationFiles/transactions.json'):
         """ Generate a crypto price chart with buy/sell points and correct average buy price. """

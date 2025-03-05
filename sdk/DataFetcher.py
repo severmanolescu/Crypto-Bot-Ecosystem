@@ -2,16 +2,17 @@ import requests
 
 from datetime import datetime
 
+from sdk.Utils import check_requests
+
 from sdk.Logger import setup_logger
 logger = setup_logger("log.log")
 logger.info("Data Fetcher started")
 
 def get_eth_gas_fee(etherscan_api_url):
     try:
-        response = requests.get(etherscan_api_url)
-        data = response.json()
+        data = check_requests(etherscan_api_url)
 
-        if data["status"] == "1":
+        if data is not None and data["status"] == "1":
             gas_data = data["result"]
             safe_gas = gas_data["SafeGasPrice"]
             propose_gas = gas_data["ProposeGasPrice"]
@@ -29,10 +30,9 @@ def get_eth_gas_fee(etherscan_api_url):
 async def get_fear_and_greed():
     url = "https://api.alternative.me/fng/"
 
-    try:
-        response = requests.get(url)
-        data = response.json()
+    data = check_requests(url)
 
+    if data is not None:
         index_value = data["data"][0]["value"]  # Fear & Greed Score
         index_text = data["data"][0]["value_classification"]  # Sentiment (Fear, Greed, etc.)
 
@@ -46,7 +46,4 @@ async def get_fear_and_greed():
                   f"#FearAndGreed"
 
         return message
-
-    except Exception as e:
-        logger.error(f" Error fetching Fear & Greed Index: {e}")
-        print(f"❌ Error fetching Fear & Greed Index: {e}")
+    return "❌ Error during the data request"

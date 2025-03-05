@@ -4,18 +4,10 @@ from sdk import LoadVariables as LoadVariables
 from sdk.OpenAIPrompt import OpenAIPrompt
 from sdk.DataFetcher import get_eth_gas_fee
 from sdk.Logger import setup_logger
+from sdk.Utils import format_change
 
 logger = setup_logger("log.log")
 logger.info("Telegram message handler started")
-
-def format_change(change):
-    if change is None:
-        return "N/A"
-    if change < 0:
-        return f"`🔴 {change:.2f}%`"  # Negative change in monospace
-    else:
-        return f"`🟢 +{change:.2f}%`"  # Positive change in monospace
-
 
 async def send_telegram_message_update(message, update):
     print(f"\nSent to Telegram:\n {message}")

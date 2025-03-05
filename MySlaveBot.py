@@ -1,5 +1,3 @@
-import requests
-
 from datetime import datetime, timezone
 
 from sdk.Logger import setup_logger
@@ -17,6 +15,7 @@ save_data_to_json_file,
 save_transaction
 )
 from sdk.CheckUsers import check_if_special_user
+from sdk.Utils import check_requests
 from sdk import LoadVariables as LoadVariables
 
 # Persistent buttons for news commands
@@ -60,10 +59,9 @@ class SlaveBot:
 
         self.reload_the_data()
 
-        response = requests.get(self.cmc_url, headers=self.headers, params=params)
-        data = response.json()
+        data = check_requests(self.cmc_url, self.headers, params)
 
-        if "data" in data and symbol.upper() in data["data"]:
+        if data is not None and "data" in data and symbol.upper() in data["data"]:
             coin_data = data["data"][symbol.upper()]
             quote = coin_data["quote"]["USD"]
             return {
@@ -88,10 +86,9 @@ class SlaveBot:
 
         self.reload_the_data()
 
-        response = requests.get(self.cmc_top10_url, headers=self.headers, params=params)
-        data = response.json()
+        data = check_requests(self.cmc_top10_url, self.headers, params)
 
-        if "data" in data:
+        if data is not None and "data" in data:
             top_10 = data["data"]
             result = "🚀 *Top 10 Cryptos by Market Cap:*\n\n"
             for coin in top_10:
@@ -122,10 +119,9 @@ class SlaveBot:
         if not coin_id:
             return None  # Symbol not supported
 
-        response = requests.get(f"{self.coingecko_url}/coins/{coin_id}")
-        data = response.json()
+        data = check_requests(f"{self.coingecko_url}/coins/{coin_id}")
 
-        if "market_data" in data:
+        if data is not None and "market_data" in data:
             return data["market_data"]["ath"]["usd"]
         return None  # ATH not found
 
@@ -208,7 +204,6 @@ class SlaveBot:
 - {symbol1.upper()}: {data1["change_24h"]:.2f}%
 - {symbol2.upper()}: {data2["change_24h"]:.2f}%
 """
-
             print(message)  # To preview before sending via Telegram
 
             await update.message.reply_text(message, parse_mode="Markdown")
@@ -221,10 +216,9 @@ class SlaveBot:
 
         params = {"symbol": from_symbol.upper(), "convert": to_symbol.upper()}
 
-        response = requests.get(self.cmc_url, headers=self.headers, params=params)
-        data = response.json()
+        data = check_requests(self.cmc_url, self.headers, params)
 
-        if "data" in data and from_symbol.upper() in data["data"]:
+        if data is not None and "data" in data and from_symbol.upper() in data["data"]:
             coin_data = data["data"][from_symbol.upper()]
             if to_symbol.upper() in coin_data["quote"]:
                 conversion_rate = coin_data["quote"][to_symbol.upper()]["price"]
@@ -317,11 +311,11 @@ class SlaveBot:
             current_value = (initial_investment / initial_price) * current_price
 
             text = f"""
-    📈 *ROI for {symbol} with ${initial_investment:.2f} investment:*
-    - Initial Price: ${initial_price:.2f}
-    - Current Price: ${current_price:.2f}
-    - Current Value: ${current_value:.2f}
-    - ROI: {roi_percentage:.2f}%
+📈 *ROI for {symbol} with ${initial_investment:.2f} investment:*
+- Initial Price: ${initial_price:.2f}
+- Current Price: ${current_price:.2f}
+- Current Value: ${current_value:.2f}
+- ROI: {roi_percentage:.2f}%
     """
             await update.message.reply_text(text, parse_mode="Markdown")
         else:

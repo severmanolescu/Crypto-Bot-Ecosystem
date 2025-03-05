@@ -10,10 +10,6 @@ from sdk.Logger import setup_logger
 logger = setup_logger("log.log")
 logger.info("News Check started")
 
-cryptoNewsCheck = CryptoNewsCheck()
-
-db = DataBaseHandler()
-
 # Persistent buttons for news commands
 NEWS_KEYBOARD = ReplyKeyboardMarkup(
     [
@@ -24,64 +20,71 @@ NEWS_KEYBOARD = ReplyKeyboardMarkup(
     one_time_keyboard=False,  # Buttons stay visible after being clicked
 )
 
-# Command: /start
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        "🤖 Welcome to the News Bot! Use the buttons below to get started:",
-        reply_markup=NEWS_KEYBOARD,
-    )
+class NewsBot:
+    def __init__(self):
 
-async def start_the_articles_check(update):
-    logger.info(f" Requested: Article Check")
+        self.cryptoNewsCheck = CryptoNewsCheck()
 
-    cryptoNewsCheck.reload_the_data()
+        self.db = DataBaseHandler()
 
-    await cryptoNewsCheck.run_from_bot(update)
-
-# Handle button presses
-async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = update.message.text
-
-    if text == "🚨 Check for Articles":
-        await update.message.reply_text("🚨 Check for articles...")
-
-        await start_the_articles_check(update)
-    elif text == "🔢 Show statistics":
-        await update.message.reply_text("🔢 Showing the statistics...")
-
-        await db.show_stats(update)
-    elif text == "🚨 Help" or text.lower() == "help":
-        await help_command(update, context)
-    else:
-        logger.error(f" Invalid command. Please use the buttons below.")
-        await update.message.reply_text("❌ Invalid command. Please use the buttons below.")
-
-# Command: /start
-async def search(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not context.args:
-        await update.message.reply_text("❌ Usage: /search <tags>")
-        return
-
-    articles = await db.search_articles_by_tags(context.args)
-
-    print(f"\nFound {len(articles)} articles with {context.args} tags in the data base!\n")
-
-    for article in articles:
-        message = (
-            f"📰 Article Found!\n"
-            f"📌 {article[1]}\n"
-            f"🔗 {article[2]}\n"
-            f"🤖 {article[4]}\n"
-            f"🔍 Highlights: {article[3]}\n"
+    # Command: /start
+    async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        await update.message.reply_text(
+            "🤖 Welcome to the News Bot! Use the buttons below to get started:",
+            reply_markup=NEWS_KEYBOARD,
         )
 
-        await update.message.reply_text(message)
+    async def start_the_articles_check(self,update):
+        logger.info(f" Requested: Article Check")
 
-# Handle `/help` command
-async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    logger.info(f" Requested: help")
+        self.cryptoNewsCheck.reload_the_data()
 
-    help_text = """
+        await self.cryptoNewsCheck.run_from_bot(update)
+
+    # Handle button presses
+    async def handle_buttons(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        text = update.message.text
+
+        if text == "🚨 Check for Articles":
+            await update.message.reply_text("🚨 Check for articles...")
+
+            await self.start_the_articles_check(update)
+        elif text == "🔢 Show statistics":
+            await update.message.reply_text("🔢 Showing the statistics...")
+
+            await self.db.show_stats(update)
+        elif text == "🚨 Help" or text.lower() == "help":
+            await self.help_command(update, context)
+        else:
+            logger.error(f" Invalid command. Please use the buttons below.")
+            await update.message.reply_text("❌ Invalid command. Please use the buttons below.")
+
+    # Command: /start
+    async def search(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        if not context.args:
+            await update.message.reply_text("❌ Usage: /search <tags>")
+            return
+
+        articles = await self.db.search_articles_by_tags(context.args)
+
+        print(f"\nFound {len(articles)} articles with {context.args} tags in the data base!\n")
+
+        for article in articles:
+            message = (
+                f"📰 Article Found!\n"
+                f"📌 {article[1]}\n"
+                f"🔗 {article[2]}\n"
+                f"🤖 {article[4]}\n"
+                f"🔍 Highlights: {article[3]}\n"
+            )
+
+            await update.message.reply_text(message)
+
+    # Handle `/help` command
+    async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        logger.info(f" Requested: help")
+
+        help_text = """
 📢 *Crypto Bot Commands*:
 /start - Show buttons
 /search <tags> - Search articles with tags
@@ -89,26 +92,28 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 Example:
 /search BTC Crypto
-    """
-    await update.message.reply_text(help_text, parse_mode="Markdown")
+        """
+        await update.message.reply_text(help_text, parse_mode="Markdown")
 
-# Main function to start the bot
-def run_bot():
-    variables = LoadVariables.load("ConfigurationFiles/variables.json")
+    # Main function to start the bot
+    def run_bot(self):
+        variables = LoadVariables.load("ConfigurationFiles/variables.json")
 
-    bot_token = variables.get('TELEGRAM_API_TOKEN_ARTICLES', '')
+        bot_token = variables.get('TELEGRAM_API_TOKEN_ARTICLES', '')
 
-    app = Application.builder().token(bot_token).build()
+        app = Application.builder().token(bot_token).build()
 
-    # Add command and message handlers
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("search", search))
-    app.add_handler(CommandHandler("help", help_command))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_buttons))
+        # Add command and message handlers
+        app.add_handler(CommandHandler("start", self.start))
+        app.add_handler(CommandHandler("search", self.search))
+        app.add_handler(CommandHandler("help", self.help_command))
+        app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_buttons))
 
-    # Start the bot
-    print("🤖 News Bot is running...")
-    app.run_polling()
+        # Start the bot
+        print("🤖 News Bot is running...")
+        app.run_polling()
 
 if __name__ == "__main__":
-    run_bot()
+    news_bot = NewsBot()
+
+    news_bot.run_bot()
