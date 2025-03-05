@@ -14,8 +14,8 @@ def load(file_path="./ConfigurationFiles/variables.json"):
     :return: Dictionary containing global variables.
     """
     if not os.path.exists(file_path):
-        logger.info(f" Variables file '{file_path}' not found. Using default values.")
-        print(f"❌ Variables file '{file_path}' not found. Using default values.")
+        logger.info(f"File '{file_path}' not found. Using default values.")
+        print(f"❌ File '{file_path}' not found. Using default values.")
         return {}
 
     try:
@@ -23,12 +23,12 @@ def load(file_path="./ConfigurationFiles/variables.json"):
             variables = json.load(file)
             return variables
     except json.JSONDecodeError:
-        logger.info(f" Invalid JSON in variables file '{file_path}'. Using default values.")
-        print(f"❌ Invalid JSON in variables file '{file_path}'. Using default values.")
+        logger.info(f" Invalid JSON in file '{file_path}'. Using default values.")
+        print(f"❌ Invalid JSON in file '{file_path}'. Using default values.")
         return {}
     except Exception as e:
-        logger.info(f" Error loading variables from '{file_path}': {e}. Using default values.")
-        print(f"❌ Error loading variables from '{file_path}': {e}. Using default values.")
+        logger.info(f" Error loading from '{file_path}': {e}. Using default values.")
+        print(f"❌ Error loading from '{file_path}': {e}. Using default values.")
         return {}
 
 def save(variables, file_path="./ConfigurationFiles/variables.json"):

@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import requests
+import matplotlib.dates as mdates
+
 from datetime import datetime, timedelta, timezone
 
 import sdk.LoadVariables as LoadVariables
@@ -143,6 +145,68 @@ class PlotTrades:
         await send_plot_to_telegram(image_path, update)
         plt.close()
 
+    async def send_portfolio_history_plot(self, update, portfolio_history_file='./ConfigurationFiles/portfolio_history.json'):
+        data = LoadVariables.load(portfolio_history_file)
+
+        # Convert to DataFrame
+        df = pd.DataFrame(data)
+        df['datetime'] = pd.to_datetime(df['datetime'])
+
+        # Apply rolling mean to smooth fluctuations (window size 3)
+        numeric_cols = ['total_value', 'total_investment', 'profit_loss', 'profit_loss_percentage']
+        df_smoothed = df.copy()
+        df_smoothed[numeric_cols] = df[numeric_cols].rolling(window=3, min_periods=1).mean()
+
+        # Plot - Adjust size for Telegram
+        fig, ax1 = plt.subplots(figsize=(10, 5), dpi=150)
+
+        # Plot the main values with markers
+        ax1.plot(df_smoothed['datetime'], df_smoothed['total_value'], marker='o', label="Total Value", color='b',
+                 alpha=0.7)
+        ax1.plot(df_smoothed['datetime'], df_smoothed['total_investment'], marker='s', label="Total Investment",
+                 color='g', alpha=0.7)
+        ax1.plot(df_smoothed['datetime'], df_smoothed['profit_loss'], marker='^', label="Profit/Loss", color='r',
+                 alpha=0.7)
+
+        # Add labels to some points (reduce clutter for Telegram)
+        for i in range(0, len(df_smoothed), max(1, len(df_smoothed) // 6)):
+            ax1.text(df_smoothed['datetime'][i], df_smoothed['total_value'][i], f"{df_smoothed['total_value'][i]:,.0f}",
+                     fontsize=10, color='b', ha='right')
+            ax1.text(df_smoothed['datetime'][i], df_smoothed['profit_loss'][i], f"{df_smoothed['profit_loss'][i]:,.0f}",
+                     fontsize=10, color='r', ha='right')
+
+        ax1.set_xlabel("DateTime", fontsize=12)
+        ax1.set_ylabel("Value ($)", fontsize=12)
+        ax1.legend(loc="upper left", fontsize=10)
+
+        # Improve X-axis formatting
+        ax1.xaxis.set_major_locator(mdates.AutoDateLocator())
+        ax1.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d %H:%M"))
+        plt.xticks(rotation=45, fontsize=10)
+
+        # Secondary y-axis for profit_loss_percentage
+        ax2 = ax1.twinx()
+        ax2.plot(df_smoothed['datetime'], df_smoothed['profit_loss_percentage'], marker='d', linestyle='dashed',
+                 color='purple', label="Profit/Loss %", alpha=0.7)
+
+        # Add labels for profit_loss_percentage
+        for i in range(0, len(df_smoothed), max(1, len(df_smoothed) // 6)):
+            ax2.text(df_smoothed['datetime'][i], df_smoothed['profit_loss_percentage'][i],
+                     f"{df_smoothed['profit_loss_percentage'][i]:.1f}%", fontsize=10, color='purple', ha='left')
+
+        ax2.set_ylabel("Profit/Loss %", fontsize=12)
+        ax2.legend(loc="upper right", fontsize=10)
+
+        plt.title("Investment Performance (Telegram Optimized)", fontsize=14)
+
+        # Save as high-quality PNG for Telegram
+        telegram_plot_path = "./portfolio_history.png"
+        plt.savefig(telegram_plot_path, dpi=150, bbox_inches='tight')
+
+        await send_plot_to_telegram(telegram_plot_path, update)
+
+        # Show plot
+        #plt.show()
     async def send_all_plots(self, update):
         await self.plot_crypto_trades("ETH", update)
         await self.plot_crypto_trades("ARB", update)

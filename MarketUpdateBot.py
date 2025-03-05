@@ -21,7 +21,8 @@ NEWS_KEYBOARD = ReplyKeyboardMarkup(
     [
         ["🕒 Market Update", "⛽ ETH Gas Fees"],
         ["📊 Detailed Portfolio Update", "📊 Crypto Fear & Greed Index"],
-        ["📈 Show plots for the entire portfolio", "🚨 Help"]
+        ["📈 Plot portfolio history", "🚨 Help"],
+        ["📈 Show plots for the entire portfolio"]
     ],
     resize_keyboard=True,  # Makes the buttons smaller and fit better
     one_time_keyboard=False,  # Buttons stay visible after being clicked
@@ -94,6 +95,15 @@ class MarketUpdateBot:
 
         await self.plot_trades.send_all_plots(update)
 
+    async def send_portfolio_history(self, update, context: ContextTypes.DEFAULT_TYPE):
+        logger.info(f"Requested: Plot Portfolio History")
+
+        await update.message.reply_text("Creating the plot...")
+
+        self.plot_trades.reload_the_data()
+
+        await self.plot_trades.send_portfolio_history_plot(update)
+
     async def send_crypto_plot(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         self.plot_trades.reload_the_data()
 
@@ -118,6 +128,7 @@ class MarketUpdateBot:
 📢 *Crypto Bot Commands*:
 /start - Show buttons
 /plot <symbol> - Show the plot for the wanted symbol
+/history - Show the plot for portfolio history
 /help - Show this help message
 """
         await update.message.reply_text(help_text, parse_mode="Markdown")
@@ -152,6 +163,8 @@ class MarketUpdateBot:
             await update.message.reply_text("📈 Creating the plots for every symbol from the portfolio...")
 
             await self.send_crypto_plots(update)
+        elif text == "📈 Plot portfolio history":
+            await self.send_portfolio_history(update, None)
         elif text == "🚨 Help":
             await self.help_command(update, context)
         else:
@@ -168,6 +181,7 @@ class MarketUpdateBot:
         app.add_handler(CommandHandler("start", self.start))
         app.add_handler(CommandHandler("help", self.help_command))
         app.add_handler(CommandHandler("plot", self.send_crypto_plot))
+        app.add_handler(CommandHandler("history", self.send_portfolio_history))
 
         app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_buttons))
 
