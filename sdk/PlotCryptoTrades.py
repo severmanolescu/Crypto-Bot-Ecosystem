@@ -197,7 +197,7 @@ class PlotTrades:
         ax2.set_ylabel("Profit/Loss %", fontsize=12)
         ax2.legend(loc="upper right", fontsize=10)
 
-        plt.title("Investment Performance (Telegram Optimized)", fontsize=14)
+        plt.title("Investment Performance", fontsize=14)
 
         # Save as high-quality PNG for Telegram
         telegram_plot_path = "./portfolio_history.png"
