@@ -99,7 +99,7 @@ class TelegramMessagesHandler:
 
         for symbol, data in my_crypto.items():
             message += (
-                f"*{symbol}*\n"
+                f"\n*{symbol}*\n"
                 f"Price: $*{data['price']:.2f}*\n"
                 f"1h: {format_change(data['change_1h'])}\n"
                 f"24h: {format_change(data['change_24h'])}\n"
