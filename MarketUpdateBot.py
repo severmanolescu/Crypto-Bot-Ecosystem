@@ -47,8 +47,6 @@ class MarketUpdateBot:
 
         self.telegram_message.reload_the_data()
 
-        self.plot_trades.reload_the_data()
-
     # Command: /start
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
@@ -91,8 +89,6 @@ class MarketUpdateBot:
     async def send_crypto_plots(self, update):
         logger.info(f"Requested: All plots")
 
-        self.plot_trades.reload_the_data()
-
         await self.plot_trades.send_all_plots(update)
 
     async def send_portfolio_history(self, update, context: ContextTypes.DEFAULT_TYPE):
@@ -100,13 +96,9 @@ class MarketUpdateBot:
 
         await update.message.reply_text("Creating the plot...")
 
-        self.plot_trades.reload_the_data()
-
         await self.plot_trades.send_portfolio_history_plot(update)
 
     async def send_crypto_plot(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        self.plot_trades.reload_the_data()
-
         await update.message.reply_text("Creating the plot...")
 
         if not context.args:

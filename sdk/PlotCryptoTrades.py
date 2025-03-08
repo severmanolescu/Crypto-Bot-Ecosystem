@@ -1,60 +1,115 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-import requests
 import matplotlib.dates as mdates
+from mplfinance.original_flavor import candlestick_ohlc
 
+import ccxt
+import time
 from datetime import datetime, timedelta, timezone
 
 import sdk.LoadVariables as LoadVariables
-
 from sdk.SendTelegramMessage import (
-send_plot_to_telegram,
-send_telegram_message_update
+    send_plot_to_telegram,
+    send_telegram_message_update
 )
-
 from sdk.Logger import setup_logger
 
 logger = setup_logger("log.log")
 logger.info("Market Update Bot started")
 
+
 class PlotTrades:
     def __init__(self):
-        self.coingecko_api_key = None
-        self.coingecko_base_url = None
+        # Initialize ccxt Binance
+        self.exchange = ccxt.binance()
 
-    def reload_the_data(self):
-        variables = LoadVariables.load()
+    def _fetch_ohlcv_since(self, trading_pair, start_ms):
+        """
+        Helper: Iteratively fetch OHLCV data from 'start_ms' until now.
+        Works around Binance's 1000-candle limit by paging results.
 
-        self.coingecko_api_key = variables.get("COINGECKO_API_KEY", "")
-        self.coingecko_base_url = variables.get("COINGECKO_URL", "")
+        :param trading_pair: e.g. "ETH/USDT"
+        :param start_ms: integer (milliseconds) start timestamp
+        :return: pd.DataFrame with [timestamp, open, high, low, close, volume, date (UTC)]
+        """
+        all_ohlcvs = []
+        timeframe = "1d"
 
-    def fetch_historical_prices(self, symbol):
-        """ Fetch historical price data from CoinGecko Free API (limited to 1 year). """
-        logger.info(f"Fetching historical prices for {symbol}")
-        print(f"Fetching historical prices for {symbol}")
+        current_since = start_ms
 
-        url = f"{self.coingecko_base_url}/coins/{symbol}/market_chart?vs_currency=usd&days=365&interval=daily"
-        headers = {"x-cg-demo-api-key": self.coingecko_api_key} if self.coingecko_api_key else {}
+        while True:
+            # Fetch up to 1000 daily candles
+            ohlcv = self.exchange.fetch_ohlcv(
+                trading_pair,
+                timeframe=timeframe,
+                since=current_since,
+                limit=1000
+            )
+
+            if not ohlcv:
+                # No more data returned
+                break
+
+            all_ohlcvs += ohlcv
+
+            # If we got fewer than 1000, we've reached the end
+            if len(ohlcv) < 1000:
+                break
+
+            # Otherwise, move 'current_since' to just beyond the last candle
+            last_ts = ohlcv[-1][0]
+            current_since = last_ts + 1
+
+        if not all_ohlcvs:
+            return pd.DataFrame()
+
+        df = pd.DataFrame(all_ohlcvs, columns=["timestamp", "open", "high", "low", "close", "volume"])
+        # Convert to datetime
+        df["date"] = pd.to_datetime(df["timestamp"], unit="ms", utc=True)
+        return df
+
+    def fetch_historical_prices(self, symbol, earliest_date):
+        """
+        Fetch OHLCV data from 'earliest_date' up to now.
+        If earliest_date is None or invalid, defaults to last 365 days.
+
+        :param symbol: e.g. "ETH"
+        :param earliest_date: datetime object for earliest trade date
+        :return: pd.DataFrame with columns:
+                 [timestamp, open, high, low, close, volume, date]
+        """
+        logger.info(f"Fetching historical prices for {symbol} from Binance ")
+        print(f"Fetching historical prices for {symbol} from Binance ")
+
+        # Convert symbol to CCXT format: "ETH" -> "ETH/USDT"
+        trading_pair = f"{symbol.upper()}/USDT"
+
+        # If you have no earliest_date, default to 1 year
+        if earliest_date is None:
+            earliest_date = datetime.now(timezone.utc) - timedelta(days=365)
+
+        start_ms = self.exchange.parse8601(earliest_date.isoformat())
 
         try:
-            response = requests.get(url, headers=headers)
+            df = self._fetch_ohlcv_since(trading_pair, start_ms)
+            if df.empty:
+                logger.error(f"No historical data found for {symbol} from {earliest_date} to now.")
+                print(f"No historical data found for {symbol} from {earliest_date} to now.")
 
-            if response.status_code == 200:
-                data = response.json()
-                dates = [datetime.fromtimestamp(int(price[0] / 1000), tz=timezone.utc) for price in data['prices']]
-                prices = [price[1] for price in data['prices']]
-                return pd.DataFrame({'date': dates, 'price': prices})
-            else:
-                logger.error(f"Error fetching price data from CoinGecko: {response.text}")
-                print(f"Error fetching price data from CoinGecko: {response.text}")
                 return pd.DataFrame()
+            return df
         except Exception as e:
-            logger.error("Error during getting historical prices")
-            print("Error during getting historical prices")
-            pd.DataFrame()
+            logger.error(f"Error fetching price data from Binance: {str(e)}")
+            print(f"Error fetching price data from Binance: {str(e)}")
+            return pd.DataFrame()
 
     async def plot_crypto_trades(self, symbol, update, transactions_file='ConfigurationFiles/transactions.json'):
-        """ Generate a crypto price chart with buy/sell points and correct average buy price. """
+        """
+        Generate a crypto price candlestick chart with buy/sell points.
+        It automatically checks if you have trades older than 1 year,
+        and fetches all needed data from Binance.
+        """
+        # 1) Load transactions
         transactions = LoadVariables.load_transactions(transactions_file)
         if not transactions:
             logger.info(f"No transactions found for {symbol}")
@@ -62,18 +117,17 @@ class PlotTrades:
             await update.message.reply_text("No transactions found.")
             return
 
-        # Load all transactions (including older than 1 year)
+        # 2) Filter for this symbol
         transaction_df = pd.DataFrame(transactions)
         transaction_df = transaction_df[transaction_df["symbol"] == symbol.upper()]
 
         if transaction_df.empty:
             logger.info(f"No transactions found for {symbol.upper()}!")
             print(f"No transactions found for {symbol.upper()}!")
-
             await update.message.reply_text(f"No transactions found for {symbol.upper()}!")
             return
 
-        # Compute Average Buy Price using ALL historical transactions
+        # 3) Compute average buy price using ALL historical transactions (regardless of date)
         buy_transactions_all = transaction_df[transaction_df["action"] == "BUY"]
 
         if not buy_transactions_all.empty:
@@ -83,67 +137,111 @@ class PlotTrades:
         else:
             avg_buy_price = None
 
-        # Now filter transactions only for the last 365 days for plotting
+        # 4) Convert transaction timestamps to datetime
         transaction_df["date"] = pd.to_datetime(transaction_df["timestamp"], utc=True)
-        latest_date = datetime.now(timezone.utc)
-        earliest_allowed_date = latest_date - timedelta(days=365)
-        transaction_df = transaction_df[transaction_df["date"] >= earliest_allowed_date]
 
-        # Fetch historical prices (only the last 365 days due to API limits)
-        symbol_to_id = LoadVariables.load_symbol_to_id()
-        coin_id = symbol_to_id.get(symbol.upper())
+        # 5) Identify the earliest transaction date
+        earliest_trade_date = transaction_df["date"].min()
 
-        price_data = self.fetch_historical_prices(coin_id)
+        # 6) Fetch historical OHLCV data from earliest trade date if it's older than 1 year,
+        #    or from 1 year ago if no older trades exist.
+        one_year_ago = datetime.now(timezone.utc) - timedelta(days=365)
+        if earliest_trade_date < one_year_ago:
+            fetch_start_date = earliest_trade_date
+        else:
+            fetch_start_date = one_year_ago
+
+        price_data = self.fetch_historical_prices(symbol, fetch_start_date)
         if price_data.empty:
             logger.info("No price data available.")
             print("No price data available.")
-
             await update.message.reply_text("No price data available.")
             return
 
-        # Filter buy and sell transactions (for plotting)
-        buy_transactions = transaction_df[transaction_df["action"] == "BUY"]
-        sell_transactions = transaction_df[transaction_df["action"] == "SELL"]
+        # 7) Filter the transaction_df to show only trades in the last "fetched" range
+        #    (Earliest we have from the chart)
+        last_data_date = price_data["date"].max()
+        first_data_date = price_data["date"].min()
+        transaction_df = transaction_df[(transaction_df["date"] >= first_data_date) &
+                                        (transaction_df["date"] <= last_data_date)]
 
-        # Plot price data with improved aesthetics
-        plt.figure(figsize=(14, 7))
-        plt.plot(price_data["date"], price_data["price"], label=f"{symbol.upper()} Price", color="royalblue",
-                 linestyle="-", linewidth=1.5)
+        # 8) Prepare data for candlestick_ohlc
+        # Convert to numeric date for candlestick
+        price_data["date_num"] = price_data["date"].apply(mdates.date2num)
+        ohlc_data = price_data[["date_num", "open", "high", "low", "close"]].values.tolist()
 
-        # Plot buy points with enhanced visibility
-        plt.scatter(buy_transactions["date"], buy_transactions["price"], color="limegreen", edgecolors="black",
-                    marker="^",
-                    s=200, label="Buy Points", zorder=3, linewidth=1.5)
+        # Separate buy and sell for markers
+        buy_transactions = transaction_df[transaction_df["action"] == "BUY"].copy()
+        sell_transactions = transaction_df[transaction_df["action"] == "SELL"].copy()
 
-        # Plot sell points with enhanced visibility
-        plt.scatter(sell_transactions["date"], sell_transactions["price"], color="crimson", edgecolors="black",
-                    marker="v",
-                    s=200, label="Sell Points", zorder=3, linewidth=1.5)
+        buy_transactions["date_num"] = buy_transactions["date"].apply(mdates.date2num)
+        sell_transactions["date_num"] = sell_transactions["date"].apply(mdates.date2num)
 
-        # Plot average buy price as a horizontal line (calculated from all transactions)
+        # 9) Plot the candlestick chart
+        fig, ax = plt.subplots(figsize=(14, 7))
+
+        candlestick_ohlc(
+            ax,
+            ohlc_data,
+            width=0.6,
+            colorup='green',
+            colordown='red',
+            alpha=0.8
+        )
+
+        # 10) Overlay buy/sell markers
+        ax.scatter(
+            buy_transactions["date_num"],
+            buy_transactions["price"],
+            marker="^",
+            s=100,
+            edgecolors='black',
+            c="lime",
+            label="Buy Points",
+            zorder=3
+        )
+        ax.scatter(
+            sell_transactions["date_num"],
+            sell_transactions["price"],
+            marker="v",
+            s=100,
+            edgecolors='black',
+            c="crimson",
+            label="Sell Points",
+            zorder=3
+        )
+
+        # 11) Plot average buy price line
         if avg_buy_price:
-            plt.axhline(y=avg_buy_price, color="orange", linestyle="--", linewidth=2,
-                        label=f"Avg Buy Price: ${avg_buy_price:.2f}")
+            ax.axhline(
+                y=avg_buy_price,
+                linestyle="--",
+                label=f"Avg Buy Price: ${avg_buy_price:.2f}",
+                zorder=2,
+                color="orange"
+            )
 
-        # Labels and legend
-        plt.xlabel("Date", fontsize=12)
-        plt.ylabel("Price (USD)", fontsize=12)
-        plt.title(f"{symbol.upper()} Price Chart with Buy & Sell Points (Last 365 Days)", fontsize=14,
-                  fontweight="bold")
-        plt.legend(fontsize=12, frameon=True, loc="best")
-        plt.grid(True, linestyle="--", alpha=0.6)
-        plt.xticks(rotation=45, fontsize=10)
-        plt.yticks(fontsize=10)
+        # Format date axis
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+        ax.xaxis.set_major_locator(mdates.AutoDateLocator())
+        plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
+
+        ax.set_title(f"{symbol.upper()} Price Chart", fontsize=14, fontweight="bold")
+        ax.set_xlabel("Date", fontsize=12)
+        ax.set_ylabel("Price (USDT)", fontsize=12)
+        ax.legend(loc="best")
+
         plt.tight_layout()
 
-        # Save plot and send to Telegram
+        # Save the chart
         image_path = f"{symbol}_price_chart.png"
         plt.savefig(image_path, dpi=300)
 
+        # Send to Telegram
         await send_telegram_message_update(f"📈 Plot for: #{symbol.upper()}", update)
-
         await send_plot_to_telegram(image_path, update)
-        plt.close()
+
+        plt.close(fig)
 
     async def send_portfolio_history_plot(self, update, portfolio_history_file='./ConfigurationFiles/portfolio_history.json'):
         data = LoadVariables.load(portfolio_history_file)
@@ -203,11 +301,14 @@ class PlotTrades:
         telegram_plot_path = "./portfolio_history.png"
         plt.savefig(telegram_plot_path, dpi=150, bbox_inches='tight')
 
+        await send_telegram_message_update("📈 Portfolio history plot: #history_plot", update)
+
         await send_plot_to_telegram(telegram_plot_path, update)
 
-        # Show plot
-        #plt.show()
+        plt.close()
+
     async def send_all_plots(self, update):
+        # Plot multiple coins
         await self.plot_crypto_trades("ETH", update)
         await self.plot_crypto_trades("ARB", update)
         await self.plot_crypto_trades("FET", update)
