@@ -1,12 +1,14 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import matplotlib.dates as mdates
+# Candlestick function (mplfinance)
 from mplfinance.original_flavor import candlestick_ohlc
 
 import ccxt
 import time
 from datetime import datetime, timedelta, timezone
 
+# SDK imports (your existing modules)
 import sdk.LoadVariables as LoadVariables
 from sdk.SendTelegramMessage import (
     send_plot_to_telegram,
@@ -22,6 +24,10 @@ class PlotTrades:
     def __init__(self):
         # Initialize ccxt Binance
         self.exchange = ccxt.binance()
+
+    def reload_the_data(self):
+        # Reload any variables you may need
+        variables = LoadVariables.load()
 
     def _fetch_ohlcv_since(self, trading_pair, start_ms):
         """
@@ -109,7 +115,6 @@ class PlotTrades:
         It automatically checks if you have trades older than 1 year,
         and fetches all needed data from Binance.
         """
-        # 1) Load transactions
         transactions = LoadVariables.load_transactions(transactions_file)
         if not transactions:
             logger.info(f"No transactions found for {symbol}")
@@ -117,7 +122,6 @@ class PlotTrades:
             await update.message.reply_text("No transactions found.")
             return
 
-        # 2) Filter for this symbol
         transaction_df = pd.DataFrame(transactions)
         transaction_df = transaction_df[transaction_df["symbol"] == symbol.upper()]
 
@@ -127,7 +131,6 @@ class PlotTrades:
             await update.message.reply_text(f"No transactions found for {symbol.upper()}!")
             return
 
-        # 3) Compute average buy price using ALL historical transactions (regardless of date)
         buy_transactions_all = transaction_df[transaction_df["action"] == "BUY"]
 
         if not buy_transactions_all.empty:
@@ -137,17 +140,13 @@ class PlotTrades:
         else:
             avg_buy_price = None
 
-        # 4) Convert transaction timestamps to datetime
         transaction_df["date"] = pd.to_datetime(transaction_df["timestamp"], utc=True)
 
-        # 5) Identify the earliest transaction date
         earliest_trade_date = transaction_df["date"].min()
 
-        # 6) Fetch historical OHLCV data from earliest trade date if it's older than 1 year,
-        #    or from 1 year ago if no older trades exist.
         one_year_ago = datetime.now(timezone.utc) - timedelta(days=365)
         if earliest_trade_date < one_year_ago:
-            fetch_start_date = earliest_trade_date
+            fetch_start_date = earliest_trade_date - timedelta(days=20)
         else:
             fetch_start_date = one_year_ago
 
@@ -158,15 +157,11 @@ class PlotTrades:
             await update.message.reply_text("No price data available.")
             return
 
-        # 7) Filter the transaction_df to show only trades in the last "fetched" range
-        #    (Earliest we have from the chart)
         last_data_date = price_data["date"].max()
         first_data_date = price_data["date"].min()
         transaction_df = transaction_df[(transaction_df["date"] >= first_data_date) &
                                         (transaction_df["date"] <= last_data_date)]
 
-        # 8) Prepare data for candlestick_ohlc
-        # Convert to numeric date for candlestick
         price_data["date_num"] = price_data["date"].apply(mdates.date2num)
         ohlc_data = price_data[["date_num", "open", "high", "low", "close"]].values.tolist()
 
@@ -177,7 +172,6 @@ class PlotTrades:
         buy_transactions["date_num"] = buy_transactions["date"].apply(mdates.date2num)
         sell_transactions["date_num"] = sell_transactions["date"].apply(mdates.date2num)
 
-        # 9) Plot the candlestick chart
         fig, ax = plt.subplots(figsize=(14, 7))
 
         candlestick_ohlc(
@@ -189,17 +183,35 @@ class PlotTrades:
             alpha=0.8
         )
 
-        # 10) Overlay buy/sell markers
+        # Overlay Buy points (green ^)
         ax.scatter(
             buy_transactions["date_num"],
             buy_transactions["price"],
             marker="^",
             s=100,
             edgecolors='black',
-            c="lime",
+            color='green',
             label="Buy Points",
             zorder=3
         )
+
+        for i, row in buy_transactions.iterrows():
+            ax.annotate(
+                f"{row['amount']}",
+                (row['date_num'], row['price']),
+                xytext=(0, -15),
+                textcoords="offset points",
+                ha='center', va='top',
+                fontsize=8,
+                color='green',
+                bbox=dict(
+                    boxstyle="round,pad=0.3",
+                    fc="white",
+                    ec="green",
+                    alpha=0.8
+                )
+            )
+
         ax.scatter(
             sell_transactions["date_num"],
             sell_transactions["price"],
@@ -211,7 +223,23 @@ class PlotTrades:
             zorder=3
         )
 
-        # 11) Plot average buy price line
+        for i, row in sell_transactions.iterrows():
+            ax.annotate(
+                f"{row['amount']}",
+                (row['date_num'], row['price']),
+                xytext=(0, -15),
+                textcoords="offset points",
+                ha='center', va='top',
+                fontsize=8,
+                c='crimson',
+                bbox=dict(
+                    boxstyle="round,pad=0.3",
+                    fc="white",
+                    ec="crimson",
+                    alpha=0.8
+                )
+            )
+
         if avg_buy_price:
             ax.axhline(
                 y=avg_buy_price,
