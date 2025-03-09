@@ -32,10 +32,10 @@ async def calculate_sentiment_trend(news_items):
     trend_message = (
         f"📊 *Crypto sentiment for today:* 📊\n\n"
         f"{max_sentiment} - The market sentiment is: {max_sentiment.replace('🔴 ', '').replace('🟡 ', '').replace('🟢 ', '')}.\n"
-        f"📈 Pozitive: {sentiment_counts['Positive']}\n"
+        f"📈 Positive: {sentiment_counts['Positive']}\n"
         f"⚖️ Neutral: {sentiment_counts['Neutral']}\n"
         f"📉 Negative: {sentiment_counts['Negative']}\n"
-        f"❓ Necunoscut: {sentiment_counts['Unknown']}\n"
+        f"❓ Unknown: {sentiment_counts['Unknown']}\n"
         f"#sentiment\n\n"
     )
 
