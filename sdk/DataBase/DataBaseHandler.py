@@ -1,5 +1,5 @@
 import os
-
+import datetime
 import aiosqlite
 
 from sdk.Logger import setup_logger
@@ -89,25 +89,38 @@ class DataBaseHandler:
             print(f"Error saving article to DB: {e}")
             return 0
 
+    async def fetch_todays_news(self):
+        today_date = datetime.datetime.now().strftime("%Y-%m-%d")  # Get today's date in YYYY-MM-DD format
 
-    async def search_articles_by_tag(self, tag, limit=10):
-        """
-        Search articles in SQLite by a single tag.
-        We'll look in the 'highlights' column, e.g. searching for #Bitcoin or just 'Bitcoin'.
-        """
+        async with aiosqlite.connect("articles.db") as conn:
+            cursor = await conn.cursor()
+
+            query = """
+                SELECT source, headline, link, highlights, openai_summary, date_scraped
+                FROM articles
+                WHERE DATE(date_scraped) = ?
+                ORDER BY date_scraped DESC
+            """
+
+            await cursor.execute(query, (today_date,))
+            news_data = await cursor.fetchall()
+
+            return news_data  # Returns all articles from today
+
+    async def search_articles_by_tag(self, tag=None, limit=10):
         async with aiosqlite.connect(self.db_path) as db:
-            # Remove leading '#' if user typed it
-            cleaned_tag = tag.lstrip('#').lower()
-            # We'll do a LIKE match, ignoring case by storing everything in highlights as #UPPER or #LOWER if needed
+            cleaned_tag = tag.lstrip('#').lower() if tag else None
+
             query = f"""
-                   SELECT source, headline, link, highlights, openai_summary, date_scraped
-                   FROM articles
-                   WHERE lower(highlights) LIKE ?
-                   ORDER BY date_scraped DESC
-                   LIMIT {limit}
-               """
-            param = f"%{cleaned_tag}%"
-            cursor = await db.execute(query, (param,))
+                SELECT source, headline, link, highlights, openai_summary, date_scraped
+                FROM articles
+                {"WHERE lower(highlights) LIKE ?" if cleaned_tag else ""}
+                ORDER BY date_scraped DESC
+                LIMIT {limit}
+            """
+
+            params = (f"%{cleaned_tag}%",) if cleaned_tag else ()
+            cursor = await db.execute(query, params)
             rows = await cursor.fetchall()
             return rows
 

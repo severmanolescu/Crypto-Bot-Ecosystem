@@ -182,8 +182,8 @@ class CryptoNewsCheck:
                         found_articles = True
 
                         # Send Telegram message
-                        await self.telegram_message.send_telegram_message(message, self.telegram_api_token,
-                                                                          update=update)
+                        #await self.telegram_message.send_telegram_message(message, self.telegram_api_token,
+                        #                                                  update=update)
                     else:
                         # Already in DB
                         logger.info(f"Skipping existing article: {article['link']}")

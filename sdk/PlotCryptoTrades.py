@@ -1,11 +1,9 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import matplotlib.dates as mdates
-# Candlestick function (mplfinance)
 from mplfinance.original_flavor import candlestick_ohlc
 
 import ccxt
-import time
 from datetime import datetime, timedelta, timezone
 
 # SDK imports (your existing modules)
@@ -262,7 +260,7 @@ class PlotTrades:
         plt.tight_layout()
 
         # Save the chart
-        image_path = f"{symbol}_price_chart.png"
+        image_path = f"./Plots/{symbol}_price_chart.png"
         plt.savefig(image_path, dpi=300)
 
         # Send to Telegram
@@ -326,7 +324,7 @@ class PlotTrades:
         plt.title("Investment Performance", fontsize=14)
 
         # Save as high-quality PNG for Telegram
-        telegram_plot_path = "./portfolio_history.png"
+        telegram_plot_path = "./Plots/portfolio_history.png"
         plt.savefig(telegram_plot_path, dpi=150, bbox_inches='tight')
 
         await send_telegram_message_update("📈 Portfolio history plot: #history_plot", update)

@@ -3,6 +3,7 @@ from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
 from sdk.DataBase.DataBaseHandler import DataBaseHandler
+from sdk.MarketSentiment import get_market_sentiment
 from sdk import LoadVariables as LoadVariables
 
 from sdk.Logger import setup_logger
@@ -14,7 +15,7 @@ logger.info("News Check started")
 NEWS_KEYBOARD = ReplyKeyboardMarkup(
     [
         ["🚨 Check for Articles", "🔢 Show statistics"],
-        ["🚨 Help"]
+        ["📊 Market Sentiment", "🚨 Help"]
     ],
     resize_keyboard=True,  # Makes the buttons smaller and fit better
     one_time_keyboard=False,  # Buttons stay visible after being clicked
@@ -41,18 +42,29 @@ class NewsBot:
 
         await self.cryptoNewsCheck.run_from_bot(update)
 
+    async def market_sentiment(self, update):
+        message = await get_market_sentiment()
+
+        await update.message.reply_text(message)
+
     # Handle button presses
     async def handle_buttons(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         text = update.message.text
 
-        if text == "🚨 Check for Articles":
+        text_lower = text.lower()
+
+        if text == "🚨 Check for Articles" or text_lower == "check":
             await update.message.reply_text("🚨 Check for articles...")
 
             await self.start_the_articles_check(update)
-        elif text == "🔢 Show statistics":
+        elif text == "🔢 Show statistics" or text_lower == "statistics":
             await update.message.reply_text("🔢 Showing the statistics...")
 
             await self.db.show_stats(update)
+        elif text == "📊 Market Sentiment" or text_lower == "sentiment":
+            await update.message.reply_text("🧮 Calculating the sentiment...")
+
+            await self.market_sentiment(update)
         elif text == "🚨 Help" or text.lower() == "help":
             await self.help_command(update, context)
         else:
@@ -68,6 +80,13 @@ class NewsBot:
         articles = await self.db.search_articles_by_tags(context.args)
 
         print(f"\nFound {len(articles)} articles with {context.args} tags in the data base!\n")
+
+        if len(articles) == 0:
+            message = f"No articles found with{context.args} found!"
+
+            await update.message.reply_text(message)
+
+            return
 
         for article in articles:
             message = (

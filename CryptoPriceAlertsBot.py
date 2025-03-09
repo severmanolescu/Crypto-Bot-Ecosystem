@@ -42,7 +42,7 @@ class PriceAlertBot:
 
         logger.info(f" Check for Alerts")
 
-        if text == "🚨 Check for Alerts":
+        if text == "🚨 Check for Alerts" or text.lower() == "check":
             await update.message.reply_text("🚨 Searching for new alerts...")
 
             alert_available = await self.start_the_alerts_check(update)

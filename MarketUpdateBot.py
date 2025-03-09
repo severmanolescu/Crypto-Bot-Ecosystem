@@ -129,15 +129,17 @@ class MarketUpdateBot:
     async def handle_buttons(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         text = update.message.text
 
-        if text == "🕒 Market Update":
+        text_lower = text.lower()
+
+        if text == "🕒 Market Update" or text_lower == "update" or text_lower == "market":
             await update.message.reply_text("🕒 Showing Market Update...")
 
             await self.send_market_update(update)
-        elif text == "⛽ ETH Gas Fees":
+        elif text == "⛽ ETH Gas Fees"  or text_lower == "gas"  or text_lower == "fee":
             await update.message.reply_text("⛽ Showing ETH Gas Fees...")
 
             await self.send_eth_gas(update)
-        elif text == "📊 Detailed Portfolio Update":
+        elif text == "📊 Detailed Portfolio Update"  or text_lower == "portfolio":
             user_id = update.effective_chat.id
 
             if check_if_special_user(user_id):
@@ -147,7 +149,7 @@ class MarketUpdateBot:
             else:
                 logger.info(f" User {user_id} wants to check the portfolio without rights!")
                 await update.message.reply_text("You don't have the rights for this action!")
-        elif text == "📊 Crypto Fear & Greed Index":
+        elif text == "📊 Crypto Fear & Greed Index"  or text_lower == "index":
             await update.message.reply_text("📊 Showing Crypto Fear & Greed Index...")
 
             await self.send_crypto_fear_and_greed(update)
@@ -155,9 +157,9 @@ class MarketUpdateBot:
             await update.message.reply_text("📈 Creating the plots for every symbol from the portfolio...")
 
             await self.send_crypto_plots(update)
-        elif text == "📈 Plot portfolio history":
+        elif text == "📈 Plot portfolio history"  or text_lower == "history":
             await self.send_portfolio_history(update, None)
-        elif text == "🚨 Help":
+        elif text == "🚨 Help"  or text_lower == "help":
             await self.help_command(update, context)
         else:
             logger.error(f" Invalid command. Please use the buttons below.")
