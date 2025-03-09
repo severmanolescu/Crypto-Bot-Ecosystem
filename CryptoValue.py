@@ -7,10 +7,10 @@ from datetime import datetime
 from sdk import LoadVariables as LoadVariables
 
 from sdk.Alerts import AlertsHandler
-from sdk.DataFetcher import get_fear_and_greed
+from sdk.DataFetcher import get_fear_and_greed_message, get_fear_and_greed, get_eth_gas_fee
 from sdk.PortfolioManager import PortfolioManager
 from sdk.MarketSentiment import get_market_sentiment
-
+from sdk.DataBase.DataBaseHandler import DataBaseHandler
 from sdk.SendTelegramMessage import TelegramMessagesHandler
 
 class CryptoValueBot:
@@ -24,11 +24,15 @@ class CryptoValueBot:
         self.coinmarketcap_api_key = None
         self.coinmarketcap_api_url = None
 
+        self.etherscan_api_url = None
+
         self.send_hours = None
 
         self.save_portfolio_hours = None
 
         self.sentiment_hours = None
+
+        self.save_hours = None
 
         self.market_update_api_token = None
         self.articles_alert_api_token = None
@@ -36,6 +40,7 @@ class CryptoValueBot:
         self.last_api_call = 0
         self.cache_duration = 60
 
+        self.db = DataBaseHandler()
         self.alert_handler = AlertsHandler()
         self.portfolio = PortfolioManager()
         self.telegram_message = TelegramMessagesHandler()
@@ -45,10 +50,12 @@ class CryptoValueBot:
 
         self.market_update_api_token = variables.get("TELEGRAM_API_TOKEN_VALUE", "")
         self.articles_alert_api_token = variables.get("TELEGRAM_API_TOKEN_ARTICLES", "")
+        self.etherscan_api_url = variables.get("ETHERSCAN_GAS_API_URL", "") + variables.get("ETHERSCAN_API_KEY", "")
 
         self.send_hours = variables.get("SEND_HOURS_VALUES", "")
         self.save_portfolio_hours = variables.get("PORTFOLIO_SAVE_HOURS", "")
         self.sentiment_hours = variables.get("SENTIMENT_HOURS", "")
+        self.save_hours = variables.get("SAVE_HOURS", "")
 
         self.my_crypto = {}
         self.top_100_crypto = {}
@@ -105,7 +112,7 @@ class CryptoValueBot:
             }
 
     async def show_fear_and_greed(self, update = None):
-        message = await get_fear_and_greed()
+        message = await get_fear_and_greed_message()
 
         await self.telegram_message.send_telegram_message(message, self.market_update_api_token, False, update)
 
@@ -122,6 +129,18 @@ class CryptoValueBot:
         message = await get_market_sentiment()
 
         await self.telegram_message.send_telegram_message(message, self.articles_alert_api_token, False, update)
+
+    async def save_today_data(self):
+        print("Saving the fear and greed values...")
+        index_value, index_text, last_updated = await get_fear_and_greed()
+        await self.db.store_fear_greed(index_value, index_text, last_updated)
+
+        print("Saving the ETH gas fee...")
+        safe_gas, propose_gas, fast_gas = get_eth_gas_fee(self.etherscan_api_url)
+        await self.db.store_eth_gas_fee(safe_gas, propose_gas, fast_gas)
+
+        print("Saving the market sentiment...")
+        await get_market_sentiment(save_data=True)
 
     # Scheduled market updates
     async def send_all_the_messages(self, now_date):
@@ -145,6 +164,10 @@ class CryptoValueBot:
 
             if now_date.hour in self.sentiment_hours:
                 await self.send_market_sentiment()
+
+            if now_date.hour in self.save_hours:
+                print("\nSaving the data...")
+                await self.save_today_data()
 
     async def check_for_major_updates(self, now_date, update = None):
         await self.alert_handler.check_for_alerts(now_date, self.top_100_crypto, update)

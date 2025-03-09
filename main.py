@@ -35,7 +35,7 @@ async def run():
         sleep_time = LoadVariables.get_int_variable("SLEEP_DURATION", 1800)
 
         print("\n🧐 Check for new articles!")
-        await cryptoNewsCheck.run()
+        # await cryptoNewsCheck.run()
 
         print("\n📤 Send crypto value!")
         await cryptoValueBot.fetch_data()

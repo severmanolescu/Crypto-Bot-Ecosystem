@@ -238,3 +238,54 @@ class DataBaseHandler:
 
         # Optionally send to Telegram
         await send_telegram_message_update(final_message, update)
+
+    async def store_fear_greed(self, index_value, index_text, last_updated):
+        """Stores the Fear & Greed index in an SQLite database."""
+        async with aiosqlite.connect("./data_bases/fear_greed.db") as db:
+            await db.execute("""
+                CREATE TABLE IF NOT EXISTS fear_greed (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    index_value INTEGER,
+                    index_text TEXT,
+                    last_updated TEXT
+                )
+            """)
+            await db.execute("INSERT INTO fear_greed (index_value, index_text, last_updated) VALUES (?, ?, ?)",
+                             (index_value, index_text, last_updated))
+            await db.commit()
+
+    async def store_eth_gas_fee(self, safe_gas, propose_gas, fast_gas):
+        """Stores the Fear & Greed index in an SQLite database."""
+        async with aiosqlite.connect("./data_bases/eth_gas_fee.db") as db:
+            await db.execute("""
+                CREATE TABLE IF NOT EXISTS fear_greed (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    safe_gas REAL,
+                    propose_gas REAL,
+                    fast_gas REAL,
+                    saved_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            await db.execute("INSERT INTO fear_greed (safe_gas, propose_gas, fast_gas) VALUES (?, ?, ?)",
+                             (safe_gas, propose_gas, fast_gas))
+            await db.commit()
+
+    async def store_market_sentiment(self, sentiment_counts):
+        """Stores the Fear & Greed index in an SQLite database."""
+        async with aiosqlite.connect("./data_bases/market_sentiment.db") as db:
+            await db.execute("""
+                CREATE TABLE IF NOT EXISTS fear_greed (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    unknown INTEGER,
+                    negative INTEGER,
+                    neutral INTEGER,
+                    positive INTEGER,
+                    saved_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            await db.execute("INSERT INTO fear_greed (unknown, negative, neutral, positive) VALUES (?, ?, ?, ?)",
+                             (sentiment_counts['Unknown'],
+                              sentiment_counts['Negative'],
+                              sentiment_counts['Neutral'],
+                              sentiment_counts['Positive']))
+            await db.commit()

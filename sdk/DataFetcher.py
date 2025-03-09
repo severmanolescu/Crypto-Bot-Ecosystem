@@ -1,5 +1,3 @@
-import requests
-
 from datetime import datetime
 
 from sdk.Utils import check_requests
@@ -27,7 +25,7 @@ def get_eth_gas_fee(etherscan_api_url):
         print(f"❌ Error fetching ETH gas fees: {e}")
         return None, None, None
 
-async def get_fear_and_greed():
+async def get_fear_and_greed_message():
     url = "https://api.alternative.me/fng/"
 
     data = check_requests(url)
@@ -47,3 +45,17 @@ async def get_fear_and_greed():
 
         return message
     return "❌ Error during the data request"
+
+async def get_fear_and_greed():
+    url = "https://api.alternative.me/fng/"
+    data = check_requests(url)
+
+    if data is not None:
+        index_value = data["data"][0]["value"]  # Fear & Greed Score
+        index_text = data["data"][0]["value_classification"]  # Sentiment (Fear, Greed, etc.)
+
+        timestamp = int(data["data"][0]['timestamp'])
+        last_update_date = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+
+        return index_value, index_text, last_update_date
+    return None, None, None

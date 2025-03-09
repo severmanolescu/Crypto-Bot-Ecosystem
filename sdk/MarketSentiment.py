@@ -15,37 +15,41 @@ async def extract_sentiment_from_summary(summary):
     else:
         return "Unknown"  # If no sentiment is found
 
-async def calculate_sentiment_trend(news_items):
+async def calculate_sentiment_trend(news_items, save_data = False):
     sentiment_counts = {"Unknown": 0, "Negative": 0, "Neutral": 0, "Positive": 0}
-
-    print("Calculating the sentiment...")
 
     for item in news_items:
         if item[4] is not None:
             sentiment = await extract_sentiment_from_summary(item[4])
             sentiment_counts[sentiment] += 1  # Count occurrences
+    if save_data:
+        db = DataBaseHandler()
 
-    # Find the most common sentiment
-    max_sentiment = max(sentiment_counts, key=sentiment_counts.get)
+        await db.store_market_sentiment(sentiment_counts)
+        return ""
+    else:
+        print("Calculating the sentiment...")
 
-    # Generate summary message
-    trend_message = (
-        f"📊 *Crypto sentiment for today:* 📊\n\n"
-        f"{max_sentiment} - The market sentiment is: {max_sentiment.replace('🔴 ', '').replace('🟡 ', '').replace('🟢 ', '')}.\n"
-        f"📈 Positive: {sentiment_counts['Positive']}\n"
-        f"⚖️ Neutral: {sentiment_counts['Neutral']}\n"
-        f"📉 Negative: {sentiment_counts['Negative']}\n"
-        f"❓ Unknown: {sentiment_counts['Unknown']}\n"
-        f"#sentiment\n\n"
-    )
+        max_sentiment = max(sentiment_counts, key=sentiment_counts.get)
 
-    print(trend_message)
+        # Generate summary message
+        trend_message = (
+            f"📊 *Crypto sentiment for today:* 📊\n\n"
+            f"{max_sentiment} - The market sentiment is: {max_sentiment.replace('🔴 ', '').replace('🟡 ', '').replace('🟢 ', '')}.\n"
+            f"📈 Positive: {sentiment_counts['Positive']}\n"
+            f"⚖️ Neutral: {sentiment_counts['Neutral']}\n"
+            f"📉 Negative: {sentiment_counts['Negative']}\n"
+            f"❓ Unknown: {sentiment_counts['Unknown']}\n"
+            f"#sentiment\n\n"
+        )
 
-    return trend_message
+        print(trend_message)
 
-async def get_market_sentiment():
+        return trend_message
+
+async def get_market_sentiment(save_data = False):
     db = DataBaseHandler()
 
     articles = await db.fetch_todays_news()
 
-    return await calculate_sentiment_trend(articles)
+    return await calculate_sentiment_trend(articles, save_data)
