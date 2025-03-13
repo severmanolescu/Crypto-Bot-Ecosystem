@@ -142,6 +142,9 @@ class CryptoValueBot:
         print("Saving the market sentiment...")
         await get_market_sentiment(save_data=True)
 
+        print("Saving the daily stats...")
+        await self.db.store_daily_stats()
+
     # Scheduled market updates
     async def send_all_the_messages(self, now_date):
         if self.lastSentHour != now_date.hour:

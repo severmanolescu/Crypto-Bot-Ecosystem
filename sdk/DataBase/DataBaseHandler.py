@@ -166,8 +166,10 @@ class DataBaseHandler:
     async def get_daily_article_counts(self):
         """
         Returns how many articles were inserted for each source in the last 24 hours.
-        Example row: (source, count)
+        Ensures that all three sources ("crypto.news", "bitcoinmagazine", "cointelegraph") are always included,
+        even if they have zero articles.
         """
+        sources = {"crypto.news", "bitcoinmagazine", "cointelegraph"}
         async with aiosqlite.connect(self.db_path) as db:
             query = """
                 SELECT source, COUNT(*) 
@@ -177,8 +179,14 @@ class DataBaseHandler:
             """
             cursor = await db.execute(query)
             results = await cursor.fetchall()
-            # results might look like: [("crypto.news", 5), ("cointelegraph", 8), ...]
-            return results
+
+            # Convert results into a dictionary for easy lookup
+            counts = {source: count for source, count in results}
+
+            # Ensure all three sources are included with at least 0
+            final_counts = [(source, counts.get(source, 0)) for source in sources]
+
+            return final_counts
 
     async def get_weekly_article_counts(self):
         """
@@ -238,6 +246,26 @@ class DataBaseHandler:
 
         # Optionally send to Telegram
         await send_telegram_message_update(final_message, update)
+
+    async def store_daily_stats(self):
+        """Stores the Fear & Greed index in an SQLite database."""
+        async with aiosqlite.connect("./data_bases/daily_stats.db") as db:
+            await db.execute("""
+                        CREATE TABLE IF NOT EXISTS daily_stats (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            crypto_news INTEGER,
+                            cointelegraph INTEGER,
+                            bitcoinmagazine INTEGER
+                        )
+                    """)
+            daily = dict(await self.get_daily_article_counts())
+
+
+
+            await db.execute("INSERT INTO daily_stats (crypto_news, cointelegraph, bitcoinmagazine) VALUES (?, ?, ?)",
+                             (daily['crypto.news'], daily['cointelegraph'], daily['bitcoinmagazine']))
+            await db.commit()
+
 
     async def store_fear_greed(self, index_value, index_text, last_updated):
         """Stores the Fear & Greed index in an SQLite database."""
