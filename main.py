@@ -50,10 +50,9 @@ async def run():
         await asyncio.sleep(sleep_time)
 
 def main():
-    parser = argparse.ArgumentParser(description="Process some arguments.")
+    parser = argparse.ArgumentParser(description="Recreate the news data base if needed.")
 
-    # Adding the --r or --recreate flag
-    parser.add_argument("-r", "--recreate", action="store_true", help="Recreate something")
+    parser.add_argument("-r", "--recreate", action="store_true", help="Recreate the news data base")
 
     args = parser.parse_args()
 
