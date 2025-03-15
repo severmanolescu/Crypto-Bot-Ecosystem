@@ -17,7 +17,6 @@ from sdk.Logger import setup_logger
 logger = setup_logger("log.log")
 logger.info("Market Update Bot started")
 
-
 class PlotTrades:
     def __init__(self):
         # Initialize ccxt Binance

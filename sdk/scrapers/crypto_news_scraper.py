@@ -2,7 +2,6 @@
 
 from bs4 import BeautifulSoup
 
-
 class CryptoNewsScraper:
     """
     Handles scraping for the https://crypto.news/ website.

@@ -665,12 +665,9 @@ class SlaveBot:
 """
         await update.message.reply_text(help_text, parse_mode="Markdown")
 
-
     # Handle button presses
     async def handle_buttons(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         text = update.message.text
-
-        special_user = True
 
         if text == "🚨 Help":
             await self.help_command(update, context)

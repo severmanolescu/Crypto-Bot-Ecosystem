@@ -13,7 +13,6 @@ from NewsCheck import CryptoNewsCheck
 
 from sdk import LoadVariables as LoadVariables
 
-
 cryptoValueBot = CryptoValueBot()
 cryptoNewsCheck = CryptoNewsCheck()
 
@@ -63,7 +62,6 @@ def main():
 
     else:
         asyncio.run(run())
-
 
 if __name__ == "__main__":
     main()

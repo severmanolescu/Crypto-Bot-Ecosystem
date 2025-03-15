@@ -21,4 +21,4 @@ def format_change(change):
         return f"`🔴 {change:.2f}%`"  # Negative change in monospace
     else:
         return f"`🟢 +{change:.2f}%`"  # Positive change in monospace
-
+    

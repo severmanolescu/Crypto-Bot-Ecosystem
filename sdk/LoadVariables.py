@@ -4,6 +4,7 @@ import json
 from datetime import datetime, timezone
 
 from sdk.Logger import setup_logger
+
 logger = setup_logger("log.log")
 logger.info("Load variables started")
 
