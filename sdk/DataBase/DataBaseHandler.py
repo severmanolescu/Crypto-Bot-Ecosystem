@@ -255,12 +255,11 @@ class DataBaseHandler:
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             crypto_news INTEGER,
                             cointelegraph INTEGER,
-                            bitcoinmagazine INTEGER
+                            bitcoinmagazine INTEGER,
+                            last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                         )
                     """)
             daily = dict(await self.get_daily_article_counts())
-
-
 
             await db.execute("INSERT INTO daily_stats (crypto_news, cointelegraph, bitcoinmagazine) VALUES (?, ?, ?)",
                              (daily['crypto.news'], daily['cointelegraph'], daily['bitcoinmagazine']))
