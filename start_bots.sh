@@ -6,7 +6,6 @@ BOT_DIR="/home/sever/Crypto-Articles-Bots"
 # List of bot scripts
 BOTS=(
     "CryptoPriceAlertsBot.py"
-    "CryptoValue.py"
     "MarketUpdateBot.py"
     "MySlaveBot.py"
     "NewsCheckBot.py"
