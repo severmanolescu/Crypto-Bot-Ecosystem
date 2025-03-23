@@ -40,7 +40,17 @@
         0
     ],
     "PORTFOLIO_SAVE_HOURS": [
-        20
+        23,
+        15
+    ],
+    "SENTIMENT_HOURS": [
+        23
+    ],
+    "TODAY_AI_SUMMARY": [
+        23
+    ],
+    "SAVE_HOURS": [
+        23
     ],
     "CRYPTOCURRENCIES": [
         "BTC",
@@ -52,7 +62,6 @@
         "ENA",
         "SEI",
         "LDO",
-        "SEI",
-        "USDT"
+        "SEI"
     ]
 }
