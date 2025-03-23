@@ -317,6 +317,12 @@ class PlotTrades:
             ax2.text(df_smoothed['datetime'][i], df_smoothed['profit_loss_percentage'][i],
                      f"{df_smoothed['profit_loss_percentage'][i]:.1f}%", fontsize=10, color='purple', ha='left')
 
+        # Extend the y-axis range by ±5%
+        min_pct = df_smoothed['profit_loss_percentage'].min()
+        max_pct = df_smoothed['profit_loss_percentage'].max()
+        padding = 7  # 5%
+
+        ax2.set_ylim(min_pct - padding, max_pct + padding)
         ax2.set_ylabel("Profit/Loss %", fontsize=12)
         ax2.legend(loc="upper right", fontsize=10)
 

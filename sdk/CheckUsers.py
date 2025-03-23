@@ -1,5 +1,4 @@
 from sdk.Logger import setup_logger
-
 logger = setup_logger("log.log")
 logger.info("User check started")
 

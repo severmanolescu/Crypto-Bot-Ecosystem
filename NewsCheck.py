@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import requests
 import asyncio
 import cloudscraper
@@ -193,6 +195,21 @@ class CryptoNewsCheck:
             logger.error(f"Failed to fetch {source}.")
 
         return found_articles
+
+    async def send_today_summary(self):
+        if self.send_ai_summary == "True":
+            articles = await self.data_base.fetch_todays_news()
+
+            message = f"Te rog genereaza raportul zilnic general. nu pentru fiecare articol, folosind urmatoarele articole, {datetime.now().date()}:\n"
+
+            for article in articles:
+                message += article[2] + "\n"
+
+            ai_message = await self.openAIPrompt.get_response(message, max_tokens=2000)
+    
+            ai_message += '\n #DailyReport'
+
+            await self.telegram_message.send_telegram_message(ai_message, self.telegram_api_token)
 
     async def recreate_data_base(self):
         await self.data_base.recreate_data_base()

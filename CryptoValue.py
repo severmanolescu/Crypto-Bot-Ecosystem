@@ -13,6 +13,8 @@ from sdk.MarketSentiment import get_market_sentiment
 from sdk.DataBase.DataBaseHandler import DataBaseHandler
 from sdk.SendTelegramMessage import TelegramMessagesHandler
 
+from NewsCheck import CryptoNewsCheck
+
 class CryptoValueBot:
     def __init__(self):
         self.lastSentHour = None
@@ -37,6 +39,8 @@ class CryptoValueBot:
         self.market_update_api_token = None
         self.articles_alert_api_token = None
 
+        self.today_ai_summary = None
+
         self.last_api_call = 0
         self.cache_duration = 60
 
@@ -45,11 +49,16 @@ class CryptoValueBot:
         self.portfolio = PortfolioManager()
         self.telegram_message = TelegramMessagesHandler()
 
+        self.news_check = CryptoNewsCheck()
+
     def reload_the_data(self):
         variables = LoadVariables.load()
 
         self.market_update_api_token = variables.get("TELEGRAM_API_TOKEN_VALUE", "")
         self.articles_alert_api_token = variables.get("TELEGRAM_API_TOKEN_ARTICLES", "")
+
+        self.today_ai_summary = variables.get("TODAY_AI_SUMMARY", "")
+
         self.etherscan_api_url = variables.get("ETHERSCAN_GAS_API_URL", "") + variables.get("ETHERSCAN_API_KEY", "")
 
         self.send_hours = variables.get("SEND_HOURS_VALUES", "")
@@ -130,6 +139,11 @@ class CryptoValueBot:
 
         await self.telegram_message.send_telegram_message(message, self.articles_alert_api_token, False, update)
 
+    async def send_today_AI_summary(self):
+        self.news_check.reload_the_data()
+
+        await self.news_check.send_today_summary()
+
     async def save_today_data(self):
         print("Saving the fear and greed values...")
         index_value, index_text, last_updated = await get_fear_and_greed()
@@ -167,6 +181,9 @@ class CryptoValueBot:
 
             if now_date.hour in self.sentiment_hours:
                 await self.send_market_sentiment()
+
+            if now_date.hour in self.today_ai_summary:
+                await self.send_today_AI_summary()
 
             if now_date.hour in self.save_hours:
                 print("\nSaving the data...")

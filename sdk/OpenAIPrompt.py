@@ -1,7 +1,6 @@
 import openai
 
 from sdk.Logger import setup_logger
-
 logger = setup_logger("log.log")
 logger.info("Open AI Prompt started")
 
@@ -16,7 +15,7 @@ class OpenAIPrompt:
 
         return await self.get_response(prompt)
 
-    async def get_response(self, prompt, model='gpt-4o-mini'):
+    async def get_response(self, prompt, model='gpt-4o-mini', max_tokens=200):
         """Use OpenAI API to generate a short description for a prompt."""
         try:
             client = openai.OpenAI(api_key=self.openai_api_key)  # Use OpenAI's updated API client
@@ -24,7 +23,7 @@ class OpenAIPrompt:
                 model=model,
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.7,
-                max_tokens=200
+                max_tokens=max_tokens
             )
             summary = response.choices[0].message.content.strip()
             return summary

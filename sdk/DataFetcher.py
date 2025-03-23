@@ -3,7 +3,6 @@ from datetime import datetime
 from sdk.Utils import check_requests
 
 from sdk.Logger import setup_logger
-
 logger = setup_logger("log.log")
 logger.info("Data Fetcher started")
 
