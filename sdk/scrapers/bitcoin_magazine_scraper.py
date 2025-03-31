@@ -1,3 +1,5 @@
+import re
+
 from bs4 import BeautifulSoup
 
 class BitcoinMagazineScraper:
@@ -11,10 +13,16 @@ class BitcoinMagazineScraper:
         """
         self.keywords = keywords
 
-    def contains_keywords(self, headline: str) -> bool:
-        """Check if the headline contains any of the specified keywords."""
+    def contains_keywords(self, headline):
+        """Match only full words or phrases, allowing ending punctuation like . , ! ?"""
         headline_lower = headline.lower()
-        return any(keyword.lower() in headline_lower for keyword in self.keywords)
+
+        for keyword in self.keywords:
+            keyword_lower = keyword.lower()
+            pattern = rf'\b{re.escape(keyword_lower)}\b[.,!?]?'
+            if re.search(pattern, headline_lower):
+                return True
+        return False
 
     def extract_highlights(self, headline: str) -> str:
         """Return #hashtags for each matched keyword in the headline."""

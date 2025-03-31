@@ -1,6 +1,7 @@
-# scrapers/crypto_news_scraper.py
+import re
 
 from bs4 import BeautifulSoup
+
 
 class CryptoNewsScraper:
     """
@@ -14,9 +15,15 @@ class CryptoNewsScraper:
         self.keywords = keywords
 
     def contains_keywords(self, headline):
-        """Check if the headline contains any of the specified keywords."""
+        """Match only full words or phrases, allowing ending punctuation like . , ! ?"""
         headline_lower = headline.lower()
-        return any(keyword.lower() in headline_lower for keyword in self.keywords)
+
+        for keyword in self.keywords:
+            keyword_lower = keyword.lower()
+            pattern = rf'\b{re.escape(keyword_lower)}\b[.,!?]?'
+            if re.search(pattern, headline_lower):
+                return True
+        return False
 
     def extract_highlights(self, headline):
         """Return #hashtags for each matched keyword in the headline."""
