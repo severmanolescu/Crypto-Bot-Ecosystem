@@ -1,11 +1,11 @@
 # Telegram Bots Documentation
 ### Overview
 
-This document provides an overview of the Telegram bots running on the Raspberry Pi 4, their features, and planned improvements.
+This document overviews the Telegram bots running on the Raspberry Pi 4, their features, and planned improvements.
 
 ### Current Bots
 
-The project include 4 bots:
+The project includes 4 bots:
                 
 + **Crypto News Bot**
 	+ Articles search:
@@ -32,22 +32,22 @@ The project include 4 bots:
 	+ Market cap change in 24h for a coin
 	+ Calculate ROI
 	+ Save buy/sell orders
-	+ Modify / list the keywords used by the **Crypto News Bot**
+	+ Modify/list the keywords used by the **Crypto News Bot**
 	+ Modify / list variables used by the bots
 
-### Planed Features
+### Planned Features
 + Forex news integration
 + Web dashboard enhancements
 + AI trading bots
 
 ### Infrastructure
 + Python 3.12
-+ The bots currently are running on a Raspberry PI 4, but they can be used on any device that can run the python 
++ The bots currently are running on a Raspberry PI 4, but they can be used on any device that can run Python 
 
-###Setup & Installation
-+ Clone the repository localy 
+### Setup & Installation
++ Clone the repository locally 
 + Install dependencies:
-	`pip install -r requirements.txt` in python environment
+	`pip install -r requirements.txt` in Python environment
 	or
 	`py -r pip install -r requirements.txt` for console
 + Set up variables, update `/ConfigurationFiles/variables.json`
