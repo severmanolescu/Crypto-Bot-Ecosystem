@@ -190,7 +190,19 @@ class CryptoValueBot:
                 await self.save_today_data()
 
     async def check_for_major_updates(self, now_date, update = None):
-        await self.alert_handler.check_for_alerts(now_date, self.top_100_crypto, update)
+        return await self.alert_handler.check_for_alerts(now_date, self.top_100_crypto, update)
+
+    async def check_for_major_updates_1h(self, update = None):
+        return await self.alert_handler.check_for_major_updates_1h(self.top_100_crypto, update)
+
+    async def check_for_major_updates_24h(self, update = None):
+        return await self.alert_handler.check_for_major_updates_24h(self.top_100_crypto, update)
+
+    async def check_for_major_updates_7d(self, update = None):
+        return await self.alert_handler.check_for_major_updates_7d(self.top_100_crypto, update)
+
+    async def check_for_major_updates_30d(self, update = None):
+        return await self.alert_handler.check_for_major_updates_30d(self.top_100_crypto, update)
 
     async def fetch_data(self):
         self.get_my_crypto()
