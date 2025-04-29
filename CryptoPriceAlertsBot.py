@@ -1,3 +1,5 @@
+import datetime
+
 from sdk.Logger import setup_logger
 
 logger = setup_logger("log.log")
@@ -64,10 +66,7 @@ class PriceAlertBot:
 
         self.cryptoValueBot.get_my_crypto()
 
-        return (await self.cryptoValueBot.check_for_major_updates_1h(update) or
-                 await self.cryptoValueBot.check_for_major_updates_24h(update) or
-                 await self.cryptoValueBot.check_for_major_updates_7d(update) or
-                 await self.cryptoValueBot.check_for_major_updates_30d(update))
+        return await self.cryptoValueBot.check_for_major_updates(None, update)
 
     # Handle button presses
     async def handle_buttons(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
