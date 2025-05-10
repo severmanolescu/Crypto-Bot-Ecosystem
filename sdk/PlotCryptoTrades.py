@@ -17,6 +17,7 @@ from sdk.Logger import setup_logger
 logger = setup_logger("log.log")
 logger.info("Market Update Bot started")
 
+
 class PlotTrades:
     def __init__(self):
         # Initialize ccxt Binance
@@ -340,6 +341,7 @@ class PlotTrades:
 
     async def send_all_plots(self, update):
         # Plot multiple coins
+        # TO-DO: Get the coins from the configuration file!!
         await self.plot_crypto_trades("ETH", update)
         await self.plot_crypto_trades("ARB", update)
         await self.plot_crypto_trades("FET", update)
@@ -347,3 +349,4 @@ class PlotTrades:
         await self.plot_crypto_trades("PEPE", update)
         await self.plot_crypto_trades("LDO", update)
         await self.plot_crypto_trades("SEI", update)
+        await self.plot_crypto_trades("SUI", update)
