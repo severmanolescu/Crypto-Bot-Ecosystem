@@ -279,29 +279,36 @@ class PlotTrades:
         # Apply rolling mean to smooth fluctuations (window size 3)
         numeric_cols = ['total_value', 'total_investment', 'profit_loss', 'profit_loss_percentage']
         df_smoothed = df.copy()
+        # Apply smoothing
         df_smoothed[numeric_cols] = df[numeric_cols].rolling(window=3, min_periods=1).mean()
+
+        # Restore last row from original to avoid smoothing it
+        df_smoothed.loc[df_smoothed.index[-1], numeric_cols] = df.loc[df.index[-1], numeric_cols]
 
         # Plot - Adjust size for Telegram
         fig, ax1 = plt.subplots(figsize=(10, 5), dpi=150)
 
         # Plot the main values with markers
-        ax1.plot(df_smoothed['datetime'], df_smoothed['total_value'], marker='o', label="Total Value", color='b',
-                 alpha=0.7)
-        ax1.plot(df_smoothed['datetime'], df_smoothed['total_investment'], marker='s', label="Total Investment",
-                 color='g', alpha=0.7)
-        ax1.plot(df_smoothed['datetime'], df_smoothed['profit_loss'], marker='^', label="Profit/Loss", color='r',
-                 alpha=0.7)
+        ax1.plot(df_smoothed['datetime'], df_smoothed['total_value'], label="Total Value", color='b',
+                 alpha=0.7, linewidth=1.5)
+        ax1.plot(df_smoothed['datetime'], df_smoothed['total_investment'], label="Total Investment",
+                 color='g', alpha=0.7, linewidth=1.5)
+        ax1.plot(df_smoothed['datetime'], df_smoothed['profit_loss'], label="Profit/Loss", color='r',
+                 alpha=0.7, linewidth=1.5)
 
         # Add labels to some points (reduce clutter for Telegram)
         for i in range(0, len(df_smoothed), max(1, len(df_smoothed) // 6)):
-            ax1.text(df_smoothed['datetime'][i], df_smoothed['total_value'][i], f"{df_smoothed['total_value'][i]:,.0f}",
+            ax1.text(df_smoothed['datetime'][i], df_smoothed['total_value'][i],
+                     f"{df_smoothed['total_value'][i]:,.0f}".replace(',',' '),
                      fontsize=10, color='b', ha='right')
-            ax1.text(df_smoothed['datetime'][i], df_smoothed['profit_loss'][i], f"{df_smoothed['profit_loss'][i]:,.0f}",
+            ax1.text(df_smoothed['datetime'][i], df_smoothed['profit_loss'][i],
+                     f"{df_smoothed['profit_loss'][i]:,.0f}".replace(',',' '),
                      fontsize=10, color='r', ha='right')
 
         ax1.set_xlabel("DateTime", fontsize=12)
         ax1.set_ylabel("Value ($)", fontsize=12)
-        ax1.legend(loc="upper left", fontsize=10)
+
+        ax1.grid(True, linestyle='--', alpha=0.2)
 
         # Improve X-axis formatting
         ax1.xaxis.set_major_locator(mdates.AutoDateLocator())
@@ -310,8 +317,8 @@ class PlotTrades:
 
         # Secondary y-axis for profit_loss_percentage
         ax2 = ax1.twinx()
-        ax2.plot(df_smoothed['datetime'], df_smoothed['profit_loss_percentage'], marker='d', linestyle='dashed',
-                 color='purple', label="Profit/Loss %", alpha=0.7)
+        ax2.plot(df_smoothed['datetime'], df_smoothed['profit_loss_percentage'], linestyle='dashed',
+                 color='purple', label="Profit/Loss %", alpha=0.7, linewidth=1.5)
 
         # Add labels for profit_loss_percentage
         for i in range(0, len(df_smoothed), max(1, len(df_smoothed) // 6)):
@@ -321,13 +328,24 @@ class PlotTrades:
         # Extend the y-axis range by ±5%
         min_pct = df_smoothed['profit_loss_percentage'].min()
         max_pct = df_smoothed['profit_loss_percentage'].max()
-        padding = 7  # 5%
+        padding = (max_pct - min_pct) * 0.15
 
         ax2.set_ylim(min_pct - padding, max_pct + padding)
         ax2.set_ylabel("Profit/Loss %", fontsize=12)
-        ax2.legend(loc="upper right", fontsize=10)
 
-        plt.title("Investment Performance", fontsize=14)
+        # Combine legends and place slightly below the title
+        lines_1, labels_1 = ax1.get_legend_handles_labels()
+        lines_2, labels_2 = ax2.get_legend_handles_labels()
+        ax1.legend(lines_1 + lines_2, labels_1 + labels_2,
+                   loc="upper center", bbox_to_anchor=(0.5, 1.08), ncol=4, frameon=False)
+
+        start = df_smoothed['datetime'].min().strftime("%b %d")
+        end = df_smoothed['datetime'].max().strftime("%b %d")
+        plt.annotate(f"{start} → {end}", (0.99, 0.02), xycoords="axes fraction", ha="right", fontsize=9)
+
+        plt.title("Investment Performance", fontsize=14, weight='bold', pad=25)
+
+        plt.rcParams.update({'font.family': 'DejaVu Sans', 'font.size': 11})
 
         # Save as high-quality PNG for Telegram
         telegram_plot_path = "./Plots/portfolio_history.png"
