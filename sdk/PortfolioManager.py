@@ -47,7 +47,7 @@ class PortfolioManager:
     # Function to calculate total portfolio value
     def calculate_portfolio_value(self, my_crypto):
         total_value = 0
-        message = "📊 *Portfolio Value Update:*\n\n"
+        message = "📊 <b>Portfolio Value Update:</b>\n\n"
 
         for symbol, details in self.portfolio.items():
             if symbol in my_crypto:
