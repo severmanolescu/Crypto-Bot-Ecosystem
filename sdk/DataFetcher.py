@@ -37,9 +37,9 @@ async def get_fear_and_greed_message():
         timestamp = int(data["data"][0]['timestamp'])
         last_update_date = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
 
-        message = f"📊 *Crypto Fear & Greed Index*:\n" \
-                  f"💡 *Score*: {index_value} / 100\n" \
-                  f"🔎 *Sentiment*: {index_text}\n" \
+        message = f"📊 <b>Crypto Fear & Greed Index</b>:\n" \
+                  f"💡 <b>Score</b>: {index_value} / 100\n" \
+                  f"🔎 <b>Sentiment</b>: {index_text}\n" \
                   f"🕒 Last Updated: {last_update_date}\n" \
                   f"#FearAndGreed"
 

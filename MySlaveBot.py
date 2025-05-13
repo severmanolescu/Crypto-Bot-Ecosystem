@@ -90,13 +90,13 @@ class SlaveBot:
 
         if data is not None and "data" in data:
             top_10 = data["data"]
-            result = "🚀 *Top 10 Cryptos by Market Cap:*\n\n"
+            result = "🚀 <b>Top 10 Cryptos by Market Cap:</b>\n\n"
             for coin in top_10:
                 name = coin["name"]
                 symbol = coin["symbol"]
                 price = coin["quote"]["USD"]["price"]
                 market_cap = coin["quote"]["USD"]["market_cap"]
-                result += (f"🔹 *{name} ({symbol})*\n"
+                result += (f"🔹 <b>{name} ({symbol})</b>\n"
                            f"💰 Price: ${price:,.2f}\n"
                            f"🏦 Market Cap: ${market_cap:,.2f}\n\n")
             return result
@@ -190,17 +190,17 @@ class SlaveBot:
 
         if data1 and data2:
             message = f"""
-    📊 *Comparison: {symbol1.upper()} vs {symbol2.upper()}*
+    📊 Comparison: <b>{symbol1.upper()}</b> vs <b>{symbol2.upper()}</b>
     
-💰 *Price*:
+💰 <b>Price</b>:
 - {symbol1.upper()}: ${data1["price"]:.2f}
 - {symbol2.upper()}: ${data2["price"]:.2f}
 
-🏦 *Market Cap*:
+🏦 <b>Market Cap</b>:
 - {symbol1.upper()}: ${data1["market_cap"]:.2f}
 - {symbol2.upper()}: ${data2["market_cap"]:.2f}
 
-📈 *24h Change*:
+📈 <b>24h Change</b>:
 - {symbol1.upper()}: {data1["change_24h"]:.2f}%
 - {symbol2.upper()}: {data2["change_24h"]:.2f}%
 """
@@ -251,8 +251,8 @@ class SlaveBot:
         logger.info(f" Requested: convert {amount} {from_symbol} {to_symbol}")
 
         if converted_amount is not None:
-            text = f"🔁 *Conversion Result:*\n{amount} {from_symbol.upper()} = {converted_amount:.2f} {to_symbol.upper()}"
-            await update.message.reply_text(text, parse_mode="Markdown")
+            text = f"🔁 <b>Conversion Result:</b>\n{amount} {from_symbol.upper()} = {converted_amount:.2f} {to_symbol.upper()}"
+            await update.message.reply_text(text, parse_mode="Markdown")<b>
         else:
             logger.error(f" Couldn't convert {from_symbol.upper()} to {to_symbol.upper()}.")
             await update.message.reply_text(f"❌ Couldn't convert {from_symbol.upper()} to {to_symbol.upper()}.")
@@ -274,7 +274,7 @@ class SlaveBot:
 
         if data:
             change_24h = data["change_24h"]
-            text = f"📊 *Market Cap Change for {symbol} (24h):* {change_24h:.2f}%"
+            text = f"📊 <b>Market Cap Change for {symbol} (24h):</b> {change_24h:.2f}%"
             await update.message.reply_text(text, parse_mode="Markdown")
         else:
             logger.error(f" Couldn't fetch market cap change for {symbol}.")
@@ -311,7 +311,7 @@ class SlaveBot:
             current_value = (initial_investment / initial_price) * current_price
 
             text = f"""
-📈 *ROI for {symbol} with ${initial_investment:.2f} investment:*
+📈 <b>ROI for {symbol} with ${initial_investment:.2f} investment:</b>
 - Initial Price: ${initial_price:.2f}
 - Current Price: ${current_price:.2f}
 - Current Value: ${current_value:.2f}
@@ -429,10 +429,10 @@ class SlaveBot:
             # Update portfolio and save transaction
             if self.update_portfolio(symbol, amount, price, "buy"):
                 text = (
-                    f"✅ *Buy Order Executed:*\n"
-                    f"📈 *{amount} {symbol}* at *${price:.2f}* each\n"
-                    f"💰 *Total Cost:* ${total_cost:.2f}\n"
-                    f"🕒 *Timestamp:* {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}"
+                    f"✅ <b>Buy Order Executed:</b>\n"
+                    f"📈 <b>{amount} {symbol}</b> at <b>${price:.2f}</b> each\n"
+                    f"💰 <b>Total Cost:</b> ${total_cost:.2f}\n"
+                    f"🕒 <b>Timestamp:</b> {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}"
                 )
                 await update.message.reply_text(text, parse_mode="Markdown")
             else:
@@ -472,10 +472,10 @@ class SlaveBot:
             # Update portfolio and save transaction
             if self.update_portfolio(symbol, amount, price, "sell"):
                 text = (
-                    f"✅ *Sell Order Executed:*\n"
-                    f"📉 *{amount} {symbol}* at *${price:.2f}* each\n"
-                    f"💰 *Total Value:* ${total_value:.2f}\n"
-                    f"🕒 *Timestamp:* {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}"
+                    f"✅ <b>Sell Order Executed:</b>\n"
+                    f"📉 <b>{amount} {symbol}</b> at <b>${price:.2f}</b> each\n"
+                    f"💰 <b>Total Value:</b> ${total_value:.2f}\n"
+                    f"🕒 <b>Timestamp:</b> {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}"
                 )
                 await update.message.reply_text(text, parse_mode="Markdown")
             else:
@@ -487,9 +487,9 @@ class SlaveBot:
         logger.info(f" User {update.effective_chat.id} "
                      f"requested keywords list")
 
-        keywords_message = "📋 *Current keywords:*\n\n"
+        keywords_message = "📋 <b>Current keywords:</b>\n\n"
         for key in keywords:
-            keywords_message += f"🔹 *{key}*\n"
+            keywords_message += f"🔹 <b>{key}</b>\n"
 
         await update.message.reply_text(keywords_message, parse_mode="Markdown")
 
@@ -564,9 +564,9 @@ class SlaveBot:
             await update.message.reply_text("ℹ️ No variables found.")
             return
 
-        variables_message = "📋 *Current Variables:*\n\n"
+        variables_message = "📋 <b>Current Variables:</b>\n\n"
         for key, value in variables.items():
-            variables_message += f"🔹 *{key}*: `{value}`\n"
+            variables_message += f"🔹 <b>{key}</b>: `{value}`\n"
 
         await update.message.reply_text(variables_message, parse_mode="Markdown")
 
@@ -643,7 +643,7 @@ class SlaveBot:
         logger.info(f" Requested: help")
 
         help_text = """
-📢 *Crypto Bot Commands*:
+📢 <b>Crypto Bot Commands</b>:
 /details <symbol> - Get full details (price, volume, market cap, % changes)
 /top10 - Get the top 10 cryptos by market cap
 /compare <symbol1> <symbol2> - Compare two cryptocurrencies

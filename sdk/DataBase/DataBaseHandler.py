@@ -228,17 +228,17 @@ class DataBaseHandler:
 
         # Build a message or log it
         lines = []
-        lines.append("Daily Stats:")
+        lines.append("<b>Daily Stats:</b>")
         for (src, cnt) in daily:
-            lines.append(f" - {src}: {cnt} articles in last 24h")
+            lines.append(f" - <b>{src}</b>: <b>{cnt}</b> articles in last 24h")
 
-        lines.append("\nWeekly Stats:")
+        lines.append("\n<b>Weekly Stats:</b>")
         for (src, cnt) in weekly:
-            lines.append(f" - {src}: {cnt} articles in last 7 days")
+            lines.append(f" - <b>{src}</b>: <b>{cnt}</b> articles in last 7 days")
 
-        lines.append("\nMonthly Stats:")
+        lines.append("\n<b>Monthly Stats:</b>")
         for (src, cnt) in monthly:
-            lines.append(f" - {src}: {cnt} articles in this month")
+            lines.append(f" - <b>{src}</b>: <b>{cnt}</b> articles in this month")
 
         final_message = "\n".join(lines)
 

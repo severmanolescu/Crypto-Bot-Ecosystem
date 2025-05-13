@@ -167,7 +167,7 @@ class CryptoNewsCheck:
                         # Build the Telegram message
                         if summary_text:
                             message = (
-                                f"📰 New Article Found!\n"
+                                f"📰 <b>New Article Found!</b>\n"
                                 f"📌 {article['headline']}\n"
                                 f"🔗 {article['link']}\n"
                                 f"🤖 {summary_text}\n"
@@ -175,7 +175,7 @@ class CryptoNewsCheck:
                             )
                         else:
                             message = (
-                                f"📰 New Article Found!\n"
+                                f"📰 <b>New Article Found!</b>\n"
                                 f"📌 {article['headline']}\n"
                                 f"🔗 {article['link']}\n"
                                 f"🔍 Highlights: {article['highlights']}\n"
@@ -200,13 +200,14 @@ class CryptoNewsCheck:
         if self.send_ai_summary == "True":
             articles = await self.data_base.fetch_todays_news()
 
-            message = f"Te rog genereaza raportul zilnic general. nu pentru fiecare articol, folosind urmatoarele articole, {datetime.now().date()}:\n"
+            message = (f"Te rog genereaza raportul zilnic general. nu pentru fiecare articol, folosind urmatoarele articole, "
+                       f"{datetime.now().date()}:\n")
 
             for article in articles:
                 message += article[2] + "\n"
 
             ai_message = await self.openAIPrompt.get_response(message, max_tokens=2000)
-    
+
             ai_message += '\n #DailyReport'
 
             await self.telegram_message.send_telegram_message(ai_message, self.telegram_api_token)

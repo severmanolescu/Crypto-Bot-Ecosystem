@@ -45,7 +45,7 @@ class AlertsHandler:
 
     # Check for alerts every 30 minutes
     async def check_for_major_updates_1h(self, top_100_crypto, update = None):
-        alert_message = "🚨 *Crypto Alert!* Significant 1-hour change detected:\n\n"
+        alert_message = "🚨 <b>Crypto Alert!</b> Significant 1-hour change detected:\n\n"
         alerts_found = False
 
         for symbol, data in top_100_crypto.items():
@@ -53,7 +53,7 @@ class AlertsHandler:
 
             if abs(change_1h) >= self.alert_threshold_1h:
                 alerts_found = True
-                alert_message += f"*{symbol}* → {format_change(change_1h)}\n"
+                alert_message += f"<b>{symbol}</b> → {format_change(change_1h)}\n"
 
         if alerts_found:
             await self.telegram_message.send_telegram_message(alert_message, self.telegram_api_token_alerts,
@@ -67,7 +67,7 @@ class AlertsHandler:
         return False
 
     async def check_for_major_updates_24h(self, top_100_crypto, update = None):
-        alert_message = "🚨 *Crypto Alert!* Significant 24-hours change detected:\n\n"
+        alert_message = "🚨 <b>Crypto Alert!</b> Significant 24-hours change detected:\n\n"
         alerts_found = False
 
         for symbol, data in top_100_crypto.items():
@@ -75,7 +75,7 @@ class AlertsHandler:
 
             if abs(change_24h) >= self.alert_threshold_24h:
                 alerts_found = True
-                alert_message += f"*{symbol}* → {format_change(change_24h)}\n"
+                alert_message += f"<b>{symbol}</b> → {format_change(change_24h)}\n"
 
         if alerts_found:
             await self.telegram_message.send_telegram_message(alert_message, self.telegram_api_token_alerts,
@@ -89,7 +89,7 @@ class AlertsHandler:
         return False
 
     async def check_for_major_updates_7d(self, top_100_crypto, update = None):
-        alert_message = "🚨 *Crypto Alert!* Significant 7-days change detected:\n\n"
+        alert_message = "🚨 <b>Crypto Alert!</b> Significant 7-days change detected:\n\n"
         alerts_found = False
 
         for symbol, data in top_100_crypto.items():
@@ -97,7 +97,7 @@ class AlertsHandler:
 
             if abs(change_7d) >= self.alert_threshold_7d:
                 alerts_found = True
-                alert_message += f"*{symbol}* → {format_change(change_7d)}\n"
+                alert_message += f"<b>{symbol}</b> → {format_change(change_7d)}\n"
 
         if alerts_found:
             await self.telegram_message.send_telegram_message(alert_message, self.telegram_api_token_alerts,
@@ -111,7 +111,7 @@ class AlertsHandler:
         return False
 
     async def check_for_major_updates_30d(self, top_100_crypto, update = None):
-        alert_message = "🚨 *Crypto Alert!* Significant 30-days change detected:\n\n"
+        alert_message = "🚨 <b>Crypto Alert!</b> Significant 30-days change detected:\n\n"
         alerts_found = False
 
         for symbol, data in top_100_crypto.items():
@@ -119,7 +119,7 @@ class AlertsHandler:
 
             if abs(change_30d) >= self.alert_threshold_30d:
                 alerts_found = True
-                alert_message += f"*{symbol}* → {format_change(change_30d)}\n"
+                alert_message += f"<b>{symbol}</b> → {format_change(change_30d)}\n"
 
         if alerts_found:
             await self.telegram_message.send_telegram_message(alert_message, self.telegram_api_token_alerts,

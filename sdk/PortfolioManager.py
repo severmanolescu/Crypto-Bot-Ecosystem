@@ -54,16 +54,16 @@ class PortfolioManager:
                 price = my_crypto[symbol]["price"]
                 value = price * details['quantity']
                 total_value += value
-                message += f"*{symbol}*: {details['quantity']} = ${value:,.2f}\n"
+                message += f"<b>{symbol}</b>: {details['quantity']} = ${value:,.2f}\n"
 
-        message += f"\n💰 *Total Portfolio Value: ${total_value:,.2f}*"
+        message += f"\n💰 <b>Total Portfolio Value: ${total_value:,.2f}</b>"
         return message
 
     # Function to calculate total portfolio value with detailed breakdown
     def calculate_portfolio_value_detailed(self, my_crypto, save_data = False):
         total_value = 0
         total_investment = 0
-        message = "📊 *Portfolio Value Update:*\n\n"
+        message = "📊 <b>Portfolio Value Update:</b>\n\n"
 
         for symbol, details in self.portfolio.items():
             if symbol in my_crypto:
@@ -80,18 +80,18 @@ class PortfolioManager:
                 if total_invested:
                     total_investment += total_invested
 
-                message += f"*{symbol}*\n"
-                message += f"🔹 Quantity: *{quantity:,.4f}*\n"
+                message += f"<b>{symbol}</b>\n"
+                message += f"🔹 Quantity: <b>{quantity:,.4f}</b>\n"
                 if avg_price:
-                    message += f"🔹 Average Price: *${avg_price:,.4f}*\n"
-                    message += f"🔹 Total Investment: *${total_invested:,.2f}*\n"
-                message += f"🔹 Current Value: *${current_value:,.2f}*\n"
+                    message += f"🔹 Average Price: <b>${avg_price:,.4f}</b>\n"
+                    message += f"🔹 Total Investment: <b>${total_invested:,.2f}</b>\n"
+                message += f"🔹 Current Value: <b>${current_value:,.2f}</b>\n"
 
                 if profit_loss is not None:
                     profit_symbol = "✅" if profit_loss >= 0 else "🔻"
-                    message += f"🔹 *P/L: ${profit_loss:,.2f}* "
+                    message += f"🔹 <b>P/L: ${profit_loss:,.2f}</b>"
                     if profit_loss_percentage is not None:
-                        message += f"(*{profit_loss_percentage:+.2f}%*) {profit_symbol}\n"
+                        message += f"(<b>{profit_loss_percentage:+.2f}%</b>) {profit_symbol}\n"
 
                 message += "\n"
 
@@ -99,16 +99,16 @@ class PortfolioManager:
         total_profit_loss_percentage = (
                     total_profit_loss / total_investment * 100) if total_investment and total_investment > 0 else None
 
-        message += f"💰 *Total Portfolio Value: ${total_value:,.2f}*\n"
-        message += f"📊 *Total Investment: ${total_investment:,.2f}*\n"
+        message += f"💰 <b>Total Portfolio Value: ${total_value:,.2f}</b>\n"
+        message += f"📊 <b>Total Investment: ${total_investment:,.2f}</b>\n"
         if total_profit_loss is not None:
             profit_symbol = "✅" if total_profit_loss >= 0 else "🔻"
-            message += f"📉 *Total P/L: ${total_profit_loss:,.2f}* "
+            message += f"📉 <b>Total P/L: ${total_profit_loss:,.2f}</b> "
             if total_profit_loss_percentage is not None:
-                message += f"(*{total_profit_loss_percentage:+.2f}%*) {profit_symbol}\n"
+                message += f"(<b>{total_profit_loss_percentage:+.2f}%</b>) {profit_symbol}\n"
 
         from datetime import datetime
-        message += f"\n⏳ *Last Update:* {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}"
+        message += f"\n⏳ <b>Last Update:</b> {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}"
 
         if save_data:
             self.save_portfolio_history(total_value, total_investment, total_profit_loss, total_profit_loss_percentage)
