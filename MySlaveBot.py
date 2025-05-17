@@ -648,21 +648,21 @@ class SlaveBot:
 
         help_text = """
 📢 <b>Crypto Bot Commands</b>:
-/details <symbol> - Get full details (price, volume, market cap, % changes)
+/details <b>symbol</b> - Get full details (price, volume, market cap, % changes)
 /top10 - Get the top 10 cryptos by market cap
-/compare <symbol1> <symbol2> - Compare two cryptocurrencies
-/convert <amount> <from symbol> <to symbol> - Convert cryptocurrency
-/mcapchange <symbol> - Get market cap change in 24h
-/roi <symbol> <initial investment> - Calculate ROI"""
+/compare <b>symbol1</b> <b>symbol2</b> - Compare two cryptocurrencies
+/convert <b>amount</b> <b>from symbol</b> <b>to symbol</b> - Convert cryptocurrency
+/mcapchange <b>symbol</b> - Get market cap change in 24h
+/roi <b>symbol</b> <b>initial investment</b> - Calculate ROI"""
 
         if check_if_special_user(update.effective_chat.id):
             help_text += """
-/buy <symbol> <amount> - Buy a cryptocurrency
-/sell <symbol> <amount> - Sell a cryptocurrency
-/keyword <list> - Show all the available keywords
-/keyword <add/remove> <keyword> - Add or remove a keyword for news filtering
+/buy <b>symbol</b> <b>amount</b> - Buy a cryptocurrency
+/sell <b>symbol</b> <b>amount</b> - Sell a cryptocurrency
+/keyword <b>list</b> - Show all the available keywords
+/keyword <b>add/remove</b> <keyword</b> - Add or remove a keyword for news filtering
 /var list - Show all variables and their values
-/var <variable name> <new value> - Update a variable"""
+/var <b>variable name</b> <b>new value</b> - Update a variable"""
 
         help_text += """
 /help - Show this help message
