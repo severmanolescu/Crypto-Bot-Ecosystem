@@ -660,7 +660,7 @@ class SlaveBot:
 /buy <b>symbol</b> <b>amount</b> - Buy a cryptocurrency
 /sell <b>symbol</b> <b>amount</b> - Sell a cryptocurrency
 /keyword <b>list</b> - Show all the available keywords
-/keyword <b>add/remove</b> <keyword</b> - Add or remove a keyword for news filtering
+/keyword <b>add/remove</b> <b>keyword</b> - Add or remove a keyword for news filtering
 /var list - Show all variables and their values
 /var <b>variable name</b> <b>new value</b> - Update a variable"""
 
