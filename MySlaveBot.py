@@ -10,9 +10,9 @@ from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
 from sdk.LoadVariables import (
-load_portfolio_from_file,
-save_data_to_json_file,
-save_transaction
+    load_portfolio_from_file,
+    save_data_to_json_file,
+    save_transaction
 )
 from sdk.CheckUsers import check_if_special_user
 from sdk.Utils import check_requests
@@ -26,6 +26,7 @@ NEWS_KEYBOARD = ReplyKeyboardMarkup(
     resize_keyboard=True,  # Makes the buttons smaller and fit better
     one_time_keyboard=False,  # Buttons stay visible after being clicked
 )
+
 
 class SlaveBot:
     def __init__(self):
@@ -134,7 +135,7 @@ class SlaveBot:
             ath_message = "Can't find ATH"
 
         if data:
-            return  (f"💰 Price: ${data['price']:.2f}\n"
+            return (f"💰 Price: ${data['price']:.2f}\n"
                     f"🏦 Market Cap: ${data['market_cap']:,.2f}\n"
                     f"📊 24h Volume: ${data['volume']:,.2f}\n"
                     f"🌍 Market Dominance: {data['dominance']:.2f}%\n"
@@ -177,7 +178,7 @@ class SlaveBot:
 
         logger.info(f" Requested: top 10")
 
-        await update.message.reply_text(text, parse_mode="Markdown")
+        await update.message.reply_text(text, parse_mode="HTML")
 
     # Handle `/compare <symbol1> <symbol2>` command
     async def compare(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -191,7 +192,7 @@ class SlaveBot:
         if data1 and data2:
             message = f"""
     📊 Comparison: <b>{symbol1.upper()}</b> vs <b>{symbol2.upper()}</b>
-    
+
 💰 <b>Price</b>:
 - {symbol1.upper()}: ${data1["price"]:.2f}
 - {symbol2.upper()}: ${data2["price"]:.2f}
@@ -206,7 +207,7 @@ class SlaveBot:
 """
             print(message)  # To preview before sending via Telegram
 
-            await update.message.reply_text(message, parse_mode="Markdown")
+            await update.message.reply_text(message, parse_mode="HTML")
         else:
             await update.message.reply_text("❌ Couldn't fetch data for one or both symbols.")
 
@@ -252,7 +253,7 @@ class SlaveBot:
 
         if converted_amount is not None:
             text = f"🔁 <b>Conversion Result:</b>\n{amount} {from_symbol.upper()} = {converted_amount:.2f} {to_symbol.upper()}"
-            await update.message.reply_text(text, parse_mode="Markdown")<b>
+            await update.message.reply_text(text, parse_mode="HTML")
         else:
             logger.error(f" Couldn't convert {from_symbol.upper()} to {to_symbol.upper()}.")
             await update.message.reply_text(f"❌ Couldn't convert {from_symbol.upper()} to {to_symbol.upper()}.")
@@ -275,7 +276,7 @@ class SlaveBot:
         if data:
             change_24h = data["change_24h"]
             text = f"📊 <b>Market Cap Change for {symbol} (24h):</b> {change_24h:.2f}%"
-            await update.message.reply_text(text, parse_mode="Markdown")
+            await update.message.reply_text(text, parse_mode="HTML")
         else:
             logger.error(f" Couldn't fetch market cap change for {symbol}.")
             await update.message.reply_text(f"❌ Couldn't fetch market cap change for {symbol}.")
@@ -317,7 +318,7 @@ class SlaveBot:
 - Current Value: ${current_value:.2f}
 - ROI: {roi_percentage:.2f}%
     """
-            await update.message.reply_text(text, parse_mode="Markdown")
+            await update.message.reply_text(text, parse_mode="HTML")
         else:
             logger.error(f" Couldn't fetch ROI data for {symbol}.")
             await update.message.reply_text(f"❌ Couldn't fetch ROI data for {symbol}.")
@@ -349,7 +350,8 @@ class SlaveBot:
     def update_sell(self, portfolio, symbol, amount, price):
         """ Handles selling a cryptocurrency, updating portfolio, and adding USDT balance. """
         if symbol not in portfolio or portfolio[symbol]["quantity"] < amount:
-            logger.error(f"❌ Not enough {symbol} to sell. Available: {portfolio.get(symbol, {}).get('quantity', 0)}, Requested: {amount}")
+            logger.error(
+                f"❌ Not enough {symbol} to sell. Available: {portfolio.get(symbol, {}).get('quantity', 0)}, Requested: {amount}")
             return False
 
         # Calculate value in USDT
@@ -424,7 +426,8 @@ class SlaveBot:
             price = data['price']
             total_cost = amount * price
 
-            logger.info(f" User {update.effective_chat.id} requested buy for {symbol} at ${price:.2f}, total cost: ${total_cost:.2f}")
+            logger.info(
+                f" User {update.effective_chat.id} requested buy for {symbol} at ${price:.2f}, total cost: ${total_cost:.2f}")
 
             # Update portfolio and save transaction
             if self.update_portfolio(symbol, amount, price, "buy"):
@@ -434,12 +437,11 @@ class SlaveBot:
                     f"💰 <b>Total Cost:</b> ${total_cost:.2f}\n"
                     f"🕒 <b>Timestamp:</b> {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}"
                 )
-                await update.message.reply_text(text, parse_mode="Markdown")
+                await update.message.reply_text(text, parse_mode="HTML")
             else:
                 await update.message.reply_text(f"❌ Failed to update portfolio for {symbol}.")
         else:
             await update.message.reply_text(f"❌ Couldn't fetch data for {symbol}.")
-
 
     # Handle `/sell <symbol> <amount>` command
     async def sell(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -466,8 +468,10 @@ class SlaveBot:
             price = data['price']
             total_value = amount * price
 
-            logger.info(f" User {update.effective_chat.id} requested sell for {symbol} at ${price:.2f}, total value: ${total_value:.2f}")
-            print(f" User {update.effective_chat.id} requested sell for {symbol} at ${price:.2f}, total value: ${total_value:.2f}")
+            logger.info(
+                f" User {update.effective_chat.id} requested sell for {symbol} at ${price:.2f}, total value: ${total_value:.2f}")
+            print(
+                f" User {update.effective_chat.id} requested sell for {symbol} at ${price:.2f}, total value: ${total_value:.2f}")
 
             # Update portfolio and save transaction
             if self.update_portfolio(symbol, amount, price, "sell"):
@@ -477,7 +481,7 @@ class SlaveBot:
                     f"💰 <b>Total Value:</b> ${total_value:.2f}\n"
                     f"🕒 <b>Timestamp:</b> {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}"
                 )
-                await update.message.reply_text(text, parse_mode="Markdown")
+                await update.message.reply_text(text, parse_mode="HTML")
             else:
                 await update.message.reply_text(f"❌ Failed to update portfolio for {symbol}.")
         else:
@@ -485,13 +489,13 @@ class SlaveBot:
 
     async def list_keywords(self, update, keywords):
         logger.info(f" User {update.effective_chat.id} "
-                     f"requested keywords list")
+                    f"requested keywords list")
 
         keywords_message = "📋 <b>Current keywords:</b>\n\n"
         for key in keywords:
             keywords_message += f"🔹 <b>{key}</b>\n"
 
-        await update.message.reply_text(keywords_message, parse_mode="Markdown")
+        await update.message.reply_text(keywords_message, parse_mode="HTML")
 
     async def keyword(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """
@@ -568,7 +572,7 @@ class SlaveBot:
         for key, value in variables.items():
             variables_message += f"🔹 <b>{key}</b>: `{value}`\n"
 
-        await update.message.reply_text(variables_message, parse_mode="Markdown")
+        await update.message.reply_text(variables_message, parse_mode="HTML")
 
     async def change_variable(self, update, context):
         variable_name = context.args[0].upper()
@@ -663,7 +667,7 @@ class SlaveBot:
         help_text += """
 /help - Show this help message
 """
-        await update.message.reply_text(help_text, parse_mode="Markdown")
+        await update.message.reply_text(help_text, parse_mode="HTML")
 
     # Handle button presses
     async def handle_buttons(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -700,6 +704,7 @@ class SlaveBot:
         logger.info(f" Bot is running...")
         print("🤖 Bot is running...")
         app.run_polling()
+
 
 if __name__ == "__main__":
     slave_bot = SlaveBot()
