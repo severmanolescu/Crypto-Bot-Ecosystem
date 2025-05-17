@@ -131,6 +131,9 @@ class CryptoValueBot:
     async def send_portfolio_update(self, update = None, detailed = False, save_data = False):
         await self.portfolio.send_portfolio_update(self.my_crypto, update, detailed, save_data)
 
+    async def save_portfolio(self):
+        await self.portfolio.save_portfolio_history_hourly(self.my_crypto)
+
     async def send_eth_gas_fee(self, update = None):
         await self.telegram_message.send_eth_gas_fee(self.market_update_api_token, update)
 
@@ -163,6 +166,8 @@ class CryptoValueBot:
     async def send_all_the_messages(self, now_date):
         if self.lastSentHour != now_date.hour:
             self.lastSentHour = now_date.hour
+
+            await self.save_portfolio()
 
             if now_date.hour in self.send_hours:
                 await self.send_market_update(now_date)

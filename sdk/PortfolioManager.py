@@ -163,3 +163,6 @@ class PortfolioManager:
             message += "\n#Portfolio"
 
         await self.telegram_message.send_telegram_message(message, self.telegram_api_token, True, update)
+
+    async def save_portfolio_history_hourly(self, my_crypto):
+        self.calculate_portfolio_value_detailed(my_crypto, save_data=True)
