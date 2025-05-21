@@ -269,11 +269,38 @@ class PlotTrades:
 
         plt.close(fig)
 
+    def filter_entries_by_hour(self, entries, save_hours):
+        """
+        This script loads a list of portfolio snapshots from a JSON file and filters only the entries
+        where the "datetime" hour matches one of the values in PORTFOLIO_SAVE_HOURS.
+        It safely parses each datetime and prints the matching entries.
+        """
+        matched = []
+        for entry in entries:
+            dt_str = entry.get("datetime")
+            if not dt_str:
+                continue
+            try:
+                dt = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+                if dt.hour in save_hours:
+                    matched.append(entry)
+            except ValueError:
+                print(f"[ERROR] Invalid datetime format: {dt_str}")
+        return matched
+
     async def send_portfolio_history_plot(self, update, portfolio_history_file='./ConfigurationFiles/portfolio_history.json'):
+        """
+        Ths method saves and sends to the telegram users the plot with the entire portfolio history
+        including Total Value, Total Investment, Profit/Loss and Profit/Loss %
+        """
         data = LoadVariables.load(portfolio_history_file)
 
+        save_hours = LoadVariables.get_json_key_value("./ConfigurationFiles/variables.json", "PORTFOLIO_SAVE_HOURS")
+
+        filtered_data = self.filter_entries_by_hour(data, save_hours)
+
         # Convert to DataFrame
-        df = pd.DataFrame(data)
+        df = pd.DataFrame(filtered_data)
         df['datetime'] = pd.to_datetime(df['datetime'])
 
         # Apply rolling mean to smooth fluctuations (window size 3)

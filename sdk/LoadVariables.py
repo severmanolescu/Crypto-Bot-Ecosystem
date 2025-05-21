@@ -47,6 +47,34 @@ def save(variables, file_path="./ConfigurationFiles/variables.json"):
         logger.info(f" Error saving variables: {e}")
         print(f"❌ Error saving variables: {e}")
 
+def get_json_key_value(file_path, key):
+    """
+    Safely load a value from a JSON file by key.
+
+    :param file_path: Path to the JSON file.
+    :param key: The key to retrieve from the JSON.
+    :return: The value if found, else None.
+    """
+    if not os.path.isfile(file_path):
+        logger.error(f" Warning File does not exist: {file_path}")
+        print(f"⚠️ Warning File does not exist: {file_path}")
+        return None
+
+    try:
+        with open(file_path, "r") as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        logger.error(f" Warning: Failed to parse JSON: {e}")
+        print(f"⚠️ Warning Failed to parse JSON: {e}")
+        return None
+
+    if key not in data:
+        logger.error(f" Warning: Key '{key}' not found in JSON.")
+        print(f"⚠️ Warning Key '{key}' not found in JSON.")
+        return None
+
+    return data[key]
+
 def get_int_variable(var_name, default=1800, file_path="./ConfigurationFiles/variables.json"):
     """
     Fetch an integer variable from the JSON file.
