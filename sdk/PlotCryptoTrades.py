@@ -385,13 +385,12 @@ class PlotTrades:
         plt.close()
 
     async def send_all_plots(self, update):
-        # Plot multiple coins
-        # TO-DO: Get the coins from the configuration file!!
-        await self.plot_crypto_trades("ETH", update)
-        await self.plot_crypto_trades("ARB", update)
-        await self.plot_crypto_trades("FET", update)
-        await self.plot_crypto_trades("ENA", update)
-        await self.plot_crypto_trades("PEPE", update)
-        await self.plot_crypto_trades("LDO", update)
-        await self.plot_crypto_trades("SEI", update)
-        await self.plot_crypto_trades("SUI", update)
+        """
+        Plot the entire portfolio and send it to the telegram
+        It will create for each symbol a plot with buy and sell orders
+        along with price history
+        """
+        symbols = LoadVariables.get_all_symbols()
+
+        for symbol in symbols:
+            await self.plot_crypto_trades(symbol, update)
