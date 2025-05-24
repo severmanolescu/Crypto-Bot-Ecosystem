@@ -53,4 +53,4 @@ The project includes 4 bots:
 + Set up variables, update `/ConfigurationFiles/variables.json`
 + Run the bots:
 	+ You can start them one by one
-	+ Or use `start_bots.sh` in an Linux environment to start all of them using different screen processes 
+	+ Or use `start_bots.sh` in a Linux environment to start all of them using different screen processes, !! But update BOT_DIR to your directory where your bots are located !!
