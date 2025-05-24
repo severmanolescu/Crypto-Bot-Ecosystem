@@ -37,12 +37,12 @@ The project includes 4 bots:
 
 ### Planned Features
 + Forex news integration
-+ Web dashboard enhancements
++ Web dashboard enhancements (please see: https://github.com/severmanolescu/trades_command_center)
 + AI trading bots
 
 ### Infrastructure
 + Python 3.12
-+ The bots currently are running on a Raspberry PI 4, but they can be used on any device that can run Python 
++ The bots are currently running on a Raspberry PI 4, but they can be used on any device that can run Python 
 
 ### Setup & Installation
 + Clone the repository locally 
