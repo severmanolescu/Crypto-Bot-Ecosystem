@@ -7,6 +7,7 @@ from sdk.MarketSentiment import get_market_sentiment
 from sdk import LoadVariables as LoadVariables
 
 from sdk.Logger import setup_logger
+from sdk.SendTelegramMessage import send_telegram_message_update
 
 logger = setup_logger("log.log")
 logger.info("News Check started")
@@ -30,10 +31,9 @@ class NewsBot:
 
     # Command: /start
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        await update.message.reply_text(
+        await send_telegram_message_update(
             "🤖 Welcome to the News Bot! Use the buttons below to get started:",
-            reply_markup=NEWS_KEYBOARD,
-        )
+            update)
 
     async def start_the_articles_check(self,update):
         logger.info(f" Requested: Article Check")
@@ -45,7 +45,7 @@ class NewsBot:
     async def market_sentiment(self, update):
         message = await get_market_sentiment()
 
-        await update.message.reply_text(message)
+        await send_telegram_message_update(message, update)
 
     # Handle button presses
     async def handle_buttons(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -54,27 +54,27 @@ class NewsBot:
         text_lower = text.lower()
 
         if text == "🚨 Check for Articles" or text_lower == "check":
-            await update.message.reply_text("🚨 Check for articles...")
+            await send_telegram_message_update("🚨 Check for articles...", update)
 
             await self.start_the_articles_check(update)
         elif text == "🔢 Show statistics" or text_lower == "statistics":
-            await update.message.reply_text("🔢 Showing the statistics...")
+            await send_telegram_message_update("🔢 Showing the statistics...", update)
 
             await self.db.show_stats(update)
         elif text == "📊 Market Sentiment" or text_lower == "sentiment":
-            await update.message.reply_text("🧮 Calculating the sentiment...")
+            await send_telegram_message_update("🧮 Calculating the sentiment...", update)
 
             await self.market_sentiment(update)
         elif text == "🚨 Help" or text.lower() == "help":
             await self.help_command(update, context)
         else:
             logger.error(f" Invalid command. Please use the buttons below.")
-            await update.message.reply_text("❌ Invalid command. Please use the buttons below.")
+            await send_telegram_message_update("❌ Invalid command. Please use the buttons below.", update)
 
     # Command: /start
     async def search(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not context.args:
-            await update.message.reply_text("❌ Usage: /search <tags>")
+            await send_telegram_message_update("❌ Usage: /search <tags>", update)
             return
 
         articles = await self.db.search_articles_by_tags(context.args)
@@ -84,7 +84,7 @@ class NewsBot:
         if len(articles) == 0:
             message = f"No articles found with{context.args} found!"
 
-            await update.message.reply_text(message)
+            await send_telegram_message_update(message, update)
 
             return
 
@@ -97,22 +97,22 @@ class NewsBot:
                 f"🔍 Highlights: {article[3]}\n"
             )
 
-            await update.message.reply_text(message)
+            await send_telegram_message_update(message, update)
 
     # Handle `/help` command
     async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         logger.info(f" Requested: help")
 
         help_text = """
-📢 *Crypto Bot Commands*:
+📢 <b>Crypto Bot Commands</>:
 /start - Show buttons
-/search <tags> - Search articles with tags
+/search <b>tags</b> - Search articles with tags
 /help - Show this help message
 
 Example:
 /search BTC Crypto
         """
-        await update.message.reply_text(help_text, parse_mode="Markdown")
+        await send_telegram_message_update(help_text, update)
 
     # Main function to start the bot
     def run_bot(self):
