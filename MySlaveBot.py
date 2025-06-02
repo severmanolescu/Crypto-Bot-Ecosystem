@@ -1,15 +1,7 @@
 import logging
 
 from datetime import datetime, timezone
-
-from sdk.Logger import setup_logger
-
-setup_logger("slave_bot")
-logger = logging.getLogger(__name__)
-logger.info("My Slave Bot started")
-
 from telegram import Update, ReplyKeyboardMarkup
-
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
 from sdk.LoadVariables import (
@@ -17,9 +9,14 @@ from sdk.LoadVariables import (
     save_data_to_json_file,
     save_transaction
 )
-from sdk.CheckUsers import check_if_special_user
+from sdk.Logger import setup_logger
 from sdk.Utils import check_requests
 from sdk import LoadVariables as LoadVariables
+from sdk.CheckUsers import check_if_special_user
+
+setup_logger("slave_bot")
+logger = logging.getLogger(__name__)
+logger.info("My Slave Bot started")
 
 # Persistent buttons for news commands
 NEWS_KEYBOARD = ReplyKeyboardMarkup(
