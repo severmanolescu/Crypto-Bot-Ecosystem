@@ -1,15 +1,18 @@
-from NewsCheck import CryptoNewsCheck
+import logging
+
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
-from sdk.DataBase.DataBaseHandler import DataBaseHandler
-from sdk.MarketSentiment import get_market_sentiment
-from sdk import LoadVariables as LoadVariables
-
 from sdk.Logger import setup_logger
+from sdk import LoadVariables as LoadVariables
+from sdk.MarketSentiment import get_market_sentiment
+from sdk.DataBase.DataBaseHandler import DataBaseHandler
 from sdk.SendTelegramMessage import send_telegram_message_update
 
-logger = setup_logger("log.log")
+from NewsCheck import CryptoNewsCheck
+
+setup_logger("news_check_bot")
+logger = logging.getLogger(__name__)
 logger.info("News Check started")
 
 # Persistent buttons for news commands

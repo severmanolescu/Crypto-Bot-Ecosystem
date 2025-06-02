@@ -1,8 +1,11 @@
+import logging
+
 from datetime import datetime, timezone
 
 from sdk.Logger import setup_logger
 
-logger = setup_logger("log.log")
+setup_logger("slave_bot")
+logger = logging.getLogger(__name__)
 logger.info("My Slave Bot started")
 
 from telegram import Update, ReplyKeyboardMarkup

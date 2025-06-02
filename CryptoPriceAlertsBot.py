@@ -1,16 +1,16 @@
-import datetime
-
-from sdk.Logger import setup_logger
-
-logger = setup_logger("log.log")
-logger.info("Crypto price Alerts bot started")
+import logging
 
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
+from sdk.Logger import setup_logger
 from sdk import LoadVariables as LoadVariables
 
 from CryptoValue import CryptoValueBot
+
+setup_logger("crypto_price_alerts_bot")
+logger = logging.getLogger(__name__)
+logger.info("Crypto price Alerts bot started")
 
 # Persistent buttons for news commands
 NEWS_KEYBOARD = ReplyKeyboardMarkup(

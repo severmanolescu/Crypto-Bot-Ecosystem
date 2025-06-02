@@ -1,10 +1,10 @@
-from datetime import datetime
-
-import requests
 import asyncio
+import logging
+import requests
 import cloudscraper
 
 from bs4 import BeautifulSoup
+from datetime import datetime
 
 # Import scrapers
 from sdk.scrapers.crypto_news_scraper import CryptoNewsScraper
@@ -17,9 +17,8 @@ from sdk import LoadVariables as LoadVariables
 from sdk.SendTelegramMessage import TelegramMessagesHandler
 from sdk.OpenAIPrompt import OpenAIPrompt
 
-from sdk.Logger import setup_logger
-
-logger = setup_logger("log.log")
+# Set up logging
+logger = logging.getLogger(__name__)
 logger.info("News Check started")
 
 class CryptoNewsCheck:

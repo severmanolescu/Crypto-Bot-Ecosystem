@@ -1,9 +1,10 @@
+import logging
+
 from datetime import datetime
 
 from sdk.Utils import check_requests
 
-from sdk.Logger import setup_logger
-logger = setup_logger("log.log")
+logger = logging.getLogger(__name__)
 logger.info("Data Fetcher started")
 
 def get_eth_gas_fee(etherscan_api_url):

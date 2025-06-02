@@ -1,5 +1,6 @@
-from sdk.Logger import setup_logger
-logger = setup_logger("log.log")
+import logging
+
+logger = logging.getLogger(__name__)
 logger.info("User check started")
 
 from sdk import LoadVariables as LoadVariables

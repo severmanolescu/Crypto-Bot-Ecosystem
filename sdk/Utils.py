@@ -1,8 +1,7 @@
+import logging
 import requests
 
-from sdk.Logger import setup_logger
-
-logger = setup_logger("utils.log")
+logger = logging.getLogger(__name__)
 logger.info("Alerts script started")
 
 def check_requests(url, headers = None, params = None):

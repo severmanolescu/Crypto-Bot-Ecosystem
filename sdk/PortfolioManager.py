@@ -1,4 +1,5 @@
 import datetime
+import logging
 import json
 import os
 
@@ -6,10 +7,9 @@ import pytz
 
 from sdk.SendTelegramMessage import TelegramMessagesHandler
 from sdk.LoadVariables import load_portfolio_from_file
-from sdk.Logger import setup_logger
 from sdk import LoadVariables
 
-logger = setup_logger("log.log")
+logger = logging.getLogger(__name__)
 logger.info("Open AI Prompt started")
 
 class PortfolioManager:

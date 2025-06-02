@@ -1,11 +1,12 @@
+import logging
+
 from datetime import datetime
 
 from sdk import LoadVariables as LoadVariables
 from sdk.SendTelegramMessage import TelegramMessagesHandler
-from sdk.Logger import setup_logger
 from sdk.Utils import format_change
 
-logger = setup_logger("log.log")
+logger = logging.getLogger(__name__)
 logger.info("Alerts script started")
 
 class AlertsHandler:

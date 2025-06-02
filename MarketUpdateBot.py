@@ -1,20 +1,21 @@
+import logging
+
 from datetime import datetime
-
-from sdk.SendTelegramMessage import TelegramMessagesHandler
-
-from sdk.Logger import setup_logger
-
-logger = setup_logger("log.log")
-logger.info("Market Update Bot started")
 
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
-from sdk import LoadVariables as LoadVariables
-
+from sdk.Logger import setup_logger
 from sdk.PlotCryptoTrades import PlotTrades
+from sdk import LoadVariables as LoadVariables
 from sdk.CheckUsers import check_if_special_user
+from sdk.SendTelegramMessage import TelegramMessagesHandler
+
 from CryptoValue import CryptoValueBot
+
+setup_logger("market_update_bot")
+logger = logging.getLogger(__name__)
+logger.info("Market Update Bot started")
 
 # Persistent buttons for news commands
 NEWS_KEYBOARD = ReplyKeyboardMarkup(

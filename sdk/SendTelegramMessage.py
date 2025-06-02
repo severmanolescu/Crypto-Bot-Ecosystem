@@ -1,12 +1,13 @@
+import logging
+
 from telegram import Bot
 
 from sdk import LoadVariables as LoadVariables
 from sdk.OpenAIPrompt import OpenAIPrompt
 from sdk.DataFetcher import get_eth_gas_fee
-from sdk.Logger import setup_logger
 from sdk.Utils import format_change
 
-logger = setup_logger("log.log")
+logger = logging.getLogger(__name__)
 logger.info("Telegram message handler started")
 
 async def send_telegram_message_update(message, update):

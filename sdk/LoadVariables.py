@@ -1,10 +1,9 @@
-import os
-import json
+import logging
 
 from datetime import datetime, timezone
 
 from sdk.Logger import setup_logger
-logger = setup_logger("log.log")
+logger = logging.getLogger(__name__)
 logger.info("Load variables started")
 
 def load(file_path="./ConfigurationFiles/variables.json"):

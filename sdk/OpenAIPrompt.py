@@ -1,7 +1,7 @@
 import openai
+import logging
 
-from sdk.Logger import setup_logger
-logger = setup_logger("log.log")
+logger = logging.getLogger(__name__)
 logger.info("Open AI Prompt started")
 
 class OpenAIPrompt:

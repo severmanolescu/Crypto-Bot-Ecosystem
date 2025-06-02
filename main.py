@@ -1,11 +1,14 @@
-import argparse
-from datetime import datetime
-
+import logging
 import asyncio
+import argparse
+
+from datetime import datetime
 
 from sdk.Logger import setup_logger
 
-logger = setup_logger("log.log")
+setup_logger()
+logger = logging.getLogger(__name__)
+
 logger.info("Main started")
 
 from CryptoValue import CryptoValueBot
