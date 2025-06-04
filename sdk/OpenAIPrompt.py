@@ -10,7 +10,8 @@ class OpenAIPrompt:
 
     async def generate_summary(self, article_link):
         """Use OpenAI API to generate a short description for an article."""
-        prompt = (f"Rezuma acest articol într-un scurt paragraf și analizează sentimentul (Bullish, Bearish sau Neutral):"
+        prompt = (f"Rezuma acest articol într-un scurt paragraf și analizează sentimentul"
+                  f"(Bullish, Bearish sau Neutral). Formatează răspunsul cu HTML pentru Telegram:"
                   f"\nLink: {article_link}")
 
         return await self.get_response(prompt)
