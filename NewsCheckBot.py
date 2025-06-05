@@ -1,8 +1,13 @@
 import logging
 
 from telegram import ReplyKeyboardMarkup, Update
-from telegram.ext import (Application, CommandHandler, ContextTypes,
-                          MessageHandler, filters)
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    ContextTypes,
+    MessageHandler,
+    filters,
+)
 
 from NewsCheck import CryptoNewsCheck
 from sdk import load_variables_handler as LoadVariables

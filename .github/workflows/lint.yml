@@ -88,4 +88,4 @@ jobs:
           pip install pytest pytest-asyncio
 
       - name: Run Pytest
-        run: pytest
+        run: PYTHONPATH=${{ github.workspace }}/sdk pytest

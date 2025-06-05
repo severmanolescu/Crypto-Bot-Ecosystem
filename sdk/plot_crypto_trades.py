@@ -12,8 +12,7 @@ import pandas as pd
 from mplfinance.original_flavor import candlestick_ohlc
 
 import sdk.load_variables_handler as LoadVariables
-from sdk.SendTelegramMessage import (send_plot_to_telegram,
-                                     send_telegram_message_update)
+from sdk.SendTelegramMessage import send_plot_to_telegram, send_telegram_message_update
 
 logger = logging.getLogger(__name__)
 logger.info("Market Update Bot started")
