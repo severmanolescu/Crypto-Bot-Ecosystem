@@ -6,11 +6,12 @@ import os
 import pytz
 
 from sdk.SendTelegramMessage import TelegramMessagesHandler
-from sdk.LoadVariables import load_portfolio_from_file
-from sdk import LoadVariables
+from sdk.load_variables_handler import load_portfolio_from_file
+from sdk import load_variables_handler
 
 logger = logging.getLogger(__name__)
 logger.info("Open AI Prompt started")
+
 
 class PortfolioManager:
     def __init__(self):
@@ -52,7 +53,7 @@ class PortfolioManager:
         for symbol, details in self.portfolio.items():
             if symbol in my_crypto:
                 price = my_crypto[symbol]["price"]
-                value = price * details['quantity']
+                value = price * details["quantity"]
                 total_value += value
                 message += f"<b>{symbol}</b>: {details['quantity']} = ${value:,.2f}\n"
 
@@ -60,7 +61,7 @@ class PortfolioManager:
         return message
 
     # Function to calculate total portfolio value with detailed breakdown
-    def calculate_portfolio_value_detailed(self, my_crypto, save_data = False):
+    def calculate_portfolio_value_detailed(self, my_crypto, save_data=False):
         total_value = 0
         total_investment = 0
         message = "📊 <b>Portfolio Value Update:</b>\n\n"
@@ -68,13 +69,16 @@ class PortfolioManager:
         for symbol, details in self.portfolio.items():
             if symbol in my_crypto:
                 price = my_crypto[symbol]["price"]
-                quantity = details['quantity']
-                avg_price = details.get('average_price', None)
+                quantity = details["quantity"]
+                avg_price = details.get("average_price", None)
                 total_invested = avg_price * quantity if avg_price else None
                 current_value = price * quantity
                 profit_loss = current_value - total_invested if total_invested else None
                 profit_loss_percentage = (
-                            profit_loss / total_invested * 100) if total_invested and total_invested > 0 else None
+                    (profit_loss / total_invested * 100)
+                    if total_invested and total_invested > 0
+                    else None
+                )
 
                 total_value += current_value
                 if total_invested:
@@ -91,13 +95,18 @@ class PortfolioManager:
                     profit_symbol = "✅" if profit_loss >= 0 else "🔻"
                     message += f"🔹 <b>P/L: ${profit_loss:,.2f}</b>"
                     if profit_loss_percentage is not None:
-                        message += f"(<b>{profit_loss_percentage:+.2f}%</b>) {profit_symbol}\n"
+                        message += (
+                            f"(<b>{profit_loss_percentage:+.2f}%</b>) {profit_symbol}\n"
+                        )
 
                 message += "\n"
 
         total_profit_loss = total_value - total_investment if total_investment else None
         total_profit_loss_percentage = (
-                    total_profit_loss / total_investment * 100) if total_investment and total_investment > 0 else None
+            (total_profit_loss / total_investment * 100)
+            if total_investment and total_investment > 0
+            else None
+        )
 
         message += f"💰 <b>Total Portfolio Value: ${total_value:,.2f}</b>\n"
         message += f"📊 <b>Total Investment: ${total_investment:,.2f}</b>\n"
@@ -105,21 +114,35 @@ class PortfolioManager:
             profit_symbol = "✅" if total_profit_loss >= 0 else "🔻"
             message += f"📉 <b>Total P/L: ${total_profit_loss:,.2f}</b> "
             if total_profit_loss_percentage is not None:
-                message += f"(<b>{total_profit_loss_percentage:+.2f}%</b>) {profit_symbol}\n"
+                message += (
+                    f"(<b>{total_profit_loss_percentage:+.2f}%</b>) {profit_symbol}\n"
+                )
 
         from datetime import datetime
+
         message += f"\n⏳ <b>Last Update:</b> {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}"
 
         if save_data:
-            self.save_portfolio_history(total_value, total_investment, total_profit_loss, total_profit_loss_percentage)
+            self.save_portfolio_history(
+                total_value,
+                total_investment,
+                total_profit_loss,
+                total_profit_loss_percentage,
+            )
 
         return message
 
-    def save_portfolio_history(self, total_value, total_investment, total_profit_loss, total_profit_loss_percentage):
+    def save_portfolio_history(
+        self,
+        total_value,
+        total_investment,
+        total_profit_loss,
+        total_profit_loss_percentage,
+    ):
         history_file = "ConfigurationFiles/portfolio_history.json"
 
         # Define your time zone (replace 'Europe/Bucharest' if needed)
-        local_tz = pytz.timezone('Europe/Bucharest')
+        local_tz = pytz.timezone("Europe/Bucharest")
         now = datetime.datetime.now(local_tz)
 
         # Load existing history if available
@@ -134,11 +157,13 @@ class PortfolioManager:
 
         # Create a new entry with date and time
         new_entry = {
-            "datetime": now.strftime("%Y-%m-%d %H:%M:%S"),  # Format: YYYY-MM-DD HH:MM:SS
+            "datetime": now.strftime(
+                "%Y-%m-%d %H:%M:%S"
+            ),  # Format: YYYY-MM-DD HH:MM:SS
             "total_value": total_value,
             "total_investment": total_investment,
             "profit_loss": total_profit_loss,
-            "profit_loss_percentage": total_profit_loss_percentage
+            "profit_loss_percentage": total_profit_loss_percentage,
         }
 
         # Append new entry
@@ -148,13 +173,19 @@ class PortfolioManager:
         with open(history_file, "w") as file:
             json.dump(history_data, file, indent=4)
 
-        logger.info(f"Portfolio history updated at {new_entry['datetime']} (Local Time).")
+        logger.info(
+            f"Portfolio history updated at {new_entry['datetime']} (Local Time)."
+        )
         print(f"✅ Portfolio history saved at {new_entry['datetime']} (Local Time).")
 
     # Fetch portfolio value and send via Telegram
-    async def send_portfolio_update(self, my_crypto, update, detailed = False, save_data = False):
+    async def send_portfolio_update(
+        self, my_crypto, update, detailed=False, save_data=False
+    ):
         if detailed:
-            message = self.calculate_portfolio_value_detailed(my_crypto, save_data=save_data)
+            message = self.calculate_portfolio_value_detailed(
+                my_crypto, save_data=save_data
+            )
 
             message += "\n#DetailedPortfolio"
         else:
@@ -162,7 +193,9 @@ class PortfolioManager:
 
             message += "\n#Portfolio"
 
-        await self.telegram_message.send_telegram_message(message, self.telegram_api_token, True, update)
+        await self.telegram_message.send_telegram_message(
+            message, self.telegram_api_token, True, update
+        )
 
     async def save_portfolio_history_hourly(self, my_crypto):
         self.calculate_portfolio_value_detailed(my_crypto, save_data=True)

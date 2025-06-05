@@ -3,12 +3,18 @@ import logging
 from datetime import datetime
 
 from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    MessageHandler,
+    filters,
+    ContextTypes,
+)
 
-from sdk.Logger import setup_logger
-from sdk.PlotCryptoTrades import PlotTrades
-from sdk import LoadVariables as LoadVariables
-from sdk.CheckUsers import check_if_special_user
+from sdk.logger_handler import setup_logger
+from sdk.plot_crypto_trades import PlotTrades
+from sdk import load_variables_handler as LoadVariables
+from sdk.Utils import check_if_special_user
 from sdk.SendTelegramMessage import TelegramMessagesHandler
 
 from CryptoValue import CryptoValueBot
@@ -23,11 +29,12 @@ NEWS_KEYBOARD = ReplyKeyboardMarkup(
         ["🕒 Market Update", "⛽ ETH Gas Fees"],
         ["📊 Detailed Portfolio Update", "📊 Crypto Fear & Greed Index"],
         ["📈 Plot portfolio history", "🚨 Help"],
-        ["📈 Show plots for the entire portfolio"]
+        ["📈 Show plots for the entire portfolio"],
     ],
     resize_keyboard=True,  # Makes the buttons smaller and fit better
     one_time_keyboard=False,  # Buttons stay visible after being clicked
 )
+
 
 class MarketUpdateBot:
     def __init__(self):
@@ -99,7 +106,9 @@ class MarketUpdateBot:
 
         await self.plot_trades.send_portfolio_history_plot(update)
 
-    async def send_crypto_plot(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+    async def send_crypto_plot(
+        self, update: Update, context: ContextTypes.DEFAULT_TYPE
+    ):
         await update.message.reply_text("Creating the plot...")
 
         if not context.args:
@@ -132,15 +141,19 @@ class MarketUpdateBot:
 
         text_lower = text.lower()
 
-        if text == "🕒 Market Update" or text_lower == "update" or text_lower == "market":
+        if (
+            text == "🕒 Market Update"
+            or text_lower == "update"
+            or text_lower == "market"
+        ):
             await update.message.reply_text("🕒 Showing Market Update...")
 
             await self.send_market_update(update)
-        elif text == "⛽ ETH Gas Fees"  or text_lower == "gas"  or text_lower == "fee":
+        elif text == "⛽ ETH Gas Fees" or text_lower == "gas" or text_lower == "fee":
             await update.message.reply_text("⛽ Showing ETH Gas Fees...")
 
             await self.send_eth_gas(update)
-        elif text == "📊 Detailed Portfolio Update"  or text_lower == "portfolio":
+        elif text == "📊 Detailed Portfolio Update" or text_lower == "portfolio":
             user_id = update.effective_chat.id
 
             if check_if_special_user(user_id):
@@ -148,23 +161,31 @@ class MarketUpdateBot:
 
                 await self.send_portfolio_value(update)
             else:
-                logger.info(f" User {user_id} wants to check the portfolio without rights!")
-                await update.message.reply_text("You don't have the rights for this action!")
-        elif text == "📊 Crypto Fear & Greed Index"  or text_lower == "index":
+                logger.info(
+                    f" User {user_id} wants to check the portfolio without rights!"
+                )
+                await update.message.reply_text(
+                    "You don't have the rights for this action!"
+                )
+        elif text == "📊 Crypto Fear & Greed Index" or text_lower == "index":
             await update.message.reply_text("📊 Showing Crypto Fear & Greed Index...")
 
             await self.send_crypto_fear_and_greed(update)
         elif text == "📈 Show plots for the entire portfolio":
-            await update.message.reply_text("📈 Creating the plots for every symbol from the portfolio...")
+            await update.message.reply_text(
+                "📈 Creating the plots for every symbol from the portfolio..."
+            )
 
             await self.send_crypto_plots(update)
-        elif text == "📈 Plot portfolio history"  or text_lower == "history":
+        elif text == "📈 Plot portfolio history" or text_lower == "history":
             await self.send_portfolio_history(update, None)
-        elif text == "🚨 Help"  or text_lower == "help":
+        elif text == "🚨 Help" or text_lower == "help":
             await self.help_command(update, context)
         else:
             logger.error(f" Invalid command. Please use the buttons below.")
-            await update.message.reply_text("❌ Invalid command. Please use the buttons below.")
+            await update.message.reply_text(
+                "❌ Invalid command. Please use the buttons below."
+            )
 
     # Main function to start the bot
     def run_bot(self):
@@ -178,11 +199,14 @@ class MarketUpdateBot:
         app.add_handler(CommandHandler("plot", self.send_crypto_plot))
         app.add_handler(CommandHandler("history", self.send_portfolio_history))
 
-        app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_buttons))
+        app.add_handler(
+            MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_buttons)
+        )
 
         # Start the bot
         print("🤖 Market Update Bot is running...")
         app.run_polling()
+
 
 # Run the bot
 if __name__ == "__main__":

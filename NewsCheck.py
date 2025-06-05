@@ -12,14 +12,15 @@ from sdk.scrapers.cointelegraph_scraper import CointelegraphScraper
 from sdk.scrapers.bitcoin_magazine_scraper import BitcoinMagazineScraper
 
 # Import your SDK modules
-from sdk.DataBase.DataBaseHandler import DataBaseHandler
-from sdk import LoadVariables as LoadVariables
+from sdk.data_base.data_base_handler import DataBaseHandler
+from sdk import load_variables_handler as LoadVariables
 from sdk.SendTelegramMessage import TelegramMessagesHandler
-from sdk.OpenAIPrompt import OpenAIPrompt
+from sdk.open_ai_prompt_handler import OpenAIPrompt
 
 # Set up logging
 logger = logging.getLogger(__name__)
 logger.info("News Check started")
+
 
 class CryptoNewsCheck:
     def __init__(self, db_path="./articles.db"):
@@ -34,14 +35,14 @@ class CryptoNewsCheck:
         self.telegram_important_chat_id = None
         self.telegram_api_token = None
 
-        # Database handler (see sdk/DataBaseHandler.py)
+        # Database handler (see sdk/data_base_handler.py)
         self.data_base = DataBaseHandler(db_path)
 
         # URLs for different news sources
         self.urls = {
             "crypto.news": "https://crypto.news/",
             "cointelegraph": "https://cointelegraph.com/",
-            "bitcoinmagazine": "https://bitcoinmagazine.com/articles"
+            "bitcoinmagazine": "https://bitcoinmagazine.com/articles",
         }
 
         # Create a cloudscraper instance for scraping
@@ -58,11 +59,15 @@ class CryptoNewsCheck:
         """
         variables = LoadVariables.load()
         self.telegram_api_token = variables.get("TELEGRAM_API_TOKEN_ARTICLES", "")
-        self.telegram_important_chat_id = variables.get("TELEGRAM_CHAT_ID_FULL_DETAILS", [])
-        self.telegram_not_important_chat_id = variables.get("TELEGRAM_CHAT_ID_PARTIAL_DATA", [])
+        self.telegram_important_chat_id = variables.get(
+            "TELEGRAM_CHAT_ID_FULL_DETAILS", []
+        )
+        self.telegram_not_important_chat_id = variables.get(
+            "TELEGRAM_CHAT_ID_PARTIAL_DATA", []
+        )
         self.keywords = LoadVariables.load_keyword_list()
 
-        open_ai_api = variables.get('OPEN_AI_API', '')
+        open_ai_api = variables.get("OPEN_AI_API", "")
         self.openAIPrompt = OpenAIPrompt(open_ai_api)
         self.send_ai_summary = variables.get("SEND_AI_SUMMARY", "")
 
@@ -74,7 +79,7 @@ class CryptoNewsCheck:
         Switch to `await asyncio.sleep(...)` for true async non-blocking retries.
         """
         for attempt in range(1, self.max_retries + 1):
-            delay = 2 ** attempt
+            delay = 2**attempt
             try:
                 response = self.scraper.get(url, timeout=10)
                 if response.status_code == 200:
@@ -129,7 +134,7 @@ class CryptoNewsCheck:
         """
         return await self.openAIPrompt.generate_summary(link)
 
-    async def check_news(self, source, update = None):
+    async def check_news(self, source, update=None):
         """
         Orchestrates the scraping and notification for a single source.
         """
@@ -150,18 +155,20 @@ class CryptoNewsCheck:
                     # Insert or ignore in DB
                     row_inserted = await self.data_base.save_article_to_db(
                         source,
-                        article['headline'],
-                        article['link'],
-                        article['highlights']
+                        article["headline"],
+                        article["link"],
+                        article["highlights"],
                     )
 
                     # If brand-new article, optionally generate summary and send message
                     if row_inserted == 1:
                         summary_text = ""
                         if self.send_ai_summary == "True":
-                            summary_text = await self.generate_summary(article['link'])
+                            summary_text = await self.generate_summary(article["link"])
                             # Store summary in DB
-                            await self.data_base.update_article_summary_in_db(article['link'], summary_text)
+                            await self.data_base.update_article_summary_in_db(
+                                article["link"], summary_text
+                            )
 
                         # Build the Telegram message
                         if summary_text:
@@ -183,8 +190,9 @@ class CryptoNewsCheck:
                         found_articles = True
 
                         # Send Telegram message
-                        await self.telegram_message.send_telegram_message(message, self.telegram_api_token,
-                                                                          update=update)
+                        await self.telegram_message.send_telegram_message(
+                            message, self.telegram_api_token, update=update
+                        )
                     else:
                         # Already in DB
                         logger.info(f"Skipping existing article: {article['link']}")
@@ -199,17 +207,21 @@ class CryptoNewsCheck:
         if self.send_ai_summary == "True":
             articles = await self.data_base.fetch_todays_news()
 
-            message = (f"Te rog genereaza raportul zilnic general. nu pentru fiecare articol, folosind urmatoarele articole, "
-                       f"{datetime.now().date()}:\n")
+            message = (
+                f"Te rog genereaza raportul zilnic general. nu pentru fiecare articol, folosind urmatoarele articole, "
+                f"{datetime.now().date()}:\n"
+            )
 
             for article in articles:
                 message += article[2] + "\n"
 
             ai_message = await self.openAIPrompt.get_response(message, max_tokens=2000)
 
-            ai_message += '\n #DailyReport'
+            ai_message += "\n #DailyReport"
 
-            await self.telegram_message.send_telegram_message(ai_message, self.telegram_api_token)
+            await self.telegram_message.send_telegram_message(
+                ai_message, self.telegram_api_token
+            )
 
     async def recreate_data_base(self):
         await self.data_base.recreate_data_base()
@@ -220,13 +232,16 @@ class CryptoNewsCheck:
         tasks = [
             self.check_news("crypto.news", update),
             self.check_news("cointelegraph", update),
-            self.check_news("bitcoinmagazine", update)
+            self.check_news("bitcoinmagazine", update),
         ]
         results = await asyncio.gather(*tasks)  # Run all scrapers in parallel
 
         if not any(results):
-            await self.telegram_message.send_telegram_message("❌ Didn't find any new article.",
-                                                              self.telegram_api_token, update=update)
+            await self.telegram_message.send_telegram_message(
+                "❌ Didn't find any new article.",
+                self.telegram_api_token,
+                update=update,
+            )
 
     async def run(self):
         await self.data_base.init_db()  # Ensure DB is ready
@@ -234,6 +249,6 @@ class CryptoNewsCheck:
         tasks = [
             self.check_news("crypto.news"),
             self.check_news("cointelegraph"),
-            self.check_news("bitcoinmagazine")
+            self.check_news("bitcoinmagazine"),
         ]
         await asyncio.gather(*tasks)  # Run all scrapers in parallel

@@ -4,7 +4,7 @@ import argparse
 
 from datetime import datetime
 
-from sdk.Logger import setup_logger
+from sdk.logger_handler import setup_logger
 
 setup_logger()
 logger = logging.getLogger(__name__)
@@ -14,10 +14,11 @@ logger.info("Main started")
 from CryptoValue import CryptoValueBot
 from NewsCheck import CryptoNewsCheck
 
-from sdk import LoadVariables as LoadVariables
+from sdk import load_variables_handler as LoadVariables
 
 cryptoValueBot = CryptoValueBot()
 cryptoNewsCheck = CryptoNewsCheck()
+
 
 def read_variables():
     global cryptoValueBot
@@ -26,6 +27,7 @@ def read_variables():
     cryptoValueBot.reload_the_data()
 
     cryptoNewsCheck.reload_the_data()
+
 
 async def run():
     while True:
@@ -51,10 +53,15 @@ async def run():
         print(f"⏳ Wait {sleep_time / 60:.2f} minutes!\n\n")
         await asyncio.sleep(sleep_time)
 
-def main():
-    parser = argparse.ArgumentParser(description="Recreate the news data base if needed.")
 
-    parser.add_argument("-r", "--recreate", action="store_true", help="Recreate the news data base")
+def main():
+    parser = argparse.ArgumentParser(
+        description="Recreate the news data base if needed."
+    )
+
+    parser.add_argument(
+        "-r", "--recreate", action="store_true", help="Recreate the news data base"
+    )
 
     args = parser.parse_args()
 
@@ -65,6 +72,7 @@ def main():
 
     else:
         asyncio.run(run())
+
 
 if __name__ == "__main__":
     main()

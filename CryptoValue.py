@@ -4,16 +4,21 @@ import time
 
 from datetime import datetime
 
-from sdk import LoadVariables as LoadVariables
+from sdk import load_variables_handler as LoadVariables
 
-from sdk.Alerts import AlertsHandler
-from sdk.DataFetcher import get_fear_and_greed_message, get_fear_and_greed, get_eth_gas_fee
+from sdk.alerts_handler import AlertsHandler
+from sdk.data_fetcher import (
+    get_fear_and_greed_message,
+    get_fear_and_greed,
+    get_eth_gas_fee,
+)
 from sdk.PortfolioManager import PortfolioManager
-from sdk.MarketSentiment import get_market_sentiment
-from sdk.DataBase.DataBaseHandler import DataBaseHandler
+from sdk.market_sentiment_handler import get_market_sentiment
+from sdk.data_base.data_base_handler import DataBaseHandler
 from sdk.SendTelegramMessage import TelegramMessagesHandler
 
 from NewsCheck import CryptoNewsCheck
+
 
 class CryptoValueBot:
     def __init__(self):
@@ -59,7 +64,9 @@ class CryptoValueBot:
 
         self.today_ai_summary = variables.get("TODAY_AI_SUMMARY", "")
 
-        self.etherscan_api_url = variables.get("ETHERSCAN_GAS_API_URL", "") + variables.get("ETHERSCAN_API_KEY", "")
+        self.etherscan_api_url = variables.get(
+            "ETHERSCAN_GAS_API_URL", ""
+        ) + variables.get("ETHERSCAN_API_KEY", "")
 
         self.send_hours = variables.get("SEND_HOURS_VALUES", "")
         self.save_portfolio_hours = variables.get("PORTFOLIO_SAVE_HOURS", "")
@@ -99,7 +106,9 @@ class CryptoValueBot:
             "limit": "100",
             "convert": "USD",
         }
-        response = requests.get(self.coinmarketcap_api_url, headers=headers, params=parameters)
+        response = requests.get(
+            self.coinmarketcap_api_url, headers=headers, params=parameters
+        )
         data = json.loads(response.text)
 
         for crypto in data["data"]:
@@ -120,27 +129,37 @@ class CryptoValueBot:
                 "change_30d": crypto["quote"]["USD"]["percent_change_30d"],
             }
 
-    async def show_fear_and_greed(self, update = None):
+    async def show_fear_and_greed(self, update=None):
         message = await get_fear_and_greed_message()
 
-        await self.telegram_message.send_telegram_message(message, self.market_update_api_token, False, update)
+        await self.telegram_message.send_telegram_message(
+            message, self.market_update_api_token, False, update
+        )
 
-    async def send_market_update(self, now_date, update = None):
-        await self.telegram_message.send_market_update(self.market_update_api_token, now_date, self.my_crypto, update)
+    async def send_market_update(self, now_date, update=None):
+        await self.telegram_message.send_market_update(
+            self.market_update_api_token, now_date, self.my_crypto, update
+        )
 
-    async def send_portfolio_update(self, update = None, detailed = False, save_data = False):
-        await self.portfolio.send_portfolio_update(self.my_crypto, update, detailed, save_data)
+    async def send_portfolio_update(self, update=None, detailed=False, save_data=False):
+        await self.portfolio.send_portfolio_update(
+            self.my_crypto, update, detailed, save_data
+        )
 
     async def save_portfolio(self):
         await self.portfolio.save_portfolio_history_hourly(self.my_crypto)
 
-    async def send_eth_gas_fee(self, update = None):
-        await self.telegram_message.send_eth_gas_fee(self.market_update_api_token, update)
+    async def send_eth_gas_fee(self, update=None):
+        await self.telegram_message.send_eth_gas_fee(
+            self.market_update_api_token, update
+        )
 
-    async def send_market_sentiment(self, update = None):
+    async def send_market_sentiment(self, update=None):
         message = await get_market_sentiment()
 
-        await self.telegram_message.send_telegram_message(message, self.articles_alert_api_token, False, update)
+        await self.telegram_message.send_telegram_message(
+            message, self.articles_alert_api_token, False, update
+        )
 
     async def send_today_AI_summary(self):
         self.news_check.reload_the_data()
@@ -194,20 +213,30 @@ class CryptoValueBot:
                 print("\nSaving the data...")
                 await self.save_today_data()
 
-    async def check_for_major_updates(self, now_date, update = None):
-        return await self.alert_handler.check_for_alerts(now_date, self.top_100_crypto, update)
+    async def check_for_major_updates(self, now_date, update=None):
+        return await self.alert_handler.check_for_alerts(
+            now_date, self.top_100_crypto, update
+        )
 
-    async def check_for_major_updates_1h(self, update = None):
-        return await self.alert_handler.check_for_major_updates_1h(self.top_100_crypto, update)
+    async def check_for_major_updates_1h(self, update=None):
+        return await self.alert_handler.check_for_major_updates_1h(
+            self.top_100_crypto, update
+        )
 
-    async def check_for_major_updates_24h(self, update = None):
-        return await self.alert_handler.check_for_major_updates_24h(self.top_100_crypto, update)
+    async def check_for_major_updates_24h(self, update=None):
+        return await self.alert_handler.check_for_major_updates_24h(
+            self.top_100_crypto, update
+        )
 
-    async def check_for_major_updates_7d(self, update = None):
-        return await self.alert_handler.check_for_major_updates_7d(self.top_100_crypto, update)
+    async def check_for_major_updates_7d(self, update=None):
+        return await self.alert_handler.check_for_major_updates_7d(
+            self.top_100_crypto, update
+        )
 
-    async def check_for_major_updates_30d(self, update = None):
-        return await self.alert_handler.check_for_major_updates_30d(self.top_100_crypto, update)
+    async def check_for_major_updates_30d(self, update=None):
+        return await self.alert_handler.check_for_major_updates_30d(
+            self.top_100_crypto, update
+        )
 
     async def fetch_data(self):
         self.get_my_crypto()

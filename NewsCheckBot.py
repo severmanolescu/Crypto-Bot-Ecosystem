@@ -1,12 +1,18 @@
 import logging
 
 from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    MessageHandler,
+    filters,
+    ContextTypes,
+)
 
-from sdk.Logger import setup_logger
-from sdk import LoadVariables as LoadVariables
-from sdk.MarketSentiment import get_market_sentiment
-from sdk.DataBase.DataBaseHandler import DataBaseHandler
+from sdk.logger_handler import setup_logger
+from sdk import load_variables_handler as LoadVariables
+from sdk.market_sentiment_handler import get_market_sentiment
+from sdk.data_base.data_base_handler import DataBaseHandler
 from sdk.SendTelegramMessage import send_telegram_message_update
 
 from NewsCheck import CryptoNewsCheck
@@ -19,11 +25,12 @@ logger.info("News Check started")
 NEWS_KEYBOARD = ReplyKeyboardMarkup(
     [
         ["🚨 Check for Articles", "🔢 Show statistics"],
-        ["📊 Market Sentiment", "🚨 Help"]
+        ["📊 Market Sentiment", "🚨 Help"],
     ],
     resize_keyboard=True,  # Makes the buttons smaller and fit better
     one_time_keyboard=False,  # Buttons stay visible after being clicked
 )
+
 
 class NewsBot:
     def __init__(self):
@@ -35,10 +42,10 @@ class NewsBot:
     # Command: /start
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         await send_telegram_message_update(
-            "🤖 Welcome to the News Bot! Use the buttons below to get started:",
-            update)
+            "🤖 Welcome to the News Bot! Use the buttons below to get started:", update
+        )
 
-    async def start_the_articles_check(self,update):
+    async def start_the_articles_check(self, update):
         logger.info(f" Requested: Article Check")
 
         self.cryptoNewsCheck.reload_the_data()
@@ -65,14 +72,18 @@ class NewsBot:
 
             await self.db.show_stats(update)
         elif text == "📊 Market Sentiment" or text_lower == "sentiment":
-            await send_telegram_message_update("🧮 Calculating the sentiment...", update)
+            await send_telegram_message_update(
+                "🧮 Calculating the sentiment...", update
+            )
 
             await self.market_sentiment(update)
         elif text == "🚨 Help" or text.lower() == "help":
             await self.help_command(update, context)
         else:
             logger.error(f" Invalid command. Please use the buttons below.")
-            await send_telegram_message_update("❌ Invalid command. Please use the buttons below.", update)
+            await send_telegram_message_update(
+                "❌ Invalid command. Please use the buttons below.", update
+            )
 
     # Command: /start
     async def search(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -82,7 +93,9 @@ class NewsBot:
 
         articles = await self.db.search_articles_by_tags(context.args)
 
-        print(f"\nFound {len(articles)} articles with {context.args} tags in the data base!\n")
+        print(
+            f"\nFound {len(articles)} articles with {context.args} tags in the data base!\n"
+        )
 
         if len(articles) == 0:
             message = f"No articles found with{context.args} found!"
@@ -121,7 +134,7 @@ Example:
     def run_bot(self):
         variables = LoadVariables.load("ConfigurationFiles/variables.json")
 
-        bot_token = variables.get('TELEGRAM_API_TOKEN_ARTICLES', '')
+        bot_token = variables.get("TELEGRAM_API_TOKEN_ARTICLES", "")
 
         app = Application.builder().token(bot_token).build()
 
@@ -129,11 +142,14 @@ Example:
         app.add_handler(CommandHandler("start", self.start))
         app.add_handler(CommandHandler("search", self.search))
         app.add_handler(CommandHandler("help", self.help_command))
-        app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_buttons))
+        app.add_handler(
+            MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_buttons)
+        )
 
         # Start the bot
         print("🤖 News Bot is running...")
         app.run_polling()
+
 
 if __name__ == "__main__":
     news_bot = NewsBot()

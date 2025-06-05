@@ -2,24 +2,27 @@ import logging
 
 from telegram import Bot
 
-from sdk import LoadVariables as LoadVariables
-from sdk.OpenAIPrompt import OpenAIPrompt
-from sdk.DataFetcher import get_eth_gas_fee
+from sdk import load_variables_handler as LoadVariables
+from sdk.open_ai_prompt_handler import OpenAIPrompt
+from sdk.data_fetcher import get_eth_gas_fee
 from sdk.Utils import format_change
 
 logger = logging.getLogger(__name__)
 logger.info("Telegram message handler started")
+
 
 async def send_telegram_message_update(message, update):
     print(f"\nSent to Telegram:\n {message}")
 
     await update.message.reply_text(message, parse_mode="HTML")
 
+
 async def send_plot_to_telegram(image_path, update):
-    """ Send the generated plot image to a Telegram chat asynchronously. """
+    """Send the generated plot image to a Telegram chat asynchronously."""
     if update is not None:
         with open(image_path, "rb") as img:
             await update.message.reply_photo(photo=img)
+
 
 class TelegramMessagesHandler:
     def __init__(self):
@@ -36,20 +39,28 @@ class TelegramMessagesHandler:
     def reload_the_data(self):
         variables = LoadVariables.load()
 
-        self.telegram_important_chat_id = variables.get("TELEGRAM_CHAT_ID_FULL_DETAILS", [])
-        self.telegram_not_important_chat_id = variables.get("TELEGRAM_CHAT_ID_PARTIAL_DATA", [])
+        self.telegram_important_chat_id = variables.get(
+            "TELEGRAM_CHAT_ID_FULL_DETAILS", []
+        )
+        self.telegram_not_important_chat_id = variables.get(
+            "TELEGRAM_CHAT_ID_PARTIAL_DATA", []
+        )
 
         # Etherscan API credentials
-        self.etherscan_api_url = variables.get("ETHERSCAN_GAS_API_URL", "") + variables.get("ETHERSCAN_API_KEY", "")
+        self.etherscan_api_url = variables.get(
+            "ETHERSCAN_GAS_API_URL", ""
+        ) + variables.get("ETHERSCAN_API_KEY", "")
 
-        open_ai_api = variables.get('OPEN_AI_API', '')
+        open_ai_api = variables.get("OPEN_AI_API", "")
 
         self.open_ai_prompt = OpenAIPrompt(open_ai_api)
 
         self.send_ai_summary = variables.get("SEND_AI_SUMMARY", "")
 
     # Function to send a message via Telegram
-    async def send_telegram_message(self, message, bot, is_important=False, update=None):
+    async def send_telegram_message(
+        self, message, bot, is_important=False, update=None
+    ):
         if update is not None:
             await send_telegram_message_update(message, update)
 
@@ -57,7 +68,7 @@ class TelegramMessagesHandler:
 
         bot = Bot(token=bot)
 
-        #if message.count("*") % 2 == 1:
+        # if message.count("*") % 2 == 1:
         #    message = message.replace("*", "\*")
 
         print(f"\n\nSent to Telegram:\n {message}")
@@ -67,7 +78,9 @@ class TelegramMessagesHandler:
         try:
             if is_important is False:
                 for chat_id in self.telegram_not_important_chat_id:
-                    await bot.send_message(chat_id=chat_id, text=message, parse_mode="HTML")
+                    await bot.send_message(
+                        chat_id=chat_id, text=message, parse_mode="HTML"
+                    )
             for chat_id in self.telegram_important_chat_id:
                 await bot.send_message(chat_id=chat_id, text=message, parse_mode="HTML")
         except Exception as e:
@@ -75,7 +88,7 @@ class TelegramMessagesHandler:
             logger.error(error_message)
             print(error_message)
 
-    async def send_eth_gas_fee(self, telegram_api_token, update = None):
+    async def send_eth_gas_fee(self, telegram_api_token, update=None):
         message = ""
         safe_gas, propose_gas, fast_gas = get_eth_gas_fee(self.etherscan_api_url)
         if safe_gas and propose_gas and fast_gas:
@@ -88,12 +101,19 @@ class TelegramMessagesHandler:
             )
         await self.send_telegram_message(message, telegram_api_token, False, update)
 
-    async def send_market_update(self, telegram_api_token, now_date, my_crypto, update = None):
+    async def send_market_update(
+        self, telegram_api_token, now_date, my_crypto, update=None
+    ):
         message = f"🕒 <b>Market Update at {now_date.strftime('%H:%M')}</b>"
 
         if self.send_ai_summary == "True":
-            message += '\n\n'
-            changes_text = "\n".join([f"{symbol}: {data['change_1h']}%" for symbol, data in my_crypto.items()])
+            message += "\n\n"
+            changes_text = "\n".join(
+                [
+                    f"{symbol}: {data['change_1h']}%"
+                    for symbol, data in my_crypto.items()
+                ]
+            )
             prompt = f"Generate a short quote about the crypto market. Hour: {now_date.hour}, changes:\n{changes_text}"
 
             message += await self.open_ai_prompt.get_response(prompt)

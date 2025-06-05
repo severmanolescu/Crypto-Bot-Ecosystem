@@ -2,17 +2,23 @@ import logging
 
 from datetime import datetime, timezone
 from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    MessageHandler,
+    filters,
+    ContextTypes,
+)
 
-from sdk.LoadVariables import (
+from sdk.load_variables_handler import (
     load_portfolio_from_file,
     save_data_to_json_file,
-    save_transaction
+    save_transaction,
 )
-from sdk.Logger import setup_logger
+from sdk.logger_handler import setup_logger
 from sdk.Utils import check_requests
-from sdk import LoadVariables as LoadVariables
-from sdk.CheckUsers import check_if_special_user
+from sdk import load_variables_handler as LoadVariables
+from sdk.Utils import check_if_special_user
 
 setup_logger("slave_bot")
 logger = logging.getLogger(__name__)
@@ -20,9 +26,7 @@ logger.info("My Slave Bot started")
 
 # Persistent buttons for news commands
 NEWS_KEYBOARD = ReplyKeyboardMarkup(
-    [
-        ["🚨 Help"]
-    ],
+    [["🚨 Help"]],
     resize_keyboard=True,  # Makes the buttons smaller and fit better
     one_time_keyboard=False,  # Buttons stay visible after being clicked
 )
@@ -38,12 +42,12 @@ class SlaveBot:
     def reload_the_data(self):
         variables = LoadVariables.load()
 
-        self.cmc_url = variables.get('CMC_URL_QUOTES', '')
-        self.cmc_top10_url = variables.get('CMC_TOP10_URL', '')
+        self.cmc_url = variables.get("CMC_URL_QUOTES", "")
+        self.cmc_top10_url = variables.get("CMC_TOP10_URL", "")
 
-        self.coingecko_url = variables.get('COINGECKO_URL', '')
+        self.coingecko_url = variables.get("COINGECKO_URL", "")
 
-        cmc_api_key = variables.get('CMC_API_KEY', '')
+        cmc_api_key = variables.get("CMC_API_KEY", "")
 
         self.headers = {"X-CMC_PRO_API_KEY": cmc_api_key}
 
@@ -77,7 +81,7 @@ class SlaveBot:
                 "change_30d": quote["percent_change_30d"],
                 "dominance": quote["market_cap_dominance"],
                 "total_supply": coin_data["total_supply"],
-                "circulating_supply": coin_data["circulating_supply"]
+                "circulating_supply": coin_data["circulating_supply"],
             }
         return None  # Coin not found
 
@@ -97,9 +101,11 @@ class SlaveBot:
                 symbol = coin["symbol"]
                 price = coin["quote"]["USD"]["price"]
                 market_cap = coin["quote"]["USD"]["market_cap"]
-                result += (f"🔹 <b>{name} ({symbol})</b>\n"
-                           f"💰 Price: ${price:,.2f}\n"
-                           f"🏦 Market Cap: ${market_cap:,.2f}\n\n")
+                result += (
+                    f"🔹 <b>{name} ({symbol})</b>\n"
+                    f"💰 Price: ${price:,.2f}\n"
+                    f"🏦 Market Cap: ${market_cap:,.2f}\n\n"
+                )
             return result
         logger.error(f" Error fetching top 10 cryptocurrencies.")
         return "❌ Error fetching top 10 cryptocurrencies."
@@ -135,19 +141,21 @@ class SlaveBot:
             ath_message = "Can't find ATH"
 
         if data:
-            return (f"💰 Price: ${data['price']:.2f}\n"
-                    f"🏦 Market Cap: ${data['market_cap']:,.2f}\n"
-                    f"📊 24h Volume: ${data['volume']:,.2f}\n"
-                    f"🌍 Market Dominance: {data['dominance']:.2f}%\n"
-                    f"📦 Circulating Supply: {data['circulating_supply']:,.2f}\n"
-                    f"📦 Total Supply: {data['total_supply']:,.2f}\n"
-                    f"🚀 All time high: {ath_message}\n"
-                    f"\n"
-                    f"📈 Price Changes:\n"
-                    f"🕐 1 Hour: {data['change_1h']:.2f}%\n"
-                    f"🌅 24 Hours: {data['change_24h']:.2f}%\n"
-                    f"📆 7 Days: {data['change_7d']:.2f}%\n"
-                    f"📅 30 Days: {data['change_30d']:.2f}%\n")
+            return (
+                f"💰 Price: ${data['price']:.2f}\n"
+                f"🏦 Market Cap: ${data['market_cap']:,.2f}\n"
+                f"📊 24h Volume: ${data['volume']:,.2f}\n"
+                f"🌍 Market Dominance: {data['dominance']:.2f}%\n"
+                f"📦 Circulating Supply: {data['circulating_supply']:,.2f}\n"
+                f"📦 Total Supply: {data['total_supply']:,.2f}\n"
+                f"🚀 All time high: {ath_message}\n"
+                f"\n"
+                f"📈 Price Changes:\n"
+                f"🕐 1 Hour: {data['change_1h']:.2f}%\n"
+                f"🌅 24 Hours: {data['change_24h']:.2f}%\n"
+                f"📆 7 Days: {data['change_7d']:.2f}%\n"
+                f"📅 30 Days: {data['change_30d']:.2f}%\n"
+            )
         else:
             logger.error(f" Couldn't fetch details for {symbol}.")
             return f"❌ Couldn't fetch details for {symbol}."
@@ -156,8 +164,9 @@ class SlaveBot:
     async def details(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         symbol = context.args[0] if context.args else "BTC"
 
-        logger.error(f" User {update.effective_chat.id} "
-                     f"requested details for {symbol}")
+        logger.error(
+            f" User {update.effective_chat.id} " f"requested details for {symbol}"
+        )
 
         data = self.get_crypto_data(symbol)
 
@@ -173,8 +182,7 @@ class SlaveBot:
     async def top10(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         text = self.get_top_10()
 
-        logger.error(f" User {update.effective_chat.id} "
-                     f"requested top 10")
+        logger.error(f" User {update.effective_chat.id} " f"requested top 10")
 
         logger.info(f" Requested: top 10")
 
@@ -183,7 +191,9 @@ class SlaveBot:
     # Handle `/compare <symbol1> <symbol2>` command
     async def compare(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if len(context.args) != 2:
-            await update.message.reply_text("❌ Please provide two cryptocurrency symbols to compare.")
+            await update.message.reply_text(
+                "❌ Please provide two cryptocurrency symbols to compare."
+            )
             return
 
         symbol1, symbol2 = context.args
@@ -209,7 +219,9 @@ class SlaveBot:
 
             await update.message.reply_text(message, parse_mode="HTML")
         else:
-            await update.message.reply_text("❌ Couldn't fetch data for one or both symbols.")
+            await update.message.reply_text(
+                "❌ Couldn't fetch data for one or both symbols."
+            )
 
     # Function to convert cryptocurrency
     def convert_crypto(self, amount, from_symbol, to_symbol):
@@ -231,7 +243,9 @@ class SlaveBot:
     async def convert(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if len(context.args) != 3:
             logger.error(f" Usage: /convert <amount> <from symbol> <to symbol>")
-            await update.message.reply_text("❌ Usage: /convert <amount> <from symbol> <to symbol>")
+            await update.message.reply_text(
+                "❌ Usage: /convert <amount> <from symbol> <to symbol>"
+            )
             return
 
         try:
@@ -239,12 +253,16 @@ class SlaveBot:
             from_symbol = context.args[1]
             to_symbol = context.args[2]
 
-            logger.error(f" User {update.effective_chat.id} "
-                         f"requested convert from {from_symbol} to {to_symbol} with amount {amount}")
+            logger.error(
+                f" User {update.effective_chat.id} "
+                f"requested convert from {from_symbol} to {to_symbol} with amount {amount}"
+            )
 
         except ValueError:
             logger.error(f" Invalid amount. Please provide a valid number.")
-            await update.message.reply_text("❌ Invalid amount. Please provide a valid number.")
+            await update.message.reply_text(
+                "❌ Invalid amount. Please provide a valid number."
+            )
             return
 
         converted_amount = self.convert_crypto(amount, from_symbol, to_symbol)
@@ -255,8 +273,12 @@ class SlaveBot:
             text = f"🔁 <b>Conversion Result:</b>\n{amount} {from_symbol.upper()} = {converted_amount:.2f} {to_symbol.upper()}"
             await update.message.reply_text(text, parse_mode="HTML")
         else:
-            logger.error(f" Couldn't convert {from_symbol.upper()} to {to_symbol.upper()}.")
-            await update.message.reply_text(f"❌ Couldn't convert {from_symbol.upper()} to {to_symbol.upper()}.")
+            logger.error(
+                f" Couldn't convert {from_symbol.upper()} to {to_symbol.upper()}."
+            )
+            await update.message.reply_text(
+                f"❌ Couldn't convert {from_symbol.upper()} to {to_symbol.upper()}."
+            )
 
     # Handle `/mcap_change <symbol>` command
     async def mcap_change(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -268,8 +290,10 @@ class SlaveBot:
         symbol = context.args[0].upper()
         data = self.get_crypto_data(symbol)
 
-        logger.error(f" User {update.effective_chat.id} "
-                     f"requested market cap change for {symbol}")
+        logger.error(
+            f" User {update.effective_chat.id} "
+            f"requested market cap change for {symbol}"
+        )
 
         logger.info(f" Requested: mcap change {symbol}")
 
@@ -279,13 +303,17 @@ class SlaveBot:
             await update.message.reply_text(text, parse_mode="HTML")
         else:
             logger.error(f" Couldn't fetch market cap change for {symbol}.")
-            await update.message.reply_text(f"❌ Couldn't fetch market cap change for {symbol}.")
+            await update.message.reply_text(
+                f"❌ Couldn't fetch market cap change for {symbol}."
+            )
 
     # Handle `/roi <symbol> <initial_investment>` command
     async def roi(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if len(context.args) != 3:
             logger.error(f" Usage: /roi <symbol> <initial_investment> <initial_price>")
-            await update.message.reply_text("❌ Usage: /roi <symbol> <initial_investment> <initial_price>")
+            await update.message.reply_text(
+                "❌ Usage: /roi <symbol> <initial_investment> <initial_price>"
+            )
             return
 
         symbol = context.args[0].upper()
@@ -297,12 +325,16 @@ class SlaveBot:
             initial_price = float(context.args[2])
         except ValueError:
             logger.error(f" Invalid input. Please provide valid numbers.")
-            await update.message.reply_text("❌ Invalid input. Please provide valid numbers.")
+            await update.message.reply_text(
+                "❌ Invalid input. Please provide valid numbers."
+            )
             return
 
-        logger.error(f" User {update.effective_chat.id} "
-                     f"requested ROI for {symbol} with investment {initial_investment} "
-                     f"and initial price {initial_price}")
+        logger.error(
+            f" User {update.effective_chat.id} "
+            f"requested ROI for {symbol} with investment {initial_investment} "
+            f"and initial price {initial_price}"
+        )
 
         data = self.get_crypto_data(symbol)
 
@@ -324,7 +356,7 @@ class SlaveBot:
             await update.message.reply_text(f"❌ Couldn't fetch ROI data for {symbol}.")
 
     def update_buy(self, portfolio, symbol, amount, price):
-        """ Handles buying a cryptocurrency and updating the portfolio correctly. """
+        """Handles buying a cryptocurrency and updating the portfolio correctly."""
         if symbol in portfolio:
             current_quantity = portfolio[symbol]["quantity"]
             current_avg_price = portfolio[symbol]["average_price"]
@@ -332,7 +364,9 @@ class SlaveBot:
 
             # Weighted average price calculation
             new_quantity = current_quantity + amount
-            new_avg_price = ((current_quantity * current_avg_price) + (amount * price)) / new_quantity
+            new_avg_price = (
+                (current_quantity * current_avg_price) + (amount * price)
+            ) / new_quantity
             new_total_investment = current_total_investment + (amount * price)
         else:
             # If it's a new asset, initialize with all required fields
@@ -344,14 +378,15 @@ class SlaveBot:
             "quantity": round(new_quantity, 6),
             "average_price": round(new_avg_price, 6),
             "total_investment": round(new_total_investment, 2),
-            "allocation_percentage": None  # To be calculated later
+            "allocation_percentage": None,  # To be calculated later
         }
 
     def update_sell(self, portfolio, symbol, amount, price):
-        """ Handles selling a cryptocurrency, updating portfolio, and adding USDT balance. """
+        """Handles selling a cryptocurrency, updating portfolio, and adding USDT balance."""
         if symbol not in portfolio or portfolio[symbol]["quantity"] < amount:
             logger.error(
-                f"❌ Not enough {symbol} to sell. Available: {portfolio.get(symbol, {}).get('quantity', 0)}, Requested: {amount}")
+                f"❌ Not enough {symbol} to sell. Available: {portfolio.get(symbol, {}).get('quantity', 0)}, Requested: {amount}"
+            )
             return False
 
         # Calculate value in USDT
@@ -359,7 +394,9 @@ class SlaveBot:
 
         # Deduct from crypto balance
         portfolio[symbol]["quantity"] -= amount
-        portfolio[symbol]["total_investment"] -= round(amount * portfolio[symbol]["average_price"], 2)
+        portfolio[symbol]["total_investment"] -= round(
+            amount * portfolio[symbol]["average_price"], 2
+        )
 
         # Remove asset if quantity reaches zero
         if portfolio[symbol]["quantity"] <= 0:
@@ -404,7 +441,9 @@ class SlaveBot:
     # Handle `/buy <symbol> <amount>` command
     async def buy(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if check_if_special_user(update.effective_chat.id) is False:
-            logger.error(f" User {update.effective_chat.id}: without rights wants to buy")
+            logger.error(
+                f" User {update.effective_chat.id}: without rights wants to buy"
+            )
             await update.message.reply_text("❌ You don't have the rights to do this!")
             return
 
@@ -418,16 +457,19 @@ class SlaveBot:
             amount = float(context.args[1])
         except ValueError:
             logger.error(f" Invalid amount. Please provide a valid number.")
-            await update.message.reply_text("❌ Invalid amount. Please provide a valid number.")
+            await update.message.reply_text(
+                "❌ Invalid amount. Please provide a valid number."
+            )
             return
 
         data = self.get_crypto_data(symbol)
         if data:
-            price = data['price']
+            price = data["price"]
             total_cost = amount * price
 
             logger.info(
-                f" User {update.effective_chat.id} requested buy for {symbol} at ${price:.2f}, total cost: ${total_cost:.2f}")
+                f" User {update.effective_chat.id} requested buy for {symbol} at ${price:.2f}, total cost: ${total_cost:.2f}"
+            )
 
             # Update portfolio and save transaction
             if self.update_portfolio(symbol, amount, price, "buy"):
@@ -439,14 +481,18 @@ class SlaveBot:
                 )
                 await update.message.reply_text(text, parse_mode="HTML")
             else:
-                await update.message.reply_text(f"❌ Failed to update portfolio for {symbol}.")
+                await update.message.reply_text(
+                    f"❌ Failed to update portfolio for {symbol}."
+                )
         else:
             await update.message.reply_text(f"❌ Couldn't fetch data for {symbol}.")
 
     # Handle `/sell <symbol> <amount>` command
     async def sell(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if check_if_special_user(update.effective_chat.id) is False:
-            logger.error(f" User {update.effective_chat.id}: without rights wants to sell")
+            logger.error(
+                f" User {update.effective_chat.id}: without rights wants to sell"
+            )
             await update.message.reply_text("❌ You don't have the rights to do this!")
             return
 
@@ -460,18 +506,22 @@ class SlaveBot:
             amount = float(context.args[1])
         except ValueError:
             logger.error(f" Invalid amount. Please provide a valid number.")
-            await update.message.reply_text("❌ Invalid amount. Please provide a valid number.")
+            await update.message.reply_text(
+                "❌ Invalid amount. Please provide a valid number."
+            )
             return
 
         data = self.get_crypto_data(symbol)
         if data:
-            price = data['price']
+            price = data["price"]
             total_value = amount * price
 
             logger.info(
-                f" User {update.effective_chat.id} requested sell for {symbol} at ${price:.2f}, total value: ${total_value:.2f}")
+                f" User {update.effective_chat.id} requested sell for {symbol} at ${price:.2f}, total value: ${total_value:.2f}"
+            )
             print(
-                f" User {update.effective_chat.id} requested sell for {symbol} at ${price:.2f}, total value: ${total_value:.2f}")
+                f" User {update.effective_chat.id} requested sell for {symbol} at ${price:.2f}, total value: ${total_value:.2f}"
+            )
 
             # Update portfolio and save transaction
             if self.update_portfolio(symbol, amount, price, "sell"):
@@ -483,13 +533,14 @@ class SlaveBot:
                 )
                 await update.message.reply_text(text, parse_mode="HTML")
             else:
-                await update.message.reply_text(f"❌ Failed to update portfolio for {symbol}.")
+                await update.message.reply_text(
+                    f"❌ Failed to update portfolio for {symbol}."
+                )
         else:
             await update.message.reply_text(f"❌ Couldn't fetch data for {symbol}.")
 
     async def list_keywords(self, update, keywords):
-        logger.info(f" User {update.effective_chat.id} "
-                    f"requested keywords list")
+        logger.info(f" User {update.effective_chat.id} " f"requested keywords list")
 
         keywords_message = "📋 <b>Current keywords:</b>\n\n"
         for key in keywords:
@@ -503,15 +554,19 @@ class SlaveBot:
         Usage: /keyword <add/remove> <keyword>
         """
         if check_if_special_user(update.effective_chat.id) is False:
-            logger.error(f" User {update.effective_chat.id}: without rigths "
-                         f"wants to update the keywords")
+            logger.error(
+                f" User {update.effective_chat.id}: without rigths "
+                f"wants to update the keywords"
+            )
 
             await update.message.reply_text("❌ You don't have the rigths to do this!")
             return
 
         if len(context.args) < 1:
             logger.error(f" Usage: /keyword <add/remove/list> <keyword>")
-            await update.message.reply_text("❌ Usage: /keyword <add/remove/list> <keyword>")
+            await update.message.reply_text(
+                "❌ Usage: /keyword <add/remove/list> <keyword>"
+            )
             return
 
         action = context.args[0].lower()
@@ -519,7 +574,7 @@ class SlaveBot:
         logger.info(f" Requested: {action}")
 
         # Load existing keywords
-        keywords = LoadVariables.load_keywords()
+        keywords = LoadVariables.load_keyword_list()
 
         if action == "list":
             await self.list_keywords(update, keywords)
@@ -530,7 +585,9 @@ class SlaveBot:
 
         if len(context.args) < 2:
             logger.error(f" Usage: /keyword <add/remove> <keyword>")
-            await update.message.reply_text("❌ Usage: /keyword <add/remove/list> <keyword>")
+            await update.message.reply_text(
+                "❌ Usage: /keyword <add/remove/list> <keyword>"
+            )
             return
 
         if not keyword:
@@ -540,7 +597,9 @@ class SlaveBot:
 
         if action == "add":
             if keyword in keywords:
-                await update.message.reply_text(f"ℹ️ The keyword '{keyword}' is already in the list.")
+                await update.message.reply_text(
+                    f"ℹ️ The keyword '{keyword}' is already in the list."
+                )
             else:
                 keywords.append(keyword)
                 LoadVariables.save_keywords(keywords)
@@ -552,15 +611,16 @@ class SlaveBot:
                 LoadVariables.save_keywords(keywords)
                 await update.message.reply_text(f"✅ Removed keyword: '{keyword}'.")
             else:
-                await update.message.reply_text(f"ℹ️ The keyword '{keyword}' is not in the list.")
+                await update.message.reply_text(
+                    f"ℹ️ The keyword '{keyword}' is not in the list."
+                )
 
         else:
             logger.error(f" Invalid action. Use 'add' or 'remove'.")
             await update.message.reply_text("❌ Invalid action. Use 'add' or 'remove'.")
 
     async def list_variables(self, update):
-        logger.error(f" User {update.effective_chat.id} "
-                     f"requested var list")
+        logger.error(f" User {update.effective_chat.id} " f"requested var list")
 
         variables = LoadVariables.load()
 
@@ -578,8 +638,10 @@ class SlaveBot:
         variable_name = context.args[0].upper()
         new_value = " ".join(context.args[1:]).strip()
 
-        logger.error(f" User {update.effective_chat.id} "
-                     f"requested var {variable_name}: {new_value}")
+        logger.error(
+            f" User {update.effective_chat.id} "
+            f"requested var {variable_name}: {new_value}"
+        )
         # Try to convert to integer if the value is numeric
         if new_value.isdigit():
             new_value = int(new_value)
@@ -590,8 +652,11 @@ class SlaveBot:
                 new_value = set(map(int, new_value.split(",")))
             except ValueError:
                 logger.error(
-                    f" SEND_HOURS should be a list of numbers, e.g., '7,12,18,0'")
-                await update.message.reply_text("❌ SEND_HOURS should be a list of numbers, e.g., '7,12,18,0'")
+                    f" SEND_HOURS should be a list of numbers, e.g., '7,12,18,0'"
+                )
+                await update.message.reply_text(
+                    "❌ SEND_HOURS should be a list of numbers, e.g., '7,12,18,0'"
+                )
                 return
 
         # Handle special case for cryptoCurrencies (list of strings)
@@ -609,7 +674,9 @@ class SlaveBot:
         variables[variable_name] = new_value
         LoadVariables.save(variables)
 
-        await update.message.reply_text(f"✅ Updated variable '{variable_name}' to '{new_value}'.")
+        await update.message.reply_text(
+            f"✅ Updated variable '{variable_name}' to '{new_value}'."
+        )
 
     async def var(self, update, context):
         """
@@ -619,14 +686,18 @@ class SlaveBot:
         - /var <variable_name> <new_value>: Update a variable.
         """
         if check_if_special_user(update.effective_chat.id) is False:
-            logger.error(f" User {update.effective_chat.id}: without rigths "
-                         f"wants to update the variables")
+            logger.error(
+                f" User {update.effective_chat.id}: without rigths "
+                f"wants to update the variables"
+            )
             await update.message.reply_text("❌ You don't have the rigths to do this!")
             return
 
         if not context.args:
             logger.error(f" Usage: /var list OR /var <variable_name> <new_value>")
-            await update.message.reply_text("❌ Usage: /var list OR /var <variable_name> <new_value>")
+            await update.message.reply_text(
+                "❌ Usage: /var list OR /var <variable_name> <new_value>"
+            )
             return
 
         action = context.args[0].lower()
@@ -637,7 +708,9 @@ class SlaveBot:
 
         if len(context.args) < 2:
             logger.error(f" Usage: /var <variable_name> <new_value>")
-            await update.message.reply_text("❌ Usage: /var <variable_name> <new_value>")
+            await update.message.reply_text(
+                "❌ Usage: /var <variable_name> <new_value>"
+            )
             return
 
         await self.change_variable(update, context)
@@ -680,7 +753,7 @@ class SlaveBot:
     def run_bot(self):
         variables = LoadVariables.load()
 
-        bot_token = variables.get('TELEGRAM_API_TOKEN_SLAVE', '')
+        bot_token = variables.get("TELEGRAM_API_TOKEN_SLAVE", "")
 
         app = Application.builder().token(bot_token).build()
 
@@ -698,7 +771,9 @@ class SlaveBot:
         app.add_handler(CommandHandler("var", self.var))
         app.add_handler(CommandHandler("help", self.help_command))
 
-        app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_buttons))
+        app.add_handler(
+            MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_buttons)
+        )
 
         # Start the bot
         logger.info(f" Bot is running...")
