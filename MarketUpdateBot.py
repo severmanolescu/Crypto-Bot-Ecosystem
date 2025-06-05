@@ -17,7 +17,6 @@ from sdk.plot_crypto_trades import PlotTrades
 from sdk.SendTelegramMessage import TelegramMessagesHandler
 from sdk.Utils import check_if_special_user
 
-
 setup_logger("market_update_bot")
 logger = logging.getLogger(__name__)
 logger.info("Market Update Bot started")

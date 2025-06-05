@@ -19,7 +19,6 @@ from sdk.load_variables_handler import (
 from sdk.logger_handler import setup_logger
 from sdk.Utils import check_if_special_user, check_requests
 
-
 setup_logger("slave_bot")
 logger = logging.getLogger(__name__)
 logger.info("My Slave Bot started")
