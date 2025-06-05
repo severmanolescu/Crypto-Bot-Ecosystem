@@ -1,24 +1,16 @@
 import logging
-
 from datetime import datetime, timezone
-from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import (
-    Application,
-    CommandHandler,
-    MessageHandler,
-    filters,
-    ContextTypes,
-)
 
-from sdk.load_variables_handler import (
-    load_portfolio_from_file,
-    save_data_to_json_file,
-    save_transaction,
-)
-from sdk.logger_handler import setup_logger
-from sdk.Utils import check_requests
+from telegram import ReplyKeyboardMarkup, Update
+from telegram.ext import (Application, CommandHandler, ContextTypes,
+                          MessageHandler, filters)
+
 from sdk import load_variables_handler as LoadVariables
-from sdk.Utils import check_if_special_user
+from sdk.load_variables_handler import (load_portfolio_from_file,
+                                        save_data_to_json_file,
+                                        save_transaction)
+from sdk.logger_handler import setup_logger
+from sdk.Utils import check_if_special_user, check_requests
 
 setup_logger("slave_bot")
 logger = logging.getLogger(__name__)

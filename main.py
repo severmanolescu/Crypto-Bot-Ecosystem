@@ -1,7 +1,6 @@
-import logging
-import asyncio
 import argparse
-
+import asyncio
+import logging
 from datetime import datetime
 
 from sdk.logger_handler import setup_logger
@@ -13,7 +12,6 @@ logger.info("Main started")
 
 from CryptoValue import CryptoValueBot
 from NewsCheck import CryptoNewsCheck
-
 from sdk import load_variables_handler as LoadVariables
 
 cryptoValueBot = CryptoValueBot()

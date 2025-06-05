@@ -1,21 +1,15 @@
 import logging
 
-from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import (
-    Application,
-    CommandHandler,
-    MessageHandler,
-    filters,
-    ContextTypes,
-)
-
-from sdk.logger_handler import setup_logger
-from sdk import load_variables_handler as LoadVariables
-from sdk.market_sentiment_handler import get_market_sentiment
-from sdk.data_base.data_base_handler import DataBaseHandler
-from sdk.SendTelegramMessage import send_telegram_message_update
+from telegram import ReplyKeyboardMarkup, Update
+from telegram.ext import (Application, CommandHandler, ContextTypes,
+                          MessageHandler, filters)
 
 from NewsCheck import CryptoNewsCheck
+from sdk import load_variables_handler as LoadVariables
+from sdk.data_base.data_base_handler import DataBaseHandler
+from sdk.logger_handler import setup_logger
+from sdk.market_sentiment_handler import get_market_sentiment
+from sdk.SendTelegramMessage import send_telegram_message_update
 
 setup_logger("news_check_bot")
 logger = logging.getLogger(__name__)

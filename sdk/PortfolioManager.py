@@ -1,13 +1,13 @@
 import datetime
-import logging
 import json
+import logging
 import os
 
 import pytz
 
-from sdk.SendTelegramMessage import TelegramMessagesHandler
-from sdk.load_variables_handler import load_portfolio_from_file
 from sdk import load_variables_handler
+from sdk.load_variables_handler import load_portfolio_from_file
+from sdk.SendTelegramMessage import TelegramMessagesHandler
 
 logger = logging.getLogger(__name__)
 logger.info("Open AI Prompt started")

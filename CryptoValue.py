@@ -1,23 +1,18 @@
-import requests
 import json
 import time
-
 from datetime import datetime
 
-from sdk import load_variables_handler as LoadVariables
-
-from sdk.alerts_handler import AlertsHandler
-from sdk.data_fetcher import (
-    get_fear_and_greed_message,
-    get_fear_and_greed,
-    get_eth_gas_fee,
-)
-from sdk.PortfolioManager import PortfolioManager
-from sdk.market_sentiment_handler import get_market_sentiment
-from sdk.data_base.data_base_handler import DataBaseHandler
-from sdk.SendTelegramMessage import TelegramMessagesHandler
+import requests
 
 from NewsCheck import CryptoNewsCheck
+from sdk import load_variables_handler as LoadVariables
+from sdk.alerts_handler import AlertsHandler
+from sdk.data_base.data_base_handler import DataBaseHandler
+from sdk.data_fetcher import (get_eth_gas_fee, get_fear_and_greed,
+                              get_fear_and_greed_message)
+from sdk.market_sentiment_handler import get_market_sentiment
+from sdk.PortfolioManager import PortfolioManager
+from sdk.SendTelegramMessage import TelegramMessagesHandler
 
 
 class CryptoValueBot:

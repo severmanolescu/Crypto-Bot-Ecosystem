@@ -3,8 +3,8 @@ import logging
 from telegram import Bot
 
 from sdk import load_variables_handler as LoadVariables
-from sdk.open_ai_prompt_handler import OpenAIPrompt
 from sdk.data_fetcher import get_eth_gas_fee
+from sdk.open_ai_prompt_handler import OpenAIPrompt
 from sdk.Utils import format_change
 
 logger = logging.getLogger(__name__)

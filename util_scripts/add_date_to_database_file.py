@@ -1,6 +1,7 @@
 import asyncio
-import aiosqlite
 from datetime import datetime, timedelta
+
+import aiosqlite
 
 
 async def update_dates():
@@ -18,10 +19,12 @@ async def update_dates():
         start_date = datetime.today().date() - timedelta(days=1)  # Yesterday
         for index, (row_id,) in enumerate(rows):
             date_value = start_date - timedelta(days=index)
-            await db.execute("UPDATE daily_stats SET date = ? WHERE id = ?", (date_value, row_id))
-
+            await db.execute(
+                "UPDATE daily_stats SET date = ? WHERE id = ?", (date_value, row_id)
+            )
         await db.commit()
         print("Dates updated successfully!")
+
 
 # Run the async function
 asyncio.run(update_dates())

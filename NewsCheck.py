@@ -1,21 +1,20 @@
 import asyncio
 import logging
-import requests
-import cloudscraper
-
-from bs4 import BeautifulSoup
 from datetime import datetime
 
-# Import scrapers
-from sdk.scrapers.crypto_news_scraper import CryptoNewsScraper
-from sdk.scrapers.cointelegraph_scraper import CointelegraphScraper
-from sdk.scrapers.bitcoin_magazine_scraper import BitcoinMagazineScraper
+import cloudscraper
+import requests
+from bs4 import BeautifulSoup
 
+from sdk import load_variables_handler as LoadVariables
 # Import your SDK modules
 from sdk.data_base.data_base_handler import DataBaseHandler
-from sdk import load_variables_handler as LoadVariables
-from sdk.SendTelegramMessage import TelegramMessagesHandler
 from sdk.open_ai_prompt_handler import OpenAIPrompt
+from sdk.scrapers.bitcoin_magazine_scraper import BitcoinMagazineScraper
+from sdk.scrapers.cointelegraph_scraper import CointelegraphScraper
+# Import scrapers
+from sdk.scrapers.crypto_news_scraper import CryptoNewsScraper
+from sdk.SendTelegramMessage import TelegramMessagesHandler
 
 # Set up logging
 logger = logging.getLogger(__name__)

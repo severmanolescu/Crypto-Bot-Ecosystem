@@ -1,23 +1,16 @@
 import logging
-
 from datetime import datetime
 
-from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import (
-    Application,
-    CommandHandler,
-    MessageHandler,
-    filters,
-    ContextTypes,
-)
-
-from sdk.logger_handler import setup_logger
-from sdk.plot_crypto_trades import PlotTrades
-from sdk import load_variables_handler as LoadVariables
-from sdk.Utils import check_if_special_user
-from sdk.SendTelegramMessage import TelegramMessagesHandler
+from telegram import ReplyKeyboardMarkup, Update
+from telegram.ext import (Application, CommandHandler, ContextTypes,
+                          MessageHandler, filters)
 
 from CryptoValue import CryptoValueBot
+from sdk import load_variables_handler as LoadVariables
+from sdk.logger_handler import setup_logger
+from sdk.plot_crypto_trades import PlotTrades
+from sdk.SendTelegramMessage import TelegramMessagesHandler
+from sdk.Utils import check_if_special_user
 
 setup_logger("market_update_bot")
 logger = logging.getLogger(__name__)
