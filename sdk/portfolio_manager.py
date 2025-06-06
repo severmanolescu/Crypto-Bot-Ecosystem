@@ -1,3 +1,9 @@
+"""
+portfolio_manager.py
+This module provides functionality to manage a cryptocurrency portfolio,
+calculate its value, and send updates via Telegram.
+"""
+
 import datetime
 import json
 import logging
@@ -5,16 +11,22 @@ import os
 
 import pytz
 
-from sdk import load_variables_handler
-from sdk.load_variables_handler import load_portfolio_from_file
-from sdk.SendTelegramMessage import TelegramMessagesHandler
+from sdk.load_variables_handler import load, load_portfolio_from_file
+from sdk.send_telegram_message import TelegramMessagesHandler
 
 logger = logging.getLogger(__name__)
 logger.info("Open AI Prompt started")
 
 
 class PortfolioManager:
+    """
+    PortfolioManager class to handle cryptocurrency portfolio management.
+    """
+
     def __init__(self):
+        """
+        Initializes the PortfolioManager with necessary components.
+        """
         self.file_path = "ConfigurationFiles/portfolio.json"
 
         self.portfolio = None
@@ -24,7 +36,10 @@ class PortfolioManager:
         self.telegram_message = TelegramMessagesHandler()
 
     def reload_the_data(self):
-        variables = LoadVariables.load()
+        """
+        Reload the data from the configuration file and update the portfolio.
+        """
+        variables = load()
 
         self.telegram_api_token = variables.get("TELEGRAM_API_TOKEN_VALUE", "")
 
@@ -37,16 +52,23 @@ class PortfolioManager:
         Save the current portfolio to a JSON file.
         """
         try:
-            with open(self.file_path, "w") as file:
+            with open(self.file_path, "w", encoding="utf-8") as file:
                 json.dump(self.portfolio, file, indent=4)
-            logger.info(f" Portfolio saved to '{self.file_path}'.")
+            logger.info(" Portfolio saved to %s.", self.file_path)
             print(f"✅ Portfolio saved to '{self.file_path}'.")
-        except Exception as e:
-            logger.error(f" Error saving portfolio to '{self.file_path}': {e}")
-            print(f"❌ Error saving portfolio to '{self.file_path}': {e}")
+        except FileNotFoundError:
+            logger.error(" Portfolio file %s not found.", self.file_path)
+            print(f"❌ Portfolio file '{self.file_path}' not found.")
 
     # Function to calculate total portfolio value
     def calculate_portfolio_value(self, my_crypto):
+        """
+        Calculate the total value of the portfolio based on current prices.
+        Args:
+            my_crypto (dict): A dictionary containing current prices of cryptocurrencies.
+        Returns:
+            str: A formatted message with the portfolio value and breakdown.
+        """
         total_value = 0
         message = "📊 <b>Portfolio Value Update:</b>\n\n"
 
@@ -61,7 +83,14 @@ class PortfolioManager:
         return message
 
     # Function to calculate total portfolio value with detailed breakdown
+    # pylint:disable=too-many-locals
     def calculate_portfolio_value_detailed(self, my_crypto, save_data=False):
+        """
+        Calculate the total value of the portfolio with detailed breakdown.
+        Args:
+            my_crypto (dict): A dictionary containing current prices of cryptocurrencies.
+            save_data (bool): Whether to save the portfolio history to a file.
+        """
         total_value = 0
         total_investment = 0
         message = "📊 <b>Portfolio Value Update:</b>\n\n"
@@ -118,9 +147,8 @@ class PortfolioManager:
                     f"(<b>{total_profit_loss_percentage:+.2f}%</b>) {profit_symbol}\n"
                 )
 
-        from datetime import datetime
-
-        message += f"\n⏳ <b>Last Update:</b> {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}"
+        message += f"\n⏳ <b>Last Update:</b> {
+        datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}"
 
         if save_data:
             self.save_portfolio_history(
@@ -139,6 +167,14 @@ class PortfolioManager:
         total_profit_loss,
         total_profit_loss_percentage,
     ):
+        """
+        Save the portfolio history to a JSON file with date and time.
+        Args:
+            total_value (float): The total value of the portfolio.
+            total_investment (float): The total amount invested in the portfolio.
+            total_profit_loss (float): The total profit or loss of the portfolio.
+            total_profit_loss_percentage (float): The percentage of profit or loss.
+        """
         history_file = "ConfigurationFiles/portfolio_history.json"
 
         # Define your time zone (replace 'Europe/Bucharest' if needed)
@@ -147,7 +183,7 @@ class PortfolioManager:
 
         # Load existing history if available
         if os.path.exists(history_file):
-            with open(history_file, "r") as file:
+            with open(history_file, "r", encoding="utf-8") as file:
                 try:
                     history_data = json.load(file)
                 except json.JSONDecodeError:
@@ -170,9 +206,10 @@ class PortfolioManager:
         history_data.append(new_entry)
 
         # Save back to file
-        with open(history_file, "w") as file:
+        with open(history_file, "w", encoding="utf-8") as file:
             json.dump(history_data, file, indent=4)
 
+        # pylint: disable=logging-fstring-interpolation
         logger.info(
             f"Portfolio history updated at {new_entry['datetime']} (Local Time)."
         )
@@ -182,6 +219,14 @@ class PortfolioManager:
     async def send_portfolio_update(
         self, my_crypto, update, detailed=False, save_data=False
     ):
+        """
+        Fetch the portfolio value and send it via Telegram.
+        Args:
+            my_crypto (dict): A dictionary containing current prices of cryptocurrencies.
+            update: The update object from Telegram.
+            detailed (bool): Whether to send a detailed portfolio value.
+            save_data (bool): Whether to save the portfolio history data.
+        """
         if detailed:
             message = self.calculate_portfolio_value_detailed(
                 my_crypto, save_data=save_data
@@ -198,4 +243,9 @@ class PortfolioManager:
         )
 
     async def save_portfolio_history_hourly(self, my_crypto):
+        """
+        Save the portfolio history every hour with detailed value.
+        Args:
+            my_crypto (dict): A dictionary containing current prices of cryptocurrencies.
+        """
         self.calculate_portfolio_value_detailed(my_crypto, save_data=True)
