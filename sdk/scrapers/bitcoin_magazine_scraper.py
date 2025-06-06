@@ -62,6 +62,7 @@ class BitcoinMagazineScraper:
             if not link_url.startswith("http"):
                 link_url = f"https://bitcoinmagazine.com{link_url}"
 
+            # pylint: disable=duplicate-code
             if self.data_extractor.contains_keywords(headline_text):
                 highlights = self.data_extractor.contains_keywords(headline_text)
                 articles_data.append(
