@@ -328,7 +328,7 @@ def get_all_symbols():
         print("⚠️ Warning: JSON file is empty or not a list of transactions.")
         return []
 
-    symbols = set()  # Use set to avoid duplicates
+    symbols = set()
 
     for tx in transactions:
         if isinstance(tx, dict) and "symbol" in tx:

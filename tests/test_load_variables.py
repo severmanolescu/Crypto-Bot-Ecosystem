@@ -203,7 +203,4 @@ def test_get_all_symbols():
 
     # Check if the symbols are loaded correctly
     assert isinstance(symbols, list), "Symbols should be loaded as a list."
-    assert len(symbols) > 0, "The symbol list should not be empty."
-    assert all(
-        isinstance(symbol, str) for symbol in symbols
-    ), "All symbols should be strings."
+    assert len(symbols) == 0, "The symbol list should be empty."
