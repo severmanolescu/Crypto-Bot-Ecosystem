@@ -50,7 +50,7 @@ async def run():
         )
 
         print("\n🧐 Check for new articles!")
-        # await cryptoNewsCheck.run()
+        await cryptoNewsCheck.run()
 
         print("\n📤 Send crypto value!")
         await cryptoValueBot.fetch_data()
