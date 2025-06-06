@@ -6,6 +6,7 @@ alerts users based on predefined thresholds.
 """
 
 import json
+import os
 import time
 from datetime import datetime
 
@@ -102,7 +103,7 @@ class CryptoValueBot:
         # Reload telegram message handler variables
         self.telegram_message.reload_the_data()
 
-        self.crypto_currencies = variables.get("crypto_currencies", "")
+        self.crypto_currencies = variables.get("CRYPTOCURRENCIES", "")
 
         # CoinMarketCap API credentials
         self.coinmarketcap_api_key = variables.get("CMC_API_KEY", "")
@@ -225,6 +226,9 @@ class CryptoValueBot:
         """
         Saves today's data, including Fear and Greed Index, Ethereum gas fees,
         """
+        if not os.path.exists("data_bases"):
+            os.makedirs("data_bases")
+
         print("Saving the fear and greed values...")
         index_value, index_text, last_updated = await get_fear_and_greed()
         await self.db.store_fear_greed(index_value, index_text, last_updated)
