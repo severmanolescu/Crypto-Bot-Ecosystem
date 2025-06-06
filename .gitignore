@@ -37,16 +37,23 @@ env/
 .idea/
 *.iml
 
-# System files
-Thumbs.db
-desktop.ini
-
 # Logs
 /logs/
 *.log
 
-# Backup files
+# Database files
 articles.db
+/data_bases
+
+# Configuration files
+/ConfigurationFiles/scraped_articles_bitcoinmagazine.json
+/ConfigurationFiles/scraped_articles_cointelegraph.json
+/ConfigurationFiles/scraped_articles_cryptonews.json
+
 /ConfigurationFiles/portfolio.json
-/ConfigurationFiles/transactions.json
 /ConfigurationFiles/portfolio_history.json
+/ConfigurationFiles/transactions.json
+
+# Test files
+test*.json
+test*.db
