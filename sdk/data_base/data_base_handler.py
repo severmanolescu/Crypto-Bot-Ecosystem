@@ -21,6 +21,7 @@ class DataBaseHandler:
     This class manages the SQLite database for storing articles and their summaries.
     """
 
+    # pylint: disable=too-many-arguments, too-many-positional-arguments
     def __init__(
         self,
         articles_db_path="./articles.db",

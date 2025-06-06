@@ -1,5 +1,6 @@
 """
-Add a 'date' column to the 'daily_stats' table in a SQLite database and populate it with decreasing dates.
+Add a 'date' column to the 'daily_stats' table in a SQLite database
+and populate it with decreasing dates.
 """
 
 import asyncio

@@ -22,6 +22,7 @@ from sdk.scrapers.cointelegraph_scraper import CointelegraphScraper
 
 # Import scrapers
 from sdk.scrapers.crypto_news_scraper import CryptoNewsScraper
+from sdk.scrapers.data_extractor import DataExtractor
 from sdk.send_telegram_message import TelegramMessagesHandler
 
 # Set up logging
@@ -138,16 +139,18 @@ class CryptoNewsCheck:
             soup (BeautifulSoup): The parsed HTML content of the page.
             source (str): The source identifier to choose the appropriate scraper.
         """
+        data_extractor = DataExtractor(self.keywords)
+
         if source == "crypto.news":
-            scraper = CryptoNewsScraper(self.keywords)
+            scraper = CryptoNewsScraper(data_extractor)
             return scraper.scrape(soup)
 
         if source == "cointelegraph":
-            scraper = CointelegraphScraper(self.keywords)
+            scraper = CointelegraphScraper(data_extractor)
             return scraper.scrape(soup)
 
         if source == "bitcoinmagazine":
-            scraper = BitcoinMagazineScraper(self.keywords)
+            scraper = BitcoinMagazineScraper(data_extractor)
             return scraper.scrape(soup)
 
         return []
