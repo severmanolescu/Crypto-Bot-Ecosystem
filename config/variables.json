@@ -27,34 +27,30 @@
         11,
         13,
         18,
-        21,
         0
     ],
     "24H_ALERTS_SEND_HOURS": [
         0,
-        15,
-        21
+        15
     ],
     "7D_ALERTS_SEND_HOURS": [
-        21
+        0
     ],
     "30D_ALERTS_SEND_HOURS": [
-        21
+        0
     ],
     "PORTFOLIO_SAVE_HOURS": [
         23,
-        12,
-        15,
-        21
+        15
     ],
     "SENTIMENT_HOURS": [
-        21
+        23
     ],
     "TODAY_AI_SUMMARY": [
-        21
+        23
     ],
     "SAVE_HOURS": [
-        21
+        23
     ],
     "CRYPTOCURRENCIES": [
         "BTC",
@@ -66,8 +62,6 @@
         "ENA",
         "SEI",
         "LDO",
-        "SEI",
-        "SUI"
-    ],
-    "TEST_VARIABLE": "Test Value"
+        "SEI"
+    ]
 }
