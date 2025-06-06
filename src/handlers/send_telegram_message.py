@@ -6,10 +6,10 @@ import logging
 
 from telegram import Bot
 
-from sdk import load_variables_handler as LoadVariables
-from sdk.data_fetcher import get_eth_gas_fee
-from sdk.open_ai_prompt_handler import OpenAIPrompt
-from sdk.utils import format_change
+from src.handlers import load_variables_handler as LoadVariables
+from src.handlers.data_fetcher_handler import get_eth_gas_fee
+from src.handlers.open_ai_prompt_handler import OpenAIPrompt
+from src.utils.utils import format_change
 
 logger = logging.getLogger(__name__)
 logger.info("Telegram message handler started")

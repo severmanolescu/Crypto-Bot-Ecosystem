@@ -9,10 +9,10 @@ import asyncio
 import logging
 from datetime import datetime
 
-import sdk.load_variables_handler
-from crypto_value_handler import CryptoValueBot
-from news_check_handler import CryptoNewsCheck
-from sdk.logger_handler import setup_logger
+import src.handlers.load_variables_handler
+from src.bots.crypto_value_handler import CryptoValueBot
+from src.handlers.logger_handler import setup_logger
+from src.handlers.news_check_handler import CryptoNewsCheck
 
 setup_logger()
 logger = logging.getLogger(__name__)
@@ -45,10 +45,12 @@ async def run():
 
         read_variables()
 
-        sleep_time = sdk.load_variables_handler.get_int_variable("SLEEP_DURATION", 1800)
+        sleep_time = src.handlers.load_variables_handler.get_int_variable(
+            "SLEEP_DURATION", 1800
+        )
 
         print("\n🧐 Check for new articles!")
-        await cryptoNewsCheck.run()
+        # await cryptoNewsCheck.run()
 
         print("\n📤 Send crypto value!")
         await cryptoValueBot.fetch_data()

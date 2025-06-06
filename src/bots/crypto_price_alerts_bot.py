@@ -3,7 +3,14 @@ Price Alert Bot for Telegram
 This bot checks for significant price movements in cryptocurrencies
 """
 
+# pylint: disable=wrong-import-position
+
 import logging
+import os
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
+
 
 from telegram import ReplyKeyboardMarkup, Update
 from telegram.ext import (
@@ -14,9 +21,9 @@ from telegram.ext import (
     filters,
 )
 
-from crypto_value_handler import CryptoValueBot
-from sdk import load_variables_handler as LoadVariables
-from sdk.logger_handler import setup_logger
+from src.bots.crypto_value_handler import CryptoValueBot
+from src.handlers import load_variables_handler as LoadVariables
+from src.handlers.logger_handler import setup_logger
 
 setup_logger("crypto_price_alerts_bot")
 logger = logging.getLogger(__name__)
@@ -209,7 +216,7 @@ class PriceAlertBot:
         Main function to start the Price Alert Bot.
         This function initializes the bot, sets up command and message handlers,
         """
-        variables = LoadVariables.load("ConfigurationFiles/variables.json")
+        variables = LoadVariables.load()
 
         bot_token = variables.get("TELEGRAM_API_TOKEN_ALERTS", "")
 

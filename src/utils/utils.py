@@ -6,7 +6,7 @@ import logging
 
 import requests
 
-import sdk.load_variables_handler
+import src.handlers.load_variables_handler
 
 logger = logging.getLogger(__name__)
 logger.info("Alerts script started")
@@ -53,7 +53,7 @@ def check_if_special_user(user_id):
         user_id (int or str): The user ID to check.
     """
     try:
-        variables = sdk.load_variables_handler.load()
+        variables = src.handlers.load_variables_handler.load()
         special_users = variables.get("TELEGRAM_CHAT_ID_FULL_DETAILS", [])
 
         # Ensure special_users is a list or set

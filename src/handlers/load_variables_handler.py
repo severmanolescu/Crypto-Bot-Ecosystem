@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 logger.info("Load variables started")
 
 
-def load(file_path="./ConfigurationFiles/variables.json"):
+def load(file_path="./config/variables.json"):
     """
     Load global variables from a JSON file.
     Args:
@@ -34,7 +34,7 @@ def load(file_path="./ConfigurationFiles/variables.json"):
         return {}
 
 
-def save(variables, file_path="./ConfigurationFiles/variables.json"):
+def save(variables, file_path="./config/variables.json"):
     """
     Save global variables to a JSON file.
     Args:
@@ -55,7 +55,7 @@ def save(variables, file_path="./ConfigurationFiles/variables.json"):
         print("❌ Error saving variables: ", e)
 
 
-def get_json_key_value(key, file_path="./ConfigurationFiles/variables.json"):
+def get_json_key_value(key, file_path="./config/variables.json"):
     """
     Safely load a value from a JSON file by key.
     Args:
@@ -85,9 +85,7 @@ def get_json_key_value(key, file_path="./ConfigurationFiles/variables.json"):
     return data[key]
 
 
-def get_int_variable(
-    var_name, default=1800, file_path="./ConfigurationFiles/variables.json"
-):
+def get_int_variable(var_name, default=1800, file_path="./config/variables.json"):
     """
     Fetch an integer variable from the JSON file.
     If it is a string, attempt to convert it to an integer.
@@ -131,7 +129,7 @@ def get_int_variable(
     return default
 
 
-def load_portfolio_from_file(file_path="./ConfigurationFiles/portfolio.json"):
+def load_portfolio_from_file(file_path="./config/portfolio.json"):
     """
     Load portfolio data from a JSON file.
     Args:
@@ -190,7 +188,7 @@ def save_data_to_json_file(file_path, data):
         json.dump(data, file, indent=4)
 
 
-def load_transactions(file_path="./ConfigurationFiles/transactions.json"):
+def load_transactions(file_path="./config/transactions.json"):
     """
     Load transactions from JSON file.
     Args:
@@ -206,7 +204,7 @@ def load_transactions(file_path="./ConfigurationFiles/transactions.json"):
 
 
 def save_transaction(
-    symbol, action, amount, price, file_path="./ConfigurationFiles/transactions.json"
+    symbol, action, amount, price, file_path="./config/transactions.json"
 ):
     """
     Records a transaction in the transactions file.
@@ -230,7 +228,7 @@ def save_transaction(
     save_data_to_json_file(file_path, transactions)
 
 
-def load_keyword_list(file_path="./ConfigurationFiles/keywords.json"):
+def load_keyword_list(file_path="./config/keywords.json"):
     """
     Load a list of keywords from a JSON file.
     Args:
@@ -267,7 +265,7 @@ def load_keyword_list(file_path="./ConfigurationFiles/keywords.json"):
         return []
 
 
-def load_symbol_to_id(file_path="./ConfigurationFiles/symbol_to_id.json"):
+def load_symbol_to_id(file_path="./config/symbol_to_id.json"):
     """
     Load the symbol-to-ID mapping from a JSON file.
     Args:
@@ -298,7 +296,7 @@ def load_symbol_to_id(file_path="./ConfigurationFiles/symbol_to_id.json"):
         return {}
 
 
-def save_keywords(keywords, file_path="./ConfigurationFiles/keywords.json"):
+def save_keywords(keywords, file_path="./config/keywords.json"):
     """
     Save keywords to a JSON file.
     Args:

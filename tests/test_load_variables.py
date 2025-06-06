@@ -5,7 +5,7 @@ This module tests the loading, saving, and retrieval of variables
 
 import os
 
-import sdk.load_variables_handler
+import src.handlers.load_variables_handler
 
 
 def test_load_variables():
@@ -15,7 +15,7 @@ def test_load_variables():
     print("Testing the loading of variables...")
 
     # Load the variables
-    variables = sdk.load_variables_handler.load()
+    variables = src.handlers.load_variables_handler.load()
 
     # Check if the variables are loaded correctly
     assert isinstance(variables, dict), "Variables should be loaded as a dictionary."
@@ -43,16 +43,16 @@ def test_save_variables():
     print("Testing the saving of variables...")
 
     # Load the variables
-    variables = sdk.load_variables_handler.load()
+    variables = src.handlers.load_variables_handler.load()
 
     # Modify a variable
     variables["TEST_VARIABLE"] = "Test Value"
 
     # Save the modified variables
-    sdk.load_variables_handler.save(variables)
+    src.handlers.load_variables_handler.save(variables)
 
     # Reload the variables to check if the change was saved
-    reloaded_variables = sdk.load_variables_handler.load()
+    reloaded_variables = src.handlers.load_variables_handler.load()
 
     assert (
         reloaded_variables["TEST_VARIABLE"] == "Test Value"
@@ -66,12 +66,14 @@ def test_get_json_key_value():
     print("Testing the get_json_key_value function...")
 
     # Check if a known key exists
-    value = sdk.load_variables_handler.get_json_key_value("TELEGRAM_API_TOKEN_ALERTS")
+    value = src.handlers.load_variables_handler.get_json_key_value(
+        "TELEGRAM_API_TOKEN_ALERTS"
+    )
     assert value is not None, "The TELEGRAM_API_TOKEN_ALERTS should not be None."
     assert isinstance(value, str), "The TELEGRAM_API_TOKEN_ALERTS should be a string."
 
     # Check for a non-existent key
-    non_existent_value = sdk.load_variables_handler.get_json_key_value(
+    non_existent_value = src.handlers.load_variables_handler.get_json_key_value(
         "NON_EXISTENT_KEY"
     )
     assert non_existent_value is None, "The NON_EXISTENT_KEY should return None."
@@ -84,12 +86,12 @@ def test_get_int_variable():
     print("Testing the get_int_variable function...")
 
     # Check if a known integer variable exists
-    value = sdk.load_variables_handler.get_int_variable("ALERT_THRESHOLD_1H")
+    value = src.handlers.load_variables_handler.get_int_variable("ALERT_THRESHOLD_1H")
     assert value is not None, "The ALERT_THRESHOLD_1H should not be None."
     assert isinstance(value, int), "The ALERT_THRESHOLD_1H should be an integer."
 
     # Check for a non-existent key
-    non_existent_value = sdk.load_variables_handler.get_int_variable(
+    non_existent_value = src.handlers.load_variables_handler.get_int_variable(
         "NON_EXISTENT_INT_KEY", None
     )
     assert non_existent_value is None, "The NON_EXISTENT_INT_KEY should return None."
@@ -107,7 +109,7 @@ def test_save_transaction():
         os.remove(test_file_path)
 
     # Save the transaction
-    sdk.load_variables_handler.save_transaction(
+    src.handlers.load_variables_handler.save_transaction(
         symbol="Test symbol",
         action="BUY",
         amount=100.0,
@@ -116,7 +118,9 @@ def test_save_transaction():
     )
 
     # Check if the transaction was saved correctly
-    saved_transaction = sdk.load_variables_handler.load_transactions(test_file_path)
+    saved_transaction = src.handlers.load_variables_handler.load_transactions(
+        test_file_path
+    )
 
     assert len(saved_transaction) == 1, "There should be one transaction saved."
     assert (
@@ -140,7 +144,7 @@ def test_load_keyword_list():
     print("Testing the load_keyword_list function...")
 
     # Load the keyword list
-    keywords = sdk.load_variables_handler.load_keyword_list()
+    keywords = src.handlers.load_variables_handler.load_keyword_list()
 
     # Check if the keywords are loaded correctly
     assert isinstance(keywords, list), "Keywords should be loaded as a list."
@@ -157,7 +161,7 @@ def test_load_symbol_to_id():
     print("Testing the load_symbol_to_id function...")
 
     # Load the symbol to ID mapping
-    symbol_to_id = sdk.load_variables_handler.load_symbol_to_id()
+    symbol_to_id = src.handlers.load_variables_handler.load_symbol_to_id()
 
     # Check if the mapping is loaded correctly
     assert isinstance(
@@ -182,10 +186,10 @@ def test_save_keyword():
         os.remove(test_file_path)
 
     # Save the keyword
-    sdk.load_variables_handler.save_keywords(test_keyword, test_file_path)
+    src.handlers.load_variables_handler.save_keywords(test_keyword, test_file_path)
 
     # Load the keywords to check if the keyword was saved
-    keywords = sdk.load_variables_handler.load_keyword_list(test_file_path)
+    keywords = src.handlers.load_variables_handler.load_keyword_list(test_file_path)
 
     assert (
         test_keyword[0] in keywords
@@ -199,7 +203,7 @@ def test_get_all_symbols():
     print("Testing the get_all_symbols function...")
 
     # Load all symbols
-    symbols = sdk.load_variables_handler.get_all_symbols()
+    symbols = src.handlers.load_variables_handler.get_all_symbols()
 
     # Check if the symbols are loaded correctly
     assert isinstance(symbols, list), "Symbols should be loaded as a list."

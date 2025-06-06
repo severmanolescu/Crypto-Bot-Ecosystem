@@ -47,7 +47,7 @@ class CryptoNewsScraper:
                 link_url = link_tag["href"].strip()
 
                 if self.data_extractor.contains_keywords(headline_text):
-                    highlights = self.data_extractor.contains_keywords(headline_text)
+                    highlights = self.data_extractor.extract_highlights(headline_text)
                     articles.append(
                         {
                             "headline": headline_text,

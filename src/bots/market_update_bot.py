@@ -5,8 +5,16 @@ ETH gas fees, and crypto fear & greed index. It also allows users to plot their 
 and portfolio history.
 """
 
+# pylint: disable=wrong-import-position
+
+
 import logging
+import os
+import sys
 from datetime import datetime
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
+
 
 from telegram import ReplyKeyboardMarkup, Update
 from telegram.ext import (
@@ -17,12 +25,12 @@ from telegram.ext import (
     filters,
 )
 
-from crypto_value_handler import CryptoValueBot
-from sdk import load_variables_handler as LoadVariables
-from sdk.logger_handler import setup_logger
-from sdk.plot_crypto_trades import PlotTrades
-from sdk.send_telegram_message import TelegramMessagesHandler
-from sdk.utils import check_if_special_user
+from src.bots.crypto_value_handler import CryptoValueBot
+from src.handlers import load_variables_handler as LoadVariables
+from src.handlers.logger_handler import setup_logger
+from src.handlers.send_telegram_message import TelegramMessagesHandler
+from src.utils.plot_crypto_trades import PlotTrades
+from src.utils.utils import check_if_special_user
 
 setup_logger("market_update_bot")
 logger = logging.getLogger(__name__)

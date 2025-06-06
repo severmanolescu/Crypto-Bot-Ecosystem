@@ -11,8 +11,8 @@ import os
 
 import pytz
 
-from sdk.load_variables_handler import load, load_portfolio_from_file
-from sdk.send_telegram_message import TelegramMessagesHandler
+from src.handlers.load_variables_handler import load, load_portfolio_from_file
+from src.handlers.send_telegram_message import TelegramMessagesHandler
 
 logger = logging.getLogger(__name__)
 logger.info("Open AI Prompt started")
@@ -27,7 +27,7 @@ class PortfolioManager:
         """
         Initializes the PortfolioManager with necessary components.
         """
-        self.file_path = "ConfigurationFiles/portfolio.json"
+        self.file_path = "config/portfolio.json"
 
         self.portfolio = None
 
@@ -175,7 +175,7 @@ class PortfolioManager:
             total_profit_loss (float): The total profit or loss of the portfolio.
             total_profit_loss_percentage (float): The percentage of profit or loss.
         """
-        history_file = "ConfigurationFiles/portfolio_history.json"
+        history_file = "config/portfolio_history.json"
 
         # Define your time zone (replace 'Europe/Bucharest' if needed)
         local_tz = pytz.timezone("Europe/Bucharest")

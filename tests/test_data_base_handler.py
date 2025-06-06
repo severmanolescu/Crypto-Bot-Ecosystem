@@ -1,12 +1,12 @@
 """
-Test suite for the data_base_handler class in the sdk.data_base module.
+Test suite for the data_base_handler class in the src.data_base module.
 This suite tests the creation, insertion, updating, and
 fetching of articles in the database.
 """
 
 import pytest
 
-from sdk.data_base import data_base_handler
+from src.data_base import data_base_handler
 
 TABLE_NAME = "test_table.db"
 DB_HANDLER = data_base_handler.DataBaseHandler(articles_db_path=TABLE_NAME)

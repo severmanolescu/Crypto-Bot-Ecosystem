@@ -4,7 +4,7 @@ Test suite for the market_sentiment_handler module.
 
 import pytest
 
-import sdk.market_sentiment_handler
+import src.handlers.market_sentiment_handler
 
 
 @pytest.mark.asyncio
@@ -13,31 +13,31 @@ async def test_extract_sentiment_from_summary():
     Test the extract_sentiment_from_summary function.
     """
     assert (
-        await sdk.market_sentiment_handler.extract_sentiment_from_summary(
+        await src.handlers.market_sentiment_handler.extract_sentiment_from_summary(
             "Bullish news"
         )
         == "Positive"
     )
     assert (
-        await sdk.market_sentiment_handler.extract_sentiment_from_summary(
+        await src.handlers.market_sentiment_handler.extract_sentiment_from_summary(
             "Bearish news"
         )
         == "Negative"
     )
     assert (
-        await sdk.market_sentiment_handler.extract_sentiment_from_summary(
+        await src.handlers.market_sentiment_handler.extract_sentiment_from_summary(
             "Neutral news"
         )
         == "Neutral"
     )
     assert (
-        await sdk.market_sentiment_handler.extract_sentiment_from_summary(
+        await src.handlers.market_sentiment_handler.extract_sentiment_from_summary(
             "Mixed news with bullish and bearish"
         )
         == "Unknown"
     )
     assert (
-        await sdk.market_sentiment_handler.extract_sentiment_from_summary(
+        await src.handlers.market_sentiment_handler.extract_sentiment_from_summary(
             "No sentiment here"
         )
         == "Unknown"
@@ -57,6 +57,8 @@ async def test_calculate_sentiment_trend():
         (None, None, None, None, "No sentiment here"),
     ]
 
-    result = await sdk.market_sentiment_handler.calculate_sentiment_trend(news_items)
+    result = await src.handlers.market_sentiment_handler.calculate_sentiment_trend(
+        news_items
+    )
     assert "Crypto sentiment for today" in result
     assert "Positive" in result or "Negative" in result or "Neutral" in result

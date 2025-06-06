@@ -3,6 +3,7 @@ Plot crypto trades and send to Telegram.
 """
 
 import logging
+import os
 from datetime import datetime, timedelta, timezone
 
 import ccxt
@@ -11,8 +12,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from mplfinance.original_flavor import candlestick_ohlc
 
-import sdk.load_variables_handler as LoadVariables
-from sdk.send_telegram_message import (
+import src.handlers.load_variables_handler as LoadVariables
+from src.handlers.send_telegram_message import (
     send_plot_to_telegram,
     send_telegram_message_update,
 )
@@ -120,7 +121,7 @@ class PlotTrades:
 
     # pylint:disable=too-many-locals,too-many-statements
     async def plot_crypto_trades(
-        self, symbol, update, transactions_file="ConfigurationFiles/transactions.json"
+        self, symbol, update, transactions_file="config/transactions.json"
     ):
         """
         Generate a crypto price candlestick chart with buy/sell points.
@@ -274,7 +275,10 @@ class PlotTrades:
         plt.tight_layout()
 
         # Save the chart
-        image_path = f"./Plots/{symbol}_price_chart.png"
+        if not os.path.exists("./plots"):
+            os.makedirs("./plots")
+        logger.info("Saving plot for %s to file...", symbol)
+        image_path = f"./plots/{symbol}_price_chart.png"
         plt.savefig(image_path, dpi=300)
 
         # Send to Telegram
@@ -306,7 +310,7 @@ class PlotTrades:
     async def send_portfolio_history_plot(
         self,
         update,
-        portfolio_history_file="./ConfigurationFiles/portfolio_history.json",
+        portfolio_history_file="./config/portfolio_history.json",
     ):
         """
         Ths method saves and sends to the telegram users the plot with the entire portfolio history
@@ -457,14 +461,27 @@ class PlotTrades:
         plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 11})
 
         # Save as high-quality PNG for Telegram
-        telegram_plot_path = "./Plots/portfolio_history.png"
+        logger.info("Saving portfolio history plot to file...")
+        if not os.path.exists("./plots"):
+            os.makedirs("./plots")
+
+        telegram_plot_path = "./plots/portfolio_history.png"
         plt.savefig(telegram_plot_path, dpi=150, bbox_inches="tight")
 
         await send_telegram_message_update(
             "📈 Portfolio history plot: #history_plot", update
         )
 
-        await send_plot_to_telegram(telegram_plot_path, update)
+        if os.path.exists(telegram_plot_path):
+            logger.info("Sending portfolio history plot to Telegram...")
+            print("Sending portfolio history plot to Telegram...")
+            await send_plot_to_telegram(telegram_plot_path, update)
+        else:
+            logger.error("Failed to save portfolio history plot.")
+            print("❌ Failed to save portfolio history plot.")
+            await send_telegram_message_update(
+                "❌ Failed to save portfolio history plot.", update
+            )
 
         plt.close()
 

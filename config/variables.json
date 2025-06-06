@@ -17,40 +17,44 @@
     "ALERT_THRESHOLD_24H": 10,
     "ALERT_THRESHOLD_7D": 20,
     "ALERT_THRESHOLD_30D": 40,
-    "SEND_AI_SUMMARY": "True",
+    "SEND_AI_SUMMARY": "False",
     "TELEGRAM_CHAT_ID_PARTIAL_DATA": [],
     "TELEGRAM_CHAT_ID_FULL_DETAILS": [
-        "-"
+        "6527525705"
     ],
     "SEND_HOURS_VALUES": [
         7,
         11,
         13,
         18,
+        21,
         0
     ],
     "24H_ALERTS_SEND_HOURS": [
         0,
-        15
+        15,
+        21
     ],
     "7D_ALERTS_SEND_HOURS": [
-        0
+        21
     ],
     "30D_ALERTS_SEND_HOURS": [
-        0
+        21
     ],
     "PORTFOLIO_SAVE_HOURS": [
         23,
-        15
+        12,
+        15,
+        21
     ],
     "SENTIMENT_HOURS": [
-        23
+        21
     ],
     "TODAY_AI_SUMMARY": [
-        23
+        21
     ],
     "SAVE_HOURS": [
-        23
+        21
     ],
     "CRYPTOCURRENCIES": [
         "BTC",
@@ -62,6 +66,8 @@
         "ENA",
         "SEI",
         "LDO",
-        "SEI"
-    ]
+        "SEI",
+        "SUI"
+    ],
+    "TEST_VARIABLE": "Test Value"
 }

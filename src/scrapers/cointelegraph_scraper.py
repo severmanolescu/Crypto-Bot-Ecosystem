@@ -54,7 +54,7 @@ class CointelegraphScraper:
             # pylint: disable=duplicate-code
 
             if self.data_extractor.contains_keywords(headline_text):
-                highlights = self.data_extractor.contains_keywords(headline_text)
+                highlights = self.data_extractor.extract_highlights(headline_text)
                 articles_data.append(
                     {
                         "headline": headline_text,

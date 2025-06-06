@@ -2,8 +2,16 @@
 My Slave Bot
 """
 
+# pylint: disable=wrong-import-position
+
+
 import logging
+import os
+import sys
 from datetime import datetime, timezone
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
+
 
 from telegram import ReplyKeyboardMarkup, Update
 from telegram.ext import (
@@ -14,14 +22,14 @@ from telegram.ext import (
     filters,
 )
 
-from sdk import load_variables_handler as LoadVariables
-from sdk.load_variables_handler import (
+from src.handlers import load_variables_handler as LoadVariables
+from src.handlers.load_variables_handler import (
     load_portfolio_from_file,
     save_data_to_json_file,
     save_transaction,
 )
-from sdk.logger_handler import setup_logger
-from sdk.utils import check_if_special_user, check_requests
+from src.handlers.logger_handler import setup_logger
+from src.utils.utils import check_if_special_user, check_requests
 
 setup_logger("slave_bot")
 logger = logging.getLogger(__name__)
@@ -75,7 +83,7 @@ class SlaveBot:
             context (ContextTypes.DEFAULT_TYPE): The context for the command.
         """
         await update.message.reply_text(
-            "🤖 Welcome to the News Bot! Use the buttons below to get started:",
+            "🤖 Welcome to the Slave Bot! Use the buttons below to get started:",
             reply_markup=NEWS_KEYBOARD,
         )
 
@@ -524,7 +532,7 @@ class SlaveBot:
             return False
 
         # Save updated portfolio and transaction
-        save_data_to_json_file("ConfigurationFiles/portfolio.json", portfolio)
+        save_data_to_json_file("./config/portfolio.json", portfolio)
 
         save_transaction(symbol, action, amount, price)
 
@@ -650,8 +658,9 @@ class SlaveBot:
             keywords (list): The list of current keywords.
         """
         keywords_message = "📋 <b>Current keywords:</b>\n\n"
+        logger.info(keywords)
         for key in keywords:
-            keywords_message.join(f"🔹 <b>{key}</b>\n")
+            keywords_message += f"🔹 <b>{key}</b>\n"
 
         await update.message.reply_text(keywords_message, parse_mode="HTML")
 

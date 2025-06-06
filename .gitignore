@@ -46,14 +46,18 @@ articles.db
 /data_bases
 
 # Configuration files
-/ConfigurationFiles/scraped_articles_bitcoinmagazine.json
-/ConfigurationFiles/scraped_articles_cointelegraph.json
-/ConfigurationFiles/scraped_articles_cryptonews.json
+/config/scraped_articles_bitcoinmagazine.json
+/config/scraped_articles_cointelegraph.json
+/config/scraped_articles_cryptonews.json
 
-/ConfigurationFiles/portfolio.json
-/ConfigurationFiles/portfolio_history.json
-/ConfigurationFiles/transactions.json
+/config/portfolio.json
+/config/portfolio_history.json
+/config/transactions.json
 
 # Test files
 test*.json
 test*.db
+test.py
+
+# Coverage reports
+/plots

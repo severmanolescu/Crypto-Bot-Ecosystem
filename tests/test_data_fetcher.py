@@ -1,11 +1,14 @@
 """
-Test suite for the data_fetcher module in the sdk package.
+Test suite for the data_fetcher module in the src package.
 This suite tests the fetching of the Crypto Fear & Greed Index.
 """
 
 import pytest
 
-from sdk.data_fetcher import get_fear_and_greed, get_fear_and_greed_message
+from src.handlers.data_fetcher_handler import (
+    get_fear_and_greed,
+    get_fear_and_greed_message,
+)
 
 
 @pytest.mark.asyncio

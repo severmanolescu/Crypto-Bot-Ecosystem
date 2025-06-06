@@ -3,7 +3,14 @@ News Check Bot
 This bot checks for crypto news articles and provides market sentiment analysis.
 """
 
+# pylint: disable=wrong-import-position
+
 import logging
+import os
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
+
 
 from telegram import ReplyKeyboardMarkup, Update
 from telegram.ext import (
@@ -14,12 +21,12 @@ from telegram.ext import (
     filters,
 )
 
-import sdk.load_variables_handler
-from news_check_handler import CryptoNewsCheck
-from sdk.data_base.data_base_handler import DataBaseHandler
-from sdk.logger_handler import setup_logger
-from sdk.market_sentiment_handler import get_market_sentiment
-from sdk.send_telegram_message import send_telegram_message_update
+import src.handlers.load_variables_handler
+from src.data_base.data_base_handler import DataBaseHandler
+from src.handlers.logger_handler import setup_logger
+from src.handlers.market_sentiment_handler import get_market_sentiment
+from src.handlers.news_check_handler import CryptoNewsCheck
+from src.handlers.send_telegram_message import send_telegram_message_update
 
 setup_logger("news_check_bot")
 logger = logging.getLogger(__name__)
@@ -134,7 +141,7 @@ class NewsBot:
         )
 
         if len(articles) == 0:
-            message = f"No articles found with{context.args} found!"
+            message = f"No articles found with {context.args} found!"
 
             await send_telegram_message_update(message, update)
 
@@ -178,7 +185,7 @@ Example:
         """
         Initializes the bot and starts polling for updates.
         """
-        variables = sdk.load_variables_handler.load("ConfigurationFiles/variables.json")
+        variables = src.handlers.load_variables_handler.load()
 
         bot_token = variables.get("TELEGRAM_API_TOKEN_ARTICLES", "")
 

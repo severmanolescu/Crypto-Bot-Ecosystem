@@ -12,18 +12,18 @@ from datetime import datetime
 
 import requests
 
-from news_check_handler import CryptoNewsCheck
-from sdk import load_variables_handler as LoadVariables
-from sdk.alerts_handler import AlertsHandler
-from sdk.data_base.data_base_handler import DataBaseHandler
-from sdk.data_fetcher import (
+import src.handlers.load_variables_handler
+from src.data_base.data_base_handler import DataBaseHandler
+from src.handlers.alerts_handler import AlertsHandler
+from src.handlers.data_fetcher_handler import (
     get_eth_gas_fee,
     get_fear_and_greed,
     get_fear_and_greed_message,
 )
-from sdk.market_sentiment_handler import get_market_sentiment
-from sdk.portfolio_manager import PortfolioManager
-from sdk.send_telegram_message import TelegramMessagesHandler
+from src.handlers.market_sentiment_handler import get_market_sentiment
+from src.handlers.news_check_handler import CryptoNewsCheck
+from src.handlers.portfolio_manager import PortfolioManager
+from src.handlers.send_telegram_message import TelegramMessagesHandler
 
 
 # pylint: disable=too-many-instance-attributes
@@ -75,7 +75,7 @@ class CryptoValueBot:
         Reloads the configuration data and initializes the bot's variables.
         This includes API tokens, cryptocurrency lists, and other settings.
         """
-        variables = LoadVariables.load()
+        variables = src.handlers.load_variables_handler.load()
 
         self.market_update_api_token = variables.get("TELEGRAM_API_TOKEN_VALUE", "")
         self.articles_alert_api_token = variables.get("TELEGRAM_API_TOKEN_ARTICLES", "")
@@ -226,8 +226,8 @@ class CryptoValueBot:
         """
         Saves today's data, including Fear and Greed Index, Ethereum gas fees,
         """
-        if not os.path.exists("data_bases"):
-            os.makedirs("data_bases")
+        if not os.path.exists("../../data_bases"):
+            os.makedirs("../../data_bases")
 
         print("Saving the fear and greed values...")
         index_value, index_text, last_updated = await get_fear_and_greed()

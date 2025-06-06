@@ -2,7 +2,7 @@
 Contains functions to calculate the market sentiment based on news articles.
 """
 
-from sdk.data_base.data_base_handler import DataBaseHandler
+from src.data_base.data_base_handler import DataBaseHandler
 
 
 async def extract_sentiment_from_summary(summary):

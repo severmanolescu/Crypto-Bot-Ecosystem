@@ -12,18 +12,18 @@ import cloudscraper
 import requests
 from bs4 import BeautifulSoup
 
-import sdk.load_variables_handler
+import src.handlers.load_variables_handler
 
 # Import your SDK modules
-from sdk.data_base.data_base_handler import DataBaseHandler
-from sdk.open_ai_prompt_handler import OpenAIPrompt
-from sdk.scrapers.bitcoin_magazine_scraper import BitcoinMagazineScraper
-from sdk.scrapers.cointelegraph_scraper import CointelegraphScraper
+from src.data_base.data_base_handler import DataBaseHandler
+from src.handlers.open_ai_prompt_handler import OpenAIPrompt
+from src.handlers.send_telegram_message import TelegramMessagesHandler
+from src.scrapers.bitcoin_magazine_scraper import BitcoinMagazineScraper
+from src.scrapers.cointelegraph_scraper import CointelegraphScraper
 
 # Import scrapers
-from sdk.scrapers.crypto_news_scraper import CryptoNewsScraper
-from sdk.scrapers.data_extractor import DataExtractor
-from sdk.send_telegram_message import TelegramMessagesHandler
+from src.scrapers.crypto_news_scraper import CryptoNewsScraper
+from src.scrapers.data_extractor import DataExtractor
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -49,7 +49,7 @@ class CryptoNewsCheck:
         self.telegram_important_chat_id = None
         self.telegram_api_token = None
 
-        # Database handler (see sdk/data_base_handler.py)
+        # Database handler (see src/data_base_handler.py)
         self.data_base = DataBaseHandler(db_path)
 
         # URLs for different news sources
@@ -71,7 +71,7 @@ class CryptoNewsCheck:
         """
         Reload environment variables, API tokens, and so forth.
         """
-        variables = sdk.load_variables_handler.load()
+        variables = src.handlers.load_variables_handler.load()
         self.telegram_api_token = variables.get("TELEGRAM_API_TOKEN_ARTICLES", "")
         self.telegram_important_chat_id = variables.get(
             "TELEGRAM_CHAT_ID_FULL_DETAILS", []
@@ -79,7 +79,7 @@ class CryptoNewsCheck:
         self.telegram_not_important_chat_id = variables.get(
             "TELEGRAM_CHAT_ID_PARTIAL_DATA", []
         )
-        self.keywords = sdk.load_variables_handler.load_keyword_list()
+        self.keywords = src.handlers.load_variables_handler.load_keyword_list()
 
         open_ai_api = variables.get("OPEN_AI_API", "")
         self.open_ai_prompt = OpenAIPrompt(open_ai_api)

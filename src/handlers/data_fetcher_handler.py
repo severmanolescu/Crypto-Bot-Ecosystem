@@ -7,7 +7,7 @@ including Ethereum gas fees and the Crypto Fear & Greed Index.
 import logging
 from datetime import datetime
 
-from sdk.utils import check_requests
+from src.utils.utils import check_requests
 
 logger = logging.getLogger(__name__)
 logger.info("Data Fetcher started")

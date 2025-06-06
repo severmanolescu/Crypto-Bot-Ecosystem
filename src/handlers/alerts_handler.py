@@ -5,9 +5,9 @@ Alerts module for monitoring significant price changes in cryptocurrencies.
 import logging
 from datetime import datetime
 
-from sdk import load_variables_handler as LoadVariables
-from sdk.send_telegram_message import TelegramMessagesHandler
-from sdk.utils import format_change
+from src.handlers import load_variables_handler as LoadVariables
+from src.handlers.send_telegram_message import TelegramMessagesHandler
+from src.utils.utils import format_change
 
 logger = logging.getLogger(__name__)
 logger.info("Alerts script started")
