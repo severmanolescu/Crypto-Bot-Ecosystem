@@ -118,6 +118,7 @@ class PlotTrades:
             print(f"Error fetching price data from Binance: {str(e)}")
             return pd.DataFrame()
 
+    # pylint:disable=too-many-locals,too-many-statements
     async def plot_crypto_trades(
         self, symbol, update, transactions_file="ConfigurationFiles/transactions.json"
     ):
@@ -209,7 +210,9 @@ class PlotTrades:
             zorder=3,
         )
 
+        # pylint:disable=unused-variable
         for i, row in buy_transactions.iterrows():
+            # pylint:disable=use-dict-literal
             ax.annotate(
                 f"{row['amount']}",
                 (row["date_num"], row["price"]),
@@ -234,6 +237,7 @@ class PlotTrades:
         )
 
         for i, row in sell_transactions.iterrows():
+            # pylint:disable=use-dict-literal
             ax.annotate(
                 f"{row['amount']}",
                 (row["date_num"], row["price"]),
@@ -337,6 +341,7 @@ class PlotTrades:
         ]
 
         # Plot - Adjust size for Telegram
+        # pylint:disable=unused-variable
         fig, ax1 = plt.subplots(figsize=(10, 5), dpi=150)
 
         # Plot the main values with markers

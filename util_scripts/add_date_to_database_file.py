@@ -1,3 +1,7 @@
+"""
+Add a 'date' column to the 'daily_stats' table in a SQLite database and populate it with decreasing dates.
+"""
+
 import asyncio
 from datetime import datetime, timedelta
 
@@ -5,6 +9,9 @@ import aiosqlite
 
 
 async def update_dates():
+    """
+    This script updates the 'date' column in the 'daily_stats' table of a SQLite database.
+    """
     db_path = "data_base_path"  # Replace with your actual database file
     async with aiosqlite.connect(db_path) as db:
         # Step 1: Add the 'date' column if it doesn't exist
