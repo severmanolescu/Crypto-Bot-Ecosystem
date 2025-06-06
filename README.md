@@ -12,7 +12,7 @@ The project includes 4 bots:
 		+  [crypto.news](https://crypto.news/)
 		+  [CoinTelegraph](https://cointelegraph.com/)
 		+  [Bitcoin Magazine](https://bitcoinmagazine.com/articles)
-	+ AI summarize for the articles
+	+ AI summarizes the articles
 	+ Daily statistics
 	+ Daily market sentiment
 + **Crypto Market Value Bot**
@@ -47,9 +47,8 @@ The project includes 4 bots:
 ### Setup & Installation
 + Clone the repository locally 
 + Install dependencies:
-	`pip install -r requirements.txt` in Python environment
-	or
-	`py -r pip install -r requirements.txt` for console
+	+ `pip install -r requirements.txt` in a Python environment, or
+	+ `py -m pip install -r requirements.txt` for console
 + Set up variables, update `/ConfigurationFiles/variables.json`
 + Run the bots:
 	+ You can start them one by one
