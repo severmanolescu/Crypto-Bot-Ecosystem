@@ -1,0 +1,10 @@
+[
+    {
+        "symbol": "Test symbol",
+        "action": "BUY",
+        "amount": 100.0,
+        "price": 50.0,
+        "total": 5000.0,
+        "timestamp": "2025-06-05T19:49:47.443314+00:00"
+    }
+]

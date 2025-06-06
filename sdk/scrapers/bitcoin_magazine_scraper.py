@@ -1,40 +1,27 @@
-import re
+"""
+Scraper for BitcoinMagazine (https://bitcoinmagazine.com/articles).
+This scraper extracts articles that contain specific keywords in their headlines.
+"""
 
-from bs4 import BeautifulSoup
 
+# pylint: disable=too-few-public-methods
 class BitcoinMagazineScraper:
     """
-    Handles scraping for https://bitcoinmagazine.com/articles (which uses the td_module_flex div structure).
+    Handles scraping for https://bitcoinmagazine.com/articles
+    (which uses the td_module_flex div structure).
     """
 
-    def __init__(self, keywords):
+    def __init__(self, data_extractor):
         """
-        :param keywords: List of strings that we want to check for in article headlines
+        Initialize the scraper with a DataExtractor instance to
+        handle keyword matching.
+        Args:
+            data_extractor (DataExtractor): An instance of DataExtractor to
+            handle keyword matching
         """
-        self.keywords = keywords
+        self.data_extractor = data_extractor
 
-    def contains_keywords(self, headline):
-        """Match only full words or phrases, allowing ending punctuation like . , ! ?"""
-        headline_lower = headline.lower()
-
-        for keyword in self.keywords:
-            keyword_lower = keyword.lower()
-            pattern = rf'\b{re.escape(keyword_lower)}\b[.,!?]?'
-            if re.search(pattern, headline_lower):
-                return True
-        return False
-
-    def extract_highlights(self, headline: str) -> str:
-        """Return #hashtags for each matched keyword in the headline."""
-        headline_lower = headline.lower()
-        found_keywords = [
-            f"#{keyword.replace(' ', '')}"
-            for keyword in self.keywords
-            if keyword.lower() in headline_lower
-        ]
-        return ' '.join(found_keywords) if found_keywords else "#GeneralNews"
-
-    def scrape(self, soup: BeautifulSoup) -> list:
+    def scrape(self, soup):
         """
         Scrape articles from BitcoinMagazine.
         Example structure:
@@ -50,10 +37,13 @@ class BitcoinMagazineScraper:
               </div>
           </div>
         </div>
+        Args:
+            soup (BeautifulSoup): Parsed HTML content of the Bitcoin Magazine articles page.
+        Returns:
+            list: A list of dictionaries containing article headlines, links, and highlights.
         """
         articles_data = []
 
-        # 1) Find the relevant div containers
         post_divs = soup.find_all("div", class_=lambda c: c and "td_module_flex" in c)
 
         for post in post_divs:
@@ -62,7 +52,6 @@ class BitcoinMagazineScraper:
             if not h3:
                 continue
 
-            # There's an <a> tag with the headline and the URL
             a_tag = h3.find("a", href=True)
             if not a_tag:
                 continue
@@ -70,17 +59,18 @@ class BitcoinMagazineScraper:
             headline_text = a_tag.get_text(strip=True)
             link_url = a_tag["href"].strip()
 
-            # Prepend domain if needed
             if not link_url.startswith("http"):
                 link_url = f"https://bitcoinmagazine.com{link_url}"
 
-            # Check for keywords
-            if self.contains_keywords(headline_text):
-                highlights = self.extract_highlights(headline_text)
-                articles_data.append({
-                    "headline": headline_text,
-                    "link": link_url,
-                    "highlights": highlights
-                })
+            # pylint: disable=duplicate-code
+            if self.data_extractor.contains_keywords(headline_text):
+                highlights = self.data_extractor.contains_keywords(headline_text)
+                articles_data.append(
+                    {
+                        "headline": headline_text,
+                        "link": link_url,
+                        "highlights": highlights,
+                    }
+                )
 
         return articles_data

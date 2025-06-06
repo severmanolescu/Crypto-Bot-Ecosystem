@@ -5,10 +5,10 @@ BOT_DIR="/home/sever/Crypto-Articles-Bots"
 
 # List of bot scripts
 BOTS=(
-    "CryptoPriceAlertsBot.py"
-    "MarketUpdateBot.py"
-    "MySlaveBot.py"
-    "NewsCheckBot.py"
+    "crypto_price_alerts_bot.py"
+    "market_update_bot.py"
+    "my_slave_bot.py"
+    "news_check_bot.py"
     "main.py"
 )
 
