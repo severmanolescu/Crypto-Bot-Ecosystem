@@ -43,7 +43,8 @@ class DataBaseHandler:
         """
         folder_path = os.path.dirname(self.articles_db_path)
 
-        os.makedirs(folder_path, exist_ok=True)
+        if folder_path != "":
+            os.makedirs(folder_path, exist_ok=True)
 
         db_file_exists = os.path.exists(self.articles_db_path)
 
