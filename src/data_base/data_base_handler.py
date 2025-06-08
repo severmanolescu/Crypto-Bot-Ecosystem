@@ -24,7 +24,7 @@ class DataBaseHandler:
     # pylint: disable=too-many-arguments, too-many-positional-arguments
     def __init__(
         self,
-        articles_db_path="./articles.db",
+        articles_db_path="./data_bases/articles.db",
         daily_stats_db_path="./data_bases/daily_stats.db",
         fear_greed_db_path="./data_bases/fear_greed.db",
         eth_gas_fee_db_path="./data_bases/eth_gas_fee.db",
