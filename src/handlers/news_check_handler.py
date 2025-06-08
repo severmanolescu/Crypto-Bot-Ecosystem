@@ -37,7 +37,7 @@ class CryptoNewsCheck:
     from various sources, stores them in a database, and sends notifications via Telegram.
     """
 
-    def __init__(self, db_path="./articles.db"):
+    def __init__(self, db_path="./data_bases/articles.db"):
         """
         Main orchestrator for scraping and notifying about new articles.
         """

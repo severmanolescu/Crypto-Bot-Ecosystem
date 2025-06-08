@@ -41,6 +41,10 @@ class DataBaseHandler:
         Creates the 'articles' table only if the DB file doesn't exist yet.
         If the file already exists, we assume the table was previously created.
         """
+        folder_path = os.path.dirname(self.articles_db_path)
+
+        os.makedirs(folder_path, exist_ok=True)
+
         db_file_exists = os.path.exists(self.articles_db_path)
 
         logger.info("Creating the data base...")
