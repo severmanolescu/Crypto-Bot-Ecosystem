@@ -17,6 +17,10 @@ from src.handlers.news_check_handler import CryptoNewsCheck
 
 
 class Application:
+    """
+    Main application class that initializes and runs the Crypto Value Bot and News Check.
+    """
+
     def __init__(self):
         setup_logger()
         self.logger = logging.getLogger(__name__)
@@ -46,15 +50,16 @@ class Application:
                 now_date = datetime.now()
                 time_str = now_date.strftime("%H:%M")
 
-                self.logger.info(f" Ran at: {time_str}")
-                self.logger.info(f" Wait {sleep_time / 60:.2f} minutes")
+                self.logger.info(" Ran at: %s", time_str)
+                self.logger.info(" Wait %d minutes", sleep_time / 60)
 
                 print(f"\n⌛Checked at: {time_str}")
                 print(f"⏳ Wait {sleep_time / 60:.2f} minutes!\n\n")
                 await asyncio.sleep(sleep_time)
 
+            # pylint: disable=broad-exception-caught
             except Exception as e:
-                self.logger.error(f"Error in main loop: {e}")
+                self.logger.error("Error in main loop: %s", str(e))
                 await asyncio.sleep(5)
 
     def handle_shutdown(self, *_) -> None:
