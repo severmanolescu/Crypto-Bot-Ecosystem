@@ -2,6 +2,7 @@
 main.py
 This script is the main entry point for the Crypto Value Bot and News Check application.
 """
+
 import argparse
 import asyncio
 import logging
@@ -13,6 +14,7 @@ from src.bots.crypto_value_handler import CryptoValueBot
 from src.handlers.load_variables_handler import get_int_variable
 from src.handlers.logger_handler import setup_logger
 from src.handlers.news_check_handler import CryptoNewsCheck
+
 
 class Application:
     def __init__(self):
@@ -42,7 +44,7 @@ class Application:
                 await self.crypto_value_bot.fetch_data()
 
                 now_date = datetime.now()
-                time_str = now_date.strftime('%H:%M')
+                time_str = now_date.strftime("%H:%M")
 
                 self.logger.info(f" Ran at: {time_str}")
                 self.logger.info(f" Wait {sleep_time / 60:.2f} minutes")
@@ -60,6 +62,7 @@ class Application:
         print("\nShutting down...")
         self.is_running = False
 
+
 def main() -> None:
     """
     Main function handling command line arguments and application startup
@@ -68,9 +71,7 @@ def main() -> None:
         description="Recreate the news data base if needed."
     )
     parser.add_argument(
-        "-r", "--recreate",
-        action="store_true",
-        help="Recreate the news data base"
+        "-r", "--recreate", action="store_true", help="Recreate the news data base"
     )
     args = parser.parse_args()
 
@@ -83,6 +84,7 @@ def main() -> None:
         signal.signal(signal.SIGINT, app.handle_shutdown)
         signal.signal(signal.SIGTERM, app.handle_shutdown)
         asyncio.run(app.run_loop())
+
 
 if __name__ == "__main__":
     main()
