@@ -658,7 +658,7 @@ class SlaveBot:
             keywords (list): The list of current keywords.
         """
         keywords_message = "📋 <b>Current keywords:</b>\n\n"
-        logger.info(keywords)
+        logger.info("Number of keywords: %d", len(keywords))
         for key in keywords:
             keywords_message += f"🔹 <b>{key}</b>\n"
 

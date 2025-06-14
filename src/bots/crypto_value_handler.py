@@ -226,8 +226,9 @@ class CryptoValueBot:
         """
         Saves today's data, including Fear and Greed Index, Ethereum gas fees,
         """
-        if not os.path.exists("../../data_bases"):
-            os.makedirs("../../data_bases")
+        base_path = os.path.join(os.path.dirname(__file__), "../../data_bases")
+        if not os.path.exists(base_path):
+            os.makedirs(base_path)
 
         print("Saving the fear and greed values...")
         index_value, index_text, last_updated = await get_fear_and_greed()
