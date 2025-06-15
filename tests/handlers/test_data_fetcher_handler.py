@@ -80,8 +80,8 @@ async def test_get_fear_and_greed_message_success(mock_check_requests):
     assert "<b>Score</b>: 25" in result, "Expected score to be '25'"
     assert "<b>Sentiment</b>: Fear" in result, "Expected sentiment to be 'Fear'"
     assert (
-        "2023-05-15 15:00:00" in result
-    ), "Expected last update date to be '2023-05-15 15:00:00'"
+        "2023-05-15 12:00:00" in result
+    ), "Expected last update date to be '2023-05-15 12:00:00'"
     assert "#FearAndGreed" in result, "Expected hashtag #FearAndGreed in the message"
 
 
@@ -125,8 +125,8 @@ async def test_get_fear_and_greed_success(mock_check_requests):
     assert index_value == "75", "Expected index value to be '75'"
     assert index_text == "Greed", "Expected index text to be 'Greed'"
     assert (
-        last_update_date == "2023-05-15 15:00:00"
-    ), "Expected last update date to be '2023-05-15 15:00:00'"
+        last_update_date == "2023-05-15 12:00:00"
+    ), "Expected last update date to be '2023-05-15 12:00:00'"
 
 
 @pytest.mark.asyncio

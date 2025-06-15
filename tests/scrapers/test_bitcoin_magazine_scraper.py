@@ -2,12 +2,12 @@
 Bitcoin Magazine Scraper Test
 """
 
+import pytest
 from bs4 import BeautifulSoup
 
 from src.handlers.load_variables_handler import load_keyword_list
 from src.scrapers.bitcoin_magazine_scraper import BitcoinMagazineScraper
 from src.scrapers.data_extractor import DataExtractor
-import pytest
 
 
 @pytest.fixture

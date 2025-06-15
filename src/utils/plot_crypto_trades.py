@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from mplfinance.original_flavor import candlestick_ohlc
 
-import src.handlers.load_variables_handler as load_variables_handler
+from src.handlers import load_variables_handler
 from src.handlers.send_telegram_message import (
     send_plot_to_telegram,
     send_telegram_message_update,

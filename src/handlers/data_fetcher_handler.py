@@ -5,7 +5,7 @@ including Ethereum gas fees and the Crypto Fear & Greed Index.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 from src.utils.utils import check_requests
 
@@ -59,7 +59,7 @@ async def get_fear_and_greed_message():
         ]  # Sentiment (Fear, Greed, etc.)
 
         timestamp = int(data["data"][0]["timestamp"])
-        last_update_date = datetime.fromtimestamp(timestamp).strftime(
+        last_update_date = datetime.fromtimestamp(timestamp, tz=timezone.utc).strftime(
             "%Y-%m-%d %H:%M:%S"
         )
 
@@ -92,7 +92,7 @@ async def get_fear_and_greed():
         ]  # Sentiment (Fear, Greed, etc.)
 
         timestamp = int(data["data"][0]["timestamp"])
-        last_update_date = datetime.fromtimestamp(timestamp).strftime(
+        last_update_date = datetime.fromtimestamp(timestamp, tz=timezone.utc).strftime(
             "%Y-%m-%d %H:%M:%S"
         )
 

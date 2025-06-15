@@ -5,7 +5,6 @@ News Check Handler Tests
 # pylint: disable=redefined-outer-name
 
 from datetime import datetime
-
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest

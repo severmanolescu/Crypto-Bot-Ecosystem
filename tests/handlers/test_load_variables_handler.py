@@ -542,7 +542,7 @@ class TestSymbolFunctions:
             "src.handlers.load_variables_handler.load_transactions", return_value=[]
         ):
             result = get_all_symbols()
-            assert result == [], "Expected empty list when no transactions are present"
+            assert not result, "Expected empty list when no transactions are present"
 
     def test_get_all_symbols_invalid_transactions(self):
         """Test getting symbols when transactions are invalid."""
