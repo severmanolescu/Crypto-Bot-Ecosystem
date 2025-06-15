@@ -46,6 +46,12 @@ class PriceAlertBot:
     Price Alert Bot for Telegram
     """
 
+    def __init__(self):
+        """
+        Initializes the Price Alert Bot with necessary components.
+        """
+        self.crypto_value_bot = CryptoValueBot()
+
     # Command: /start
     # pylint:disable=unused-argument
     async def start(self, update, context: ContextTypes.DEFAULT_TYPE):
@@ -60,8 +66,6 @@ class PriceAlertBot:
             reply_markup=NEWS_KEYBOARD,
         )
 
-    cryptoValueBot = CryptoValueBot()
-
     async def start_the_alerts_check_1h(self, update=None):
         """
         Start the alerts check for 1-hour timeframe.
@@ -70,11 +74,11 @@ class PriceAlertBot:
         Returns:
             bool: True if alerts are available, False otherwise.
         """
-        self.cryptoValueBot.reload_the_data()
+        self.crypto_value_bot.reload_the_data()
 
-        self.cryptoValueBot.get_my_crypto()
+        self.crypto_value_bot.get_my_crypto()
 
-        return await self.cryptoValueBot.check_for_major_updates_1h(update)
+        return await self.crypto_value_bot.check_for_major_updates_1h(update)
 
     async def start_the_alerts_check_24h(self, update=None):
         """
@@ -84,11 +88,11 @@ class PriceAlertBot:
         Returns:
             bool: True if alerts are available, False otherwise.
         """
-        self.cryptoValueBot.reload_the_data()
+        self.crypto_value_bot.reload_the_data()
 
-        self.cryptoValueBot.get_my_crypto()
+        self.crypto_value_bot.get_my_crypto()
 
-        return await self.cryptoValueBot.check_for_major_updates_24h(update)
+        return await self.crypto_value_bot.check_for_major_updates_24h(update)
 
     async def start_the_alerts_check_7d(self, update=None):
         """
@@ -98,11 +102,11 @@ class PriceAlertBot:
         Returns:
             bool: True if alerts are available, False otherwise.
         """
-        self.cryptoValueBot.reload_the_data()
+        self.crypto_value_bot.reload_the_data()
 
-        self.cryptoValueBot.get_my_crypto()
+        self.crypto_value_bot.get_my_crypto()
 
-        return await self.cryptoValueBot.check_for_major_updates_7d(update)
+        return await self.crypto_value_bot.check_for_major_updates_7d(update)
 
     async def start_the_alerts_check_30d(self, update=None):
         """
@@ -112,11 +116,11 @@ class PriceAlertBot:
         Returns:
             bool: True if alerts are available, False otherwise.
         """
-        self.cryptoValueBot.reload_the_data()
+        self.crypto_value_bot.reload_the_data()
 
-        self.cryptoValueBot.get_my_crypto()
+        self.crypto_value_bot.get_my_crypto()
 
-        return await self.cryptoValueBot.check_for_major_updates_30d(update)
+        return await self.crypto_value_bot.check_for_major_updates_30d(update)
 
     async def start_the_alerts_check_all_timeframes(self, update=None):
         """
@@ -126,11 +130,11 @@ class PriceAlertBot:
         Returns:
             bool: True if alerts are available, False otherwise.
         """
-        self.cryptoValueBot.reload_the_data()
+        self.crypto_value_bot.reload_the_data()
 
-        self.cryptoValueBot.get_my_crypto()
+        self.crypto_value_bot.get_my_crypto()
 
-        return await self.cryptoValueBot.check_for_major_updates(None, update)
+        return await self.crypto_value_bot.check_for_major_updates(None, update)
 
     # Handle button presses
     # pylint:disable=unused-argument

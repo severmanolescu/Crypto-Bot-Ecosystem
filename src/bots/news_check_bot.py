@@ -3,7 +3,7 @@ News Check Bot
 This bot checks for crypto news articles and provides market sentiment analysis.
 """
 
-# pylint: disable=wrong-import-position
+# pylint: disable=wrong-import-position,duplicate-code
 
 import logging
 import os

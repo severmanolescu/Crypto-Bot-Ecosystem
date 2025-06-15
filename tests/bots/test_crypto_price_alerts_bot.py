@@ -33,7 +33,7 @@ def price_alert_bot():
         bot = PriceAlertBot()
 
         # Replace the class attribute with our mock
-        bot.cryptoValueBot = mock_crypto_value_bot
+        bot.crypto_value_bot = mock_crypto_value_bot
 
         yield bot, mock_crypto_value_bot
 
