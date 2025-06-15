@@ -46,9 +46,12 @@ def save(variables, file_path="./config/variables.json"):
         if "SEND_HOURS" in variables and isinstance(variables["SEND_HOURS"], set):
             variables["SEND_HOURS"] = list(variables["SEND_HOURS"])
 
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
         with open(file_path, "w", encoding="utf-8") as file:
             json.dump(variables, file, indent=4)
-        print(f"✅ Variables saved to '{file_path}'.")
+        logger.info("✅ Variables saved to %s.", file_path)
     # pylint:disable=broad-exception-caught
     except Exception as e:
         logger.error(" Error saving variables: %s", e)

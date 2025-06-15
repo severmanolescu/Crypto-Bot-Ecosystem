@@ -177,12 +177,22 @@ class AlertsHandler:
         """
         await self.check_for_major_updates_1h(top_100_crypto, update)
 
+        found_alerts = False
+
         if now_date is None or self.last_hour_sent != now_date.hour:
             self.last_hour_sent = datetime.now()
 
             if now_date is None or now_date.hour in self.alert_send_hours_24h:
-                await self.check_for_major_updates_24h(top_100_crypto, update)
+                found_alerts = await self.check_for_major_updates_24h(
+                    top_100_crypto, update
+                )
             if now_date is None or now_date.hour in self.alert_send_hours_7d:
-                await self.check_for_major_updates_7d(top_100_crypto, update)
+                found_alerts = await self.check_for_major_updates_7d(
+                    top_100_crypto, update
+                )
             if now_date is None or now_date.hour in self.alert_send_hours_30d:
-                await self.check_for_major_updates_30d(top_100_crypto, update)
+                found_alerts = await self.check_for_major_updates_30d(
+                    top_100_crypto, update
+                )
+
+        return found_alerts

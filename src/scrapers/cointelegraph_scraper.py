@@ -5,7 +5,7 @@ This scraper extracts articles that contain specific keywords in their headlines
 
 
 # pylint: disable=too-few-public-methods
-class CointelegraphScraper:
+class CoinTelegraphScraper:
     """
     Handles scraping for the https://cointelegraph.com/ website.
     """

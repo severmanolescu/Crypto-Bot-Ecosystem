@@ -19,7 +19,7 @@ from src.data_base.data_base_handler import DataBaseHandler
 from src.handlers.open_ai_prompt_handler import OpenAIPrompt
 from src.handlers.send_telegram_message import TelegramMessagesHandler
 from src.scrapers.bitcoin_magazine_scraper import BitcoinMagazineScraper
-from src.scrapers.cointelegraph_scraper import CointelegraphScraper
+from src.scrapers.cointelegraph_scraper import CoinTelegraphScraper
 
 # Import scrapers
 from src.scrapers.crypto_news_scraper import CryptoNewsScraper
@@ -146,7 +146,7 @@ class CryptoNewsCheck:
             return scraper.scrape(soup)
 
         if source == "cointelegraph":
-            scraper = CointelegraphScraper(data_extractor)
+            scraper = CoinTelegraphScraper(data_extractor)
             return scraper.scrape(soup)
 
         if source == "bitcoinmagazine":

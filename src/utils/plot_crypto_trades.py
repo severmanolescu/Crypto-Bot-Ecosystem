@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from mplfinance.original_flavor import candlestick_ohlc
 
-import src.handlers.load_variables_handler as LoadVariables
+import src.handlers.load_variables_handler as load_variables_handler
 from src.handlers.send_telegram_message import (
     send_plot_to_telegram,
     send_telegram_message_update,
@@ -128,7 +128,7 @@ class PlotTrades:
         It automatically checks if you have trades older than 1 year,
         and fetches all needed data from Binance.
         """
-        transactions = LoadVariables.load_transactions(transactions_file)
+        transactions = load_variables_handler.load_transactions(transactions_file)
         if not transactions:
             logger.info("No transactions found for %s", symbol)
             print(f"No transactions found for {symbol}")
@@ -304,7 +304,7 @@ class PlotTrades:
                 if dt.hour in save_hours:
                     matched.append(entry)
             except ValueError:
-                print(f"[ERROR] Invalid datetime format: {dt_str}")
+                logger.error("[ERROR] Invalid datetime format: %s", dt_str)
         return matched
 
     async def send_portfolio_history_plot(
@@ -316,9 +316,11 @@ class PlotTrades:
         Ths method saves and sends to the telegram users the plot with the entire portfolio history
         including Total Value, Total Investment, Profit/Loss and Profit/Loss %
         """
-        data = LoadVariables.load(portfolio_history_file)
+        data = load_variables_handler.load(portfolio_history_file)
 
-        save_hours = LoadVariables.get_json_key_value(key="PORTFOLIO_SAVE_HOURS")
+        save_hours = load_variables_handler.get_json_key_value(
+            key="PORTFOLIO_SAVE_HOURS"
+        )
 
         filtered_data = self.filter_entries_by_hour(data, save_hours)
 
@@ -491,7 +493,7 @@ class PlotTrades:
         It will create for each symbol a plot with buy and sell orders
         along with price history
         """
-        symbols = LoadVariables.get_all_symbols()
+        symbols = load_variables_handler.get_all_symbols()
 
         for symbol in symbols:
             await self.plot_crypto_trades(symbol, update)

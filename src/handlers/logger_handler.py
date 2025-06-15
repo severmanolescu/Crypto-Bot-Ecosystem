@@ -7,26 +7,25 @@ import os
 from logging.handlers import RotatingFileHandler
 
 
-def setup_logger(logger_name="main"):
+def setup_logger(logs_dir=None):
     """
-    Sets up a logger for the application with a rotating file handler.
-    Args:
-        logger_name (str): The name of the logger. Default is "main".
+    Setup logging configuration for the application.
     """
     # Create logs directory if it doesn't exist
-    logs_dir = "logs"
+    logs_dir = logs_dir or "logs"
+    main_log = os.path.join(logs_dir, "main.log")
+
     if not os.path.exists(logs_dir):
         os.makedirs(logs_dir)
 
     # Configure root logger
-    handler = RotatingFileHandler(
-        "logs/" + logger_name + ".log", maxBytes=100_000_000, backupCount=3
-    )
+    handler = RotatingFileHandler(main_log, maxBytes=100_000_000, backupCount=3)
     formatter = logging.Formatter(
         "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
     )
     handler.setFormatter(formatter)
 
     root_logger = logging.getLogger()
+    root_logger.handlers.clear()
     root_logger.setLevel(logging.INFO)
     root_logger.addHandler(handler)
