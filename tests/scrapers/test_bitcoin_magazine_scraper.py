@@ -2,6 +2,8 @@
 Bitcoin Magazine Scraper Test
 """
 
+# pylint: disable=redefined-outer-name
+
 import pytest
 from bs4 import BeautifulSoup
 
