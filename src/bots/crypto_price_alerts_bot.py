@@ -22,7 +22,7 @@ from telegram.ext import (
 )
 
 from src.bots.crypto_value_handler import CryptoValueBot
-from src.handlers import load_variables_handler as LoadVariables
+from src.handlers import load_variables_handler
 from src.handlers.logger_handler import setup_logger
 
 setup_logger("crypto_price_alerts_bot")
@@ -220,7 +220,7 @@ class PriceAlertBot:
         Main function to start the Price Alert Bot.
         This function initializes the bot, sets up command and message handlers,
         """
-        variables = LoadVariables.load()
+        variables = load_variables_handler.load()
 
         bot_token = variables.get("TELEGRAM_API_TOKEN_ALERTS", "")
 

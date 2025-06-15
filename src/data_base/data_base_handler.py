@@ -156,7 +156,7 @@ class DataBaseHandler:
         Returns:
             list: List of tuples with article data for today.
         """
-        today_date = datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%d")
+        today_date = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
 
         async with aiosqlite.connect(self.articles_db_path) as conn:
             cursor = await conn.cursor()

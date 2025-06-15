@@ -51,7 +51,7 @@ class Application:
                 time_str = now_date.strftime("%H:%M")
 
                 self.logger.info(" Ran at: %s", time_str)
-                self.logger.info(" Wait %d minutes", sleep_time / 60)
+                self.logger.info(" Wait %.2f minutes", sleep_time / 60)
 
                 print(f"\n⌛Checked at: {time_str}")
                 print(f"⏳ Wait {sleep_time / 60:.2f} minutes!\n\n")
