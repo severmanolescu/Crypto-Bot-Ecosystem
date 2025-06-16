@@ -62,8 +62,9 @@ class NewsBot:
         """
         Handles the /start command to initialize the bot and show buttons.
         """
-        await send_telegram_message_update(
-            "🤖 Welcome to the News Bot! Use the buttons below to get started:", update
+        await update.message.reply_text(
+            "🤖 Welcome to the News Bot! Use the buttons below to get started:",
+            reply_markup=NEWS_KEYBOARD,
         )
 
     async def start_the_articles_check(self, update):
