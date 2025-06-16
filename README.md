@@ -69,7 +69,7 @@ For the bots to work correctly, you need to set up the following in `config/vari
 	"TELEGRAM_API_TOKEN_ARTICLES": "your_news_bot_token",
 	"TELEGRAM_API_TOKEN_VALUE": "your_market_bot_token", 
 	"TELEGRAM_API_TOKEN_ALERTS": "your_alerts_bot_token", 
-	"OPEN_AI_API": "open_ai_api_ley",
+	"OPEN_AI_API": "open_ai_api_key",
 	"TELEGRAM_CHAT_ID_FULL_DETAILS": ["list_of_user_ids_full_details"], 
 	"TELEGRAM_CHAT_ID_PARTIAL_DATA": ["list_of_user_ids_partial_data"], 
 	"COINMARKETCAP_API_KEY": "your_coinmarketcap_api_key"
