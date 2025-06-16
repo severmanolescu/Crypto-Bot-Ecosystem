@@ -2,7 +2,7 @@
 Market Update Bot Tests
 """
 
-# pylint: disable=redefined-outer-name
+# pylint: disable=redefined-outer-name, duplicate-code
 
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch

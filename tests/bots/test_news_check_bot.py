@@ -2,7 +2,7 @@
 News Check Bot Test Suite
 """
 
-# pylint: disable=redefined-outer-name, unused-variable
+# pylint: disable=redefined-outer-name, unused-variable, duplicate-code
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
