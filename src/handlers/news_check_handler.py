@@ -244,8 +244,9 @@ class CryptoNewsCheck:
             articles = await self.data_base.fetch_todays_news()
 
             message = (
-                f"Te rog genereaza raportul zilnic general. nu pentru fiecare articol, "
-                f"folosind urmatoarele articole, "
+                f"Te rog genereaza raportul zilnic general. Nu pentru fiecare articol, "
+                f"folosind urmatoarele articole. Formatează răspunsul cu HTML"
+                f"pentru Telegram:\n"
                 f"{datetime.now().date()}:\n"
             )
 
