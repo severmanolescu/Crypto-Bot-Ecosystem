@@ -7,13 +7,13 @@ import os
 from logging.handlers import RotatingFileHandler
 
 
-def setup_logger(logs_dir=None):
+def setup_logger(logs_dir=None, file_name="main.log"):
     """
     Setup logging configuration for the application.
     """
     # Create logs directory if it doesn't exist
     logs_dir = logs_dir or "logs"
-    main_log = os.path.join(logs_dir, "main.log")
+    main_log = os.path.join(logs_dir, file_name)
 
     if not os.path.exists(logs_dir):
         os.makedirs(logs_dir)

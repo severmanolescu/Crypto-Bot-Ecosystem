@@ -25,7 +25,7 @@ from src.bots.crypto_value_handler import CryptoValueBot
 from src.handlers import load_variables_handler
 from src.handlers.logger_handler import setup_logger
 
-setup_logger("crypto_price_alerts_bot")
+setup_logger(file_name="crypto_price_alerts_bot.log")
 logger = logging.getLogger(__name__)
 logger.info("Crypto price Alerts bot started")
 

@@ -28,7 +28,7 @@ from src.handlers.market_sentiment_handler import get_market_sentiment
 from src.handlers.news_check_handler import CryptoNewsCheck
 from src.handlers.send_telegram_message import send_telegram_message_update
 
-setup_logger("news_check_bot")
+setup_logger(file_name="news_check_bot.log")
 logger = logging.getLogger(__name__)
 logger.info("News Check started")
 

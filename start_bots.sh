@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Directory where your bots are located
-BOT_DIR="/home/sever/Crypto-Articles-Bots"
+BOT_DIR="/home/sever/repos/Crypto-Articles-Bots"
 
 # List of bot scripts
 BOTS=(
@@ -15,7 +15,7 @@ BOTS=(
 # Function to start a bot in a detached screen session
 start_bot() {
     local bot_script="$1"
-    local bot_name="${bot_script%.py}"  # Remove .py extension for screen name
+    local bot_name=$(basename "${bot_script%.py}")  # Use only the filename without .py for screen name
     screen -dmS "$bot_name" bash -c "cd $BOT_DIR && python3 $bot_script"
     echo "✅ Started $bot_name in a new screen session."
 }

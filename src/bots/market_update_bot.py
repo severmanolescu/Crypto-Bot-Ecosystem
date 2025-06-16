@@ -32,7 +32,7 @@ from src.handlers.send_telegram_message import TelegramMessagesHandler
 from src.utils.plot_crypto_trades import PlotTrades
 from src.utils.utils import check_if_special_user
 
-setup_logger("market_update_bot")
+setup_logger(file_name="market_update_bot.log")
 logger = logging.getLogger(__name__)
 logger.info("Market Update Bot started")
 
