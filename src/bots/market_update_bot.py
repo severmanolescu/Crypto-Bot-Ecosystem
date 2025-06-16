@@ -5,7 +5,7 @@ ETH gas fees, and crypto fear & greed index. It also allows users to plot their 
 and portfolio history.
 """
 
-# pylint: disable=wrong-import-position, duplicate-code
+# pylint: disable=wrong-import-position
 
 
 import logging
