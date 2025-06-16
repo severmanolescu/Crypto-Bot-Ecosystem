@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.bots.news_check_bot import NewsBot
+from src.bots.news_check_bot import NEWS_KEYBOARD, NewsBot
 
 
 @pytest.fixture
@@ -52,15 +52,18 @@ async def test_start_command(news_bot):
     """Test the start command sends welcome message with keyboard"""
     bot, mocks = news_bot
 
-    # Create mock update
+    # Create mock update and context
     mock_update = MagicMock()
+    mock_update.message.reply_text = AsyncMock()
+    mock_context = MagicMock()
 
     # Call the method
-    await bot.start(mock_update, None)
+    await bot.start(mock_update, mock_context)
 
-    # Verify welcome message was sent
-    mocks["send_message"].assert_called_once_with(
-        "🤖 Welcome to the News Bot! Use the buttons below to get started:", mock_update
+    # Verify welcome message was sent with correct keyboard
+    mock_update.message.reply_text.assert_called_once_with(
+        "🤖 Welcome to the News Bot! Use the buttons below to get started:",
+        reply_markup=NEWS_KEYBOARD,
     )
 
 
