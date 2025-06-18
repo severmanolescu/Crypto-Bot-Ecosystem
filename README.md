@@ -63,21 +63,25 @@ This project consists of four specialized Telegram bots running on a Raspberry P
 For the bots to work correctly, you need to set up the following in `config/variables.json`:
 ```json
 {
-	"CMC_API_KEY": "your_etherscan_api_key",
-	"ETHERSCAN_API_KEY": "your_etherscan_api",
-	"TELEGRAM_API_TOKEN_SLAVE": "your_slave_bot_token",
-	"TELEGRAM_API_TOKEN_ARTICLES": "your_news_bot_token",
-	"TELEGRAM_API_TOKEN_VALUE": "your_market_bot_token", 
-	"TELEGRAM_API_TOKEN_ALERTS": "your_alerts_bot_token", 
-	"OPEN_AI_API": "open_ai_api_key",
-	"TELEGRAM_CHAT_ID_FULL_DETAILS": ["list_of_user_ids_full_details"], 
-	"TELEGRAM_CHAT_ID_PARTIAL_DATA": ["list_of_user_ids_partial_data"], 
-	"COINMARKETCAP_API_KEY": "your_coinmarketcap_api_key"
+  "CMC_API_KEY": "your_etherscan_api_key", 
+  "ETHERSCAN_API_KEY": "your_etherscan_api", 
+  "TELEGRAM_API_TOKEN_SLAVE": "your_slave_bot_token", 
+  "TELEGRAM_API_TOKEN_ARTICLES": "your_news_bot_token", 
+  "TELEGRAM_API_TOKEN_VALUE": "your_market_bot_token", 
+  "TELEGRAM_API_TOKEN_ALERTS": "your_alerts_bot_token", 
+  "OPEN_AI_API": "open_ai_api_key", 
+  "TELEGRAM_CHAT_ID_FULL_DETAILS": ["list_of_user_ids_full_details"], 
+  "TELEGRAM_CHAT_ID_PARTIAL_DATA": ["list_of_user_ids_partial_data"], 
+  "COINMARKETCAP_API_KEY": "your_coinmarketcap_api_key",
+  "AI_ARTICLE_SUMMARY_PROMPT": "AI Prompt for summarizing articles",
+  "AI_TODAY_SUMMARY_PROMPT": "AI Prompt for summarizing today's news"
 }
 ```
-<b>TELEGRAM_CHAT_ID_FULL_DETAILS</b> - List of user IDs who will receive full details from the bots and can use all commands.
+**TELEGRAM_CHAT_ID_FULL_DETAILS** - List of user IDs who will receive full details from the bots and can use all commands.
 
-<b>TELEGRAM_CHAT_ID_PARTIAL_DATA</b> - List of user IDs who will receive partial data from the bots and can use only a limited set of commands.
+**TELEGRAM_CHAT_ID_PARTIAL_DATA** - List of user IDs who will receive partial data from the bots and can use only a limited set of commands.
+
+**AI_ARTICLE_SUMMARY_PROMPT** and **AI_TODAY_SUMMARY_PROMPT** - AI prompts that can be customized to change the way the AI summarizes articles and news and the language used, currently set to **Romanian**.
 
 ## Prerequisites
 
