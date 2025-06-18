@@ -204,15 +204,11 @@ async def test_send_market_update():
         },
     }
 
-    # Test with AI summary enabled
-    handler.send_ai_summary = "True"
     await handler.send_market_update("test_token", now_date, my_crypto)
 
     # Verify send_telegram_message was called
     handler.send_telegram_message.assert_called_once()
 
-    # Test without AI summary
-    handler.send_ai_summary = "False"
     handler.send_telegram_message.reset_mock()
 
     await handler.send_market_update("test_token", now_date, my_crypto)
