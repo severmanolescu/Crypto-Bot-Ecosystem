@@ -6,17 +6,18 @@ notifying via Telegram, and optionally generating summaries using OpenAI.
 
 import asyncio
 import logging
-from datetime import datetime
-from pyexpat.errors import messages
 
 import cloudscraper
 import requests
 from bs4 import BeautifulSoup
 
-import src.handlers.load_variables_handler
-
-# Import your SDK modules
+# Import your SRC modules
 from src.data_base.data_base_handler import DataBaseHandler
+from src.handlers.load_variables_handler import (
+    get_json_key_value,
+    load,
+    load_keyword_list,
+)
 from src.handlers.open_ai_prompt_handler import OpenAIPrompt
 from src.handlers.send_telegram_message import TelegramMessagesHandler
 from src.scrapers.bitcoin_magazine_scraper import BitcoinMagazineScraper
@@ -72,7 +73,7 @@ class CryptoNewsCheck:
         """
         Reload environment variables, API tokens, and so forth.
         """
-        variables = src.handlers.load_variables_handler.load()
+        variables = load()
         self.telegram_api_token = variables.get("TELEGRAM_API_TOKEN_ARTICLES", "")
         self.telegram_important_chat_id = variables.get(
             "TELEGRAM_CHAT_ID_FULL_DETAILS", []
@@ -80,7 +81,7 @@ class CryptoNewsCheck:
         self.telegram_not_important_chat_id = variables.get(
             "TELEGRAM_CHAT_ID_PARTIAL_DATA", []
         )
-        self.keywords = src.handlers.load_variables_handler.load_keyword_list()
+        self.keywords = load_keyword_list()
 
         open_ai_api = variables.get("OPEN_AI_API", "")
         self.open_ai_prompt = OpenAIPrompt(open_ai_api)
@@ -244,9 +245,7 @@ class CryptoNewsCheck:
         if self.send_ai_summary == "True":
             articles = await self.data_base.fetch_todays_news()
 
-            message = src.handlers.load_variables_handler.get_json_key_value(
-                "AI_TODAY_SUMMARY_PROMPT"
-            )
+            message = get_json_key_value("AI_TODAY_SUMMARY_PROMPT")
 
             for article in articles:
                 message += article[2] + "\n"
