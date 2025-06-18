@@ -85,7 +85,7 @@ class CryptoNewsCheck:
 
         open_ai_api = variables.get("OPEN_AI_API", "")
         self.open_ai_prompt = OpenAIPrompt(open_ai_api)
-        self.send_ai_summary = variables.get("SEND_AI_SUMMARY", "")
+        self.send_ai_summary = variables.get("SEND_AI_SUMMARY", "False")
 
         self.telegram_message.reload_the_data()
 
