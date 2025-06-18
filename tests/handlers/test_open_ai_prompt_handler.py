@@ -29,7 +29,7 @@ async def test_init():
 
 
 @pytest.mark.asyncio
-async def test_generate_summary(openai_prompt):
+async def test_generate_article_summary(openai_prompt):
     """Test generating a summary for an article."""
     article_link = "https://example.com/article"
     expected_summary = (

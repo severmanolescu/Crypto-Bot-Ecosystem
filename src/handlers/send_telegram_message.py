@@ -6,9 +6,8 @@ import logging
 
 from telegram import Bot
 
-from src.handlers import load_variables_handler as LoadVariables
 from src.handlers.data_fetcher_handler import get_eth_gas_fee
-from src.handlers.open_ai_prompt_handler import OpenAIPrompt
+from src.handlers.load_variables_handler import load
 from src.utils.utils import format_change
 
 logger = logging.getLogger(__name__)
@@ -53,9 +52,6 @@ class TelegramMessagesHandler:
 
         self.etherscan_api_url = None
 
-        self.send_ai_summary = None
-        self.open_ai_prompt = None
-
         self.reload_the_data()
 
     def reload_the_data(self):
@@ -63,7 +59,7 @@ class TelegramMessagesHandler:
         Reload the data from the configuration file and update the Telegram chat IDs
         and Etherscan API URL.
         """
-        variables = LoadVariables.load()
+        variables = load()
 
         self.telegram_important_chat_id = variables.get(
             "TELEGRAM_CHAT_ID_FULL_DETAILS", []
@@ -76,12 +72,6 @@ class TelegramMessagesHandler:
         self.etherscan_api_url = variables.get(
             "ETHERSCAN_GAS_API_URL", ""
         ) + variables.get("ETHERSCAN_API_KEY", "")
-
-        open_ai_api = variables.get("OPEN_AI_API", "")
-
-        self.open_ai_prompt = OpenAIPrompt(open_ai_api)
-
-        self.send_ai_summary = variables.get("SEND_AI_SUMMARY", "")
 
     # Function to send a message via Telegram
     async def send_telegram_message(
