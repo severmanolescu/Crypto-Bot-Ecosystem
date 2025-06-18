@@ -155,21 +155,6 @@ class TelegramMessagesHandler:
         """
         message = f"🕒 <b>Market Update at {now_date.strftime('%H:%M')}</b>"
 
-        if self.send_ai_summary == "True":
-            message += "\n\n"
-            changes_text = "\n".join(
-                [
-                    f"{symbol}: {data['change_1h']}%"
-                    for symbol, data in my_crypto.items()
-                ]
-            )
-            prompt = (
-                f"Generate a short quote about the crypto market. Hour: {now_date.hour}, "
-                f"changes:\n{changes_text}"
-            )
-
-            message += await self.open_ai_prompt.get_response(prompt)
-
         for symbol, data in my_crypto.items():
             message += (
                 f"\n<b>{symbol}</b>\n"

@@ -7,6 +7,7 @@ notifying via Telegram, and optionally generating summaries using OpenAI.
 import asyncio
 import logging
 from datetime import datetime
+from pyexpat.errors import messages
 
 import cloudscraper
 import requests
@@ -161,7 +162,7 @@ class CryptoNewsCheck:
         Args:
             link (str): The URL of the article to summarize.
         """
-        return await self.open_ai_prompt.generate_summary(link)
+        return await self.open_ai_prompt.generate_article_summary(link)
 
     async def check_news(self, source, update=None):
         """
@@ -243,11 +244,8 @@ class CryptoNewsCheck:
         if self.send_ai_summary == "True":
             articles = await self.data_base.fetch_todays_news()
 
-            message = (
-                f"Te rog genereaza raportul zilnic general. Nu pentru fiecare articol, "
-                f"folosind urmatoarele articole. Formatează răspunsul cu HTML"
-                f"pentru Telegram:\n"
-                f"{datetime.now().date()}:\n"
+            message = src.handlers.load_variables_handler.get_json_key_value(
+                "AI_TODAY_SUMMARY_PROMPT"
             )
 
             for article in articles:

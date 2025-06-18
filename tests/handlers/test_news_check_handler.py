@@ -122,16 +122,16 @@ async def test_scrape_articles_crypto_news(news_check):
 
 
 @pytest.mark.asyncio
-async def test_generate_summary(news_check):
+async def test_generate_article_summary(news_check):
     """Test generating an article summary."""
-    news_check.open_ai_prompt.generate_summary.return_value = (
+    news_check.open_ai_prompt.generate_article_summary.return_value = (
         "This is a summary of the article."
     )
 
     result = await news_check.generate_summary("https://example.com/article")
 
     assert result == "This is a summary of the article."
-    news_check.open_ai_prompt.generate_summary.assert_called_once_with(
+    news_check.open_ai_prompt.generate_article_summary.assert_called_once_with(
         "https://example.com/article"
     )
 

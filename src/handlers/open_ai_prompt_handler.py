@@ -8,6 +8,8 @@ import logging
 
 import openai
 
+from src.handlers.load_variables_handler import get_json_key_value
+
 logger = logging.getLogger(__name__)
 logger.info("Open AI Prompt started")
 
@@ -23,7 +25,7 @@ class OpenAIPrompt:
     def __init__(self, openai_api_key):
         self.openai_api_key = openai_api_key
 
-    async def generate_summary(self, article_link):
+    async def generate_article_summary(self, article_link):
         """
         Use OpenAI API to generate a short description for an article.
         Args:
@@ -31,12 +33,7 @@ class OpenAIPrompt:
         Returns:
             str: A formatted HTML summary of the article with sentiment analysis.
         """
-        prompt = (
-            f"Rezuma acest articol într-un scurt paragraf și analizează sentimentul"
-            f"(Bullish, Bearish sau Neutral). Formatează răspunsul cu HTML "
-            f"pentru Telegram(ex: <b> <i>):"
-            f"\nLink: {article_link}"
-        )
+        prompt = get_json_key_value("AI_ARTICLE_SUMMARY_PROMPT") + article_link
 
         return await self.get_response(prompt)
 
