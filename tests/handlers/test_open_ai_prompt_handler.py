@@ -29,7 +29,7 @@ async def test_init():
 
 
 @pytest.mark.asyncio
-async def test_generate_summary(openai_prompt):
+async def test_generate_article_summary(openai_prompt):
     """Test generating a summary for an article."""
     article_link = "https://example.com/article"
     expected_summary = (
@@ -40,7 +40,7 @@ async def test_generate_summary(openai_prompt):
     with patch.object(
         openai_prompt, "get_response", return_value=expected_summary
     ) as mock_get_response:
-        summary = await openai_prompt.generate_summary(article_link)
+        summary = await openai_prompt.generate_article_summary(article_link)
 
         # Verify the summary is returned correctly
         assert summary == expected_summary

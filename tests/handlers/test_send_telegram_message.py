@@ -64,15 +64,13 @@ async def test_telegram_messages_handler_init():
     """
     Test the initialization of the TelegramMessagesHandler class.
     """
-    with patch("src.handlers.load_variables_handler.load") as mock_load:
+    with patch("src.handlers.send_telegram_message.load") as mock_load:
         # Setup mock return value for load_variables
         mock_load.return_value = {
             "TELEGRAM_CHAT_ID_FULL_DETAILS": ["id1", "id2"],
             "TELEGRAM_CHAT_ID_PARTIAL_DATA": ["id3"],
             "ETHERSCAN_GAS_API_URL": "https://api.etherscan.io/api?",
             "ETHERSCAN_API_KEY": "test_key",
-            "OPEN_AI_API": "test_api_key",
-            "SEND_AI_SUMMARY": "True",
         }
 
         # Initialize the handler
@@ -82,7 +80,6 @@ async def test_telegram_messages_handler_init():
         assert handler.telegram_important_chat_id == ["id1", "id2"]
         assert handler.telegram_not_important_chat_id == ["id3"]
         assert handler.etherscan_api_url == "https://api.etherscan.io/api?test_key"
-        assert handler.send_ai_summary == "True"
 
 
 @pytest.mark.asyncio
@@ -207,25 +204,14 @@ async def test_send_market_update():
         },
     }
 
-    # Test with AI summary enabled
-    handler.send_ai_summary = "True"
     await handler.send_market_update("test_token", now_date, my_crypto)
-
-    # Verify the AI prompt was called
-    handler.open_ai_prompt.get_response.assert_called_once()
 
     # Verify send_telegram_message was called
     handler.send_telegram_message.assert_called_once()
 
-    # Test without AI summary
-    handler.send_ai_summary = "False"
     handler.send_telegram_message.reset_mock()
-    handler.open_ai_prompt.get_response.reset_mock()
 
     await handler.send_market_update("test_token", now_date, my_crypto)
-
-    # Verify the AI prompt was not called
-    handler.open_ai_prompt.get_response.assert_not_called()
 
     # Verify send_telegram_message was still called
     handler.send_telegram_message.assert_called_once()

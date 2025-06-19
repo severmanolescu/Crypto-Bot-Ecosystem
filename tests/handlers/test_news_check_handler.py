@@ -38,16 +38,15 @@ async def test_reload_the_data(news_check):
     mock_keywords = ["bitcoin", "ethereum"]
 
     with patch(
-        "src.handlers.load_variables_handler.load", return_value=mock_variables
+        "src.handlers.news_check_handler.load", return_value=mock_variables
     ), patch(
-        "src.handlers.load_variables_handler.load_keyword_list",
+        "src.handlers.news_check_handler.load_keyword_list",
         return_value=mock_keywords,
     ), patch(
         "src.handlers.news_check_handler.OpenAIPrompt"
     ) as mock_openai, patch.object(
         news_check.telegram_message, "reload_the_data"
     ):
-
         news_check.reload_the_data()
 
         assert news_check.telegram_api_token == "test_token"
@@ -122,16 +121,16 @@ async def test_scrape_articles_crypto_news(news_check):
 
 
 @pytest.mark.asyncio
-async def test_generate_summary(news_check):
+async def test_generate_article_summary(news_check):
     """Test generating an article summary."""
-    news_check.open_ai_prompt.generate_summary.return_value = (
+    news_check.open_ai_prompt.generate_article_summary.return_value = (
         "This is a summary of the article."
     )
 
     result = await news_check.generate_summary("https://example.com/article")
 
     assert result == "This is a summary of the article."
-    news_check.open_ai_prompt.generate_summary.assert_called_once_with(
+    news_check.open_ai_prompt.generate_article_summary.assert_called_once_with(
         "https://example.com/article"
     )
 

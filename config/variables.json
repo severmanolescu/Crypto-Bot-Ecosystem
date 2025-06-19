@@ -3,8 +3,6 @@
     "CMC_URL_QUOTES": "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest",
     "CMC_URL_LISTINGS": "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest",
     "CMC_TOP10_URL": "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest",
-    "COINGECKO_URL": "https://api.coingecko.com/api/v3",
-    "COINGECKO_API_KEY": "-",
     "ETHERSCAN_API_KEY": "-",
     "ETHERSCAN_GAS_API_URL": "https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey=",
     "TELEGRAM_API_TOKEN_SLAVE": "-",
@@ -22,6 +20,8 @@
     "TELEGRAM_CHAT_ID_FULL_DETAILS": [
         "-"
     ],
+    "AI_ARTICLE_SUMMARY_PROMPT": "Rezuma acest articol \u00eentr-un scurt paragraf \u0219i analizeaz\u0103 sentimentul(Bullish, Bearish sau Neutral). Formateaz\u0103 r\u0103spunsul cu HTML pentru Telegram(ex: <b> <i>):\nLink: ",
+    "AI_TODAY_SUMMARY_PROMPT": "Te rog genereaza raportul zilnic general. Nu pentru fiecare articol, folosind urmatoarele articole. Formateaz\u0103 r\u0103spunsul cu HTML pentru Telegram(ex: <b> <i>):\n",
     "SEND_HOURS_VALUES": [
         7,
         11,
@@ -41,6 +41,7 @@
     ],
     "PORTFOLIO_SAVE_HOURS": [
         23,
+        12,
         15
     ],
     "SENTIMENT_HOURS": [
@@ -62,6 +63,7 @@
         "ENA",
         "SEI",
         "LDO",
-        "SEI"
+        "SEI",
+        "SUI"
     ]
 }
