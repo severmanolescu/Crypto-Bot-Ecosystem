@@ -1,3 +1,9 @@
+"""
+Test cases for save_data_handler functions.
+"""
+
+# pylint: disable=attribute-defined-outside-init,unused-variable
+
 import json
 import os
 from datetime import datetime, timezone
