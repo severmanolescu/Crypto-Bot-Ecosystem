@@ -25,7 +25,7 @@ def crypto_bot():
     ) as mock_telegram_class, patch(
         "src.bots.crypto_value_handler.CryptoNewsCheck"
     ) as mock_news_class, patch(
-        "src.bots.crypto_value_handler.src.handlers.load_variables_handler.load"
+        "src.bots.crypto_value_handler.src.handlers.load_variables_handler.load_json"
     ) as mock_load_vars:
         # Create mock instances
         mock_db = MagicMock()

@@ -150,7 +150,7 @@ def test_run_bot(price_alert_bot):
     bot, _ = price_alert_bot
 
     with patch(
-        "src.bots.crypto_price_alerts_bot.load_variables_handler.load"
+        "src.bots.crypto_price_alerts_bot.load_variables_handler.load_json"
     ) as mock_load_vars, patch(
         "src.bots.crypto_price_alerts_bot.Application"
     ) as mock_application:

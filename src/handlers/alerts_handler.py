@@ -44,7 +44,7 @@ class AlertsHandler:
         """
         Reloads the configuration data for alerts from the variables file.
         """
-        variables = LoadVariables.load()
+        variables = LoadVariables.load_json()
 
         self.telegram_api_token_alerts = variables.get("TELEGRAM_API_TOKEN_ALERTS", "")
 

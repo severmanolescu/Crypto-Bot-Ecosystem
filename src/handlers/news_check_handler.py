@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup
 from src.data_base.data_base_handler import DataBaseHandler
 from src.handlers.load_variables_handler import (
     get_json_key_value,
-    load,
+    load_json,
     load_keyword_list,
 )
 from src.handlers.open_ai_prompt_handler import OpenAIPrompt
@@ -73,7 +73,7 @@ class CryptoNewsCheck:
         """
         Reload environment variables, API tokens, and so forth.
         """
-        variables = load()
+        variables = load_json()
         self.telegram_api_token = variables.get("TELEGRAM_API_TOKEN_ARTICLES", "")
         self.telegram_important_chat_id = variables.get(
             "TELEGRAM_CHAT_ID_FULL_DETAILS", []

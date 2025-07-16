@@ -16,7 +16,7 @@ def alerts_handler():
     """Fixture to create a mocked AlertsHandler for testing."""
     with patch("src.handlers.alerts_handler.LoadVariables") as mock_load_vars:
         # Mock the variables that would be loaded from LoadVariables
-        mock_load_vars.load.return_value = {
+        mock_load_vars.load_json.return_value = {
             "TELEGRAM_API_TOKEN_ALERTS": "test_token",
             "ALERT_THRESHOLD_1H": 2.5,
             "ALERT_THRESHOLD_24H": 5,

@@ -52,7 +52,7 @@ def test_reload_the_data(portfolio_manager):
     mock_portfolio = {"BTC": {"quantity": 0.5, "average_price": 40000}}
 
     with patch(
-        "src.handlers.portfolio_manager.load", return_value=mock_variables
+        "src.handlers.portfolio_manager.load_json", return_value=mock_variables
     ), patch(
         "src.handlers.portfolio_manager.load_portfolio_from_file",
         return_value=mock_portfolio,

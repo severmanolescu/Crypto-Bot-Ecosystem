@@ -53,7 +53,7 @@ def check_if_special_user(user_id):
         user_id (int or str): The user ID to check.
     """
     try:
-        variables = src.handlers.load_variables_handler.load()
+        variables = src.handlers.load_variables_handler.load_json()
         special_users = variables.get("TELEGRAM_CHAT_ID_FULL_DETAILS", [])
 
         # Ensure special_users is a list or set

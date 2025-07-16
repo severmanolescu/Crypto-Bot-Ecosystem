@@ -213,7 +213,7 @@ async def test_send_portfolio_history_plot(
         },
     ]
 
-    mock_load_vars.load.return_value = portfolio_data
+    mock_load_vars.load_json.return_value = portfolio_data
     mock_load_vars.get_json_key_value.return_value = [0, 12]
 
     with patch.object(
@@ -231,7 +231,7 @@ async def test_send_portfolio_history_plot(
         await plot_trades.send_portfolio_history_plot(update)
 
         # Verify the expected functions were called
-        mock_load_vars.load.assert_called_once()
+        mock_load_vars.load_json.assert_called_once()
         mock_load_vars.get_json_key_value.assert_called_once_with(
             key="PORTFOLIO_SAVE_HOURS"
         )

@@ -186,7 +186,7 @@ Example:
         """
         Initializes the bot and starts polling for updates.
         """
-        variables = src.handlers.load_variables_handler.load()
+        variables = src.handlers.load_variables_handler.load_json()
 
         bot_token = variables.get("TELEGRAM_API_TOKEN_ARTICLES", "")
 

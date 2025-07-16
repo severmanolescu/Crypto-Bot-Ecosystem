@@ -22,13 +22,19 @@ from telegram.ext import (
     filters,
 )
 
-from src.handlers import load_variables_handler
 from src.handlers.load_variables_handler import (
+    load_json,
+    load_keyword_list,
     load_portfolio_from_file,
-    save_data_to_json_file,
-    save_transaction,
+    load_symbol_to_id,
 )
 from src.handlers.logger_handler import setup_logger
+from src.handlers.save_data_handler import (
+    save_data_to_json_file,
+    save_keywords,
+    save_transaction,
+    save_variables_json,
+)
 from src.utils.utils import check_if_special_user, check_requests
 
 setup_logger(file_name="slave_bot.log")
@@ -62,7 +68,7 @@ class SlaveBot:
         """
         Reloads the API URLs and headers from the configuration file.
         """
-        variables = load_variables_handler.load()
+        variables = load_json()
 
         self.cmc_url = variables.get("CMC_URL_QUOTES", "")
         self.cmc_top10_url = variables.get("CMC_TOP10_URL", "")
@@ -162,7 +168,7 @@ class SlaveBot:
         self.reload_the_data()
 
         # Load the symbol-to-ID mapping
-        symbol_to_id = load_variables_handler.load_symbol_to_id()
+        symbol_to_id = load_symbol_to_id()
 
         coin_id = symbol_to_id.get(symbol.upper())
 
@@ -688,7 +694,7 @@ class SlaveBot:
         logger.info(" Requested: %s", action)
 
         # Load existing keywords
-        keywords = load_variables_handler.load_keyword_list()
+        keywords = load_keyword_list()
 
         if action == "list":
             await self.list_keywords(update, keywords)
@@ -716,13 +722,13 @@ class SlaveBot:
                 )
             else:
                 keywords.append(keyword)
-                load_variables_handler.save_keywords(keywords)
+                save_keywords(keywords)
                 await update.message.reply_text(f"✅ Added keyword: '{keyword}'.")
 
         elif action == "remove":
             if keyword in keywords:
                 keywords.remove(keyword)
-                load_variables_handler.save_keywords(keywords)
+                save_keywords(keywords)
                 await update.message.reply_text(f"✅ Removed keyword: '{keyword}'.")
             else:
                 await update.message.reply_text(
@@ -739,7 +745,7 @@ class SlaveBot:
         Args:
             update (Update): The update object containing the message.
         """
-        variables = load_variables_handler.load()
+        variables = load_json()
 
         if not variables:
             await update.message.reply_text("ℹ️ No variables found.")
@@ -787,11 +793,11 @@ class SlaveBot:
             new_value = str(new_value)
 
         # Load existing variables
-        variables = load_variables_handler.load()
+        variables = load_json()
 
         # Update the variable
         variables[variable_name] = new_value
-        load_variables_handler.save(variables)
+        save_variables_json(variables)
 
         await update.message.reply_text(
             f"✅ Updated variable '{variable_name}' to '{new_value}'."
@@ -885,7 +891,7 @@ class SlaveBot:
         """
         Initializes and runs the Telegram bot with command handlers.
         """
-        variables = load_variables_handler.load()
+        variables = load_json()
 
         bot_token = variables.get("TELEGRAM_API_TOKEN_SLAVE", "")
 

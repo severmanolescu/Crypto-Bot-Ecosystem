@@ -316,7 +316,7 @@ class PlotTrades:
         Ths method saves and sends to the telegram users the plot with the entire portfolio history
         including Total Value, Total Investment, Profit/Loss and Profit/Loss %
         """
-        data = load_variables_handler.load(portfolio_history_file)
+        data = load_variables_handler.load_json(portfolio_history_file)
 
         save_hours = load_variables_handler.get_json_key_value(
             key="PORTFOLIO_SAVE_HOURS"

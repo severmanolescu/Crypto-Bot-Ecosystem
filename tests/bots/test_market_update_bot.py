@@ -22,7 +22,7 @@ def market_bot():
     ) as mock_telegram_class, patch(
         "src.bots.market_update_bot.PlotTrades"
     ) as mock_plot_trades_class, patch(
-        "src.bots.market_update_bot.LoadVariables.load"
+        "src.bots.market_update_bot.LoadVariables.load_json"
     ) as mock_load_vars:
         # Create mock instances
         mock_crypto_bot = MagicMock()

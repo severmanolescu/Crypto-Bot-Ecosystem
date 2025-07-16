@@ -8,21 +8,24 @@ for cryptocurrency pairs using the Binance exchange API.
 import logging
 import os
 import time
-from functools import lru_cache
 from multiprocessing import Pool
 
 import ccxt
 import numpy as np
 
 logger = logging.getLogger(__name__)
-logger.info("Market Update Bot started")
+logger.info("CryptoRSIHandler started")
 
 # Module-level exchange instance for connection pooling
 EXCHANGE_INSTANCE = None
 
 
 def get_exchange():
-    """Get or create a shared exchange instance"""
+    """
+    Get or create a shared exchange instance
+    Returns:
+        ccxt.binance: An instance of the Binance exchange with rate limiting enabled.
+    """
     global EXCHANGE_INSTANCE
     if EXCHANGE_INSTANCE is None:
         EXCHANGE_INSTANCE = ccxt.binance(
@@ -33,24 +36,24 @@ def get_exchange():
     return EXCHANGE_INSTANCE
 
 
-@lru_cache(maxsize=100)
-def cached_fetch_ohlcv(symbol, timeframe):
-    """Cache OHLCV data to reduce API calls"""
-    exchange = get_exchange()
-    try:
-        return exchange.fetch_ohlcv(symbol, timeframe, limit=100)
-    except Exception as e:
-        logger.error("Error fetching OHLCV data: %s", str(e))
-        return None
-
-
 def calculate_rsi_for_symbol_batch(args):
-    """Process multiple symbols in a single process to reduce overhead"""
-    symbols, timeframe, rsi_period = args
+    # pylint: disable=unused-variable
+    """
+    Process multiple symbols in a single process to reduce overhead
+    Args:
+        args (tuple): A tuple containing:
+            - symbols (list): List of trading pair symbols to process.
+            - timeframe (str): The timeframe for the OHLCV data.
+            - rsi_period (int): The period for RSI calculation.
+            - use_cache (bool): Whether to use cached OHLCV data.
+    Returns:
+        list: A list of tuples containing symbol and its RSI value.
+    """
+    symbols, timeframe, rsi_period, use_cache = args
+
     results = []
 
-    # Use local exchange instance for this process
-    exchange = ccxt.binance({"enableRateLimit": True})
+    exchange = get_exchange()
 
     for symbol in symbols:
         try:
@@ -106,6 +109,12 @@ class CryptoRSIHandler:
     """
 
     def __init__(self, rsi_period=14, load_markets=True):
+        """
+        Initialize the CryptoRSIHandler with a specified RSI period and optional market loading.
+        Args:
+            rsi_period (int): The period for RSI calculation (default is 14).
+            load_markets (bool): Whether to load markets on initialization (default is True).
+        """
         self.rsi_period = rsi_period
         self.exchange = get_exchange()
         self.tradable_pairs = []
@@ -118,7 +127,9 @@ class CryptoRSIHandler:
         self.last_cache_clear = time.time()
 
     def _load_markets(self):
-        """Load markets with retry logic"""
+        """
+        Load markets with retry logic
+        """
         retry_count = 0
         max_retries = 3
 
@@ -170,7 +181,16 @@ class CryptoRSIHandler:
                     self.tradable_pairs = []
 
     def fetch_ohlcv(self, symbol, timeframe="1h", limit=100, use_cache=True):
-        """Fetch OHLCV data with optional caching"""
+        """
+        Fetch OHLCV data with optional caching
+        Args:
+            symbol (str): The trading pair symbol (e.g., 'BTC/USDT').
+            timeframe (str): The timeframe for the OHLCV data (default is '1h').
+            limit (int): The number of data points to fetch (default is 100).
+            use_cache (bool): Whether to use cached data (default is True).
+        Returns:
+            list: List of OHLCV data for the given symbol and timeframe, or None if an error occurs.
+        """
         # Clear cache periodically (every hour)
         current_time = time.time()
         if current_time - self.last_cache_clear > 3600:
@@ -235,7 +255,14 @@ class CryptoRSIHandler:
         return rsi[-1]
 
     def get_rsi_for_pairs(self, timeframe="1h", use_cache=True):
-        """Get RSI for all pairs - now with batching to reduce overhead"""
+        """
+        Get RSI for all pairs - now with batching to reduce overhead
+        Args:
+            timeframe (str): The timeframe for the OHLCV data (default is '1h').
+            use_cache (bool): Whether to use cached OHLCV data (default is True).
+        Returns:
+            dict: A dictionary mapping trading pairs to their RSI values.
+        """
         batch_size = 10  # Process in batches of 10 symbols
         rsi_values = {}
 
@@ -259,7 +286,17 @@ class CryptoRSIHandler:
     def get_overbought_oversold_pairs(
         self, rsi_values, overbought_threshold=70, oversold_threshold=30
     ):
-        """Find overbought and oversold pairs based on RSI values"""
+        """
+        Find overbought and oversold pairs based on RSI values
+        Args:
+            rsi_values (dict): A dictionary mapping trading pairs to their RSI values.
+            overbought_threshold (int): The threshold for overbought condition (default is 70).
+            oversold_threshold (int): The threshold for oversold condition (default is 30).
+        Returns:
+            tuple: A tuple containing two lists:
+                - overbought_pairs: List of tuples (symbol, rsi) for overbought pairs.
+                - oversold_pairs: List of tuples (symbol, rsi) for oversold pairs.
+        """
         overbought_pairs = []
         oversold_pairs = []
 
@@ -272,27 +309,6 @@ class CryptoRSIHandler:
 
         return overbought_pairs, oversold_pairs
 
-    def get_rsi_summary(
-        self,
-        timeframe="1h",
-        overbought_threshold=70,
-        oversold_threshold=30,
-        use_cache=True,
-    ):
-        """Generate RSI summary using non-parallel approach"""
-        rsi_values = self.get_rsi_for_pairs(timeframe, use_cache)
-        overbought_pairs, oversold_pairs = self.get_overbought_oversold_pairs(
-            rsi_values, overbought_threshold, oversold_threshold
-        )
-
-        summary = {
-            "overbought": overbought_pairs,
-            "oversold": oversold_pairs,
-            "rsi_values": rsi_values,
-        }
-
-        return summary
-
     def calculate_rsi_for_timeframes(
         self,
         timeframe="1h",
@@ -300,7 +316,19 @@ class CryptoRSIHandler:
         oversold_threshold=30,
         use_cache=True,
     ):
-        """Calculate RSI for all pairs - with better batching"""
+        """
+        Calculate RSI for all pairs - with better batching
+        Args:
+            timeframe (str): The timeframe for the OHLCV data (default is '1h').
+            overbought_threshold (int): The threshold for overbought condition (default is 70).
+            oversold_threshold (int): The threshold for oversold condition (default is 30).
+            use_cache (bool): Whether to use cached OHLCV data (default is True).
+        Returns:
+            dict: A summary dictionary containing:
+                - overbought: List of tuples (symbol, rsi) for overbought pairs.
+                - oversold: List of tuples (symbol, rsi) for oversold pairs.
+                - rsi_values: Dictionary mapping trading pairs to their RSI values.
+        """
         pairs_to_process = self.tradable_pairs
 
         # Temporarily override tradable_pairs for processing
@@ -331,7 +359,19 @@ class CryptoRSIHandler:
         oversold_threshold=30,
         use_cache=True,
     ):
-        """Optimized multiprocessing version with improved performance"""
+        """
+        Optimized multiprocessing version with improved performance
+        Args:
+            timeframe (str): The timeframe for the OHLCV data (default is '1h').
+            overbought_threshold (int): The threshold for overbought condition (default is 70).
+            oversold_threshold (int): The threshold for oversold condition (default is 30).
+            use_cache (bool): Whether to use cached OHLCV data (default is True).
+        Returns:
+            dict: A summary dictionary containing:
+                - overbought: List of tuples (symbol, rsi) for overbought pairs.
+                - oversold: List of tuples (symbol, rsi) for oversold pairs.
+                - rsi_values: Dictionary mapping trading pairs to their RSI values.
+        """
         # Determine optimal process count based on system
         cpu_count = os.cpu_count()
         optimal_processes = max(
@@ -357,9 +397,11 @@ class CryptoRSIHandler:
             (chunk, timeframe, self.rsi_period, use_cache) for chunk in symbol_chunks
         ]
 
-        # Process all chunks in parallel
+        logger.info("Starting multiprocessing pool")
         with Pool(processes=optimal_processes) as pool:
             nested_results = pool.map(calculate_rsi_for_symbol_batch, args_list)
+
+        logger.info("Finished multiprocessing pool")
 
         # Flatten results
         all_results = [item for sublist in nested_results for item in sublist]

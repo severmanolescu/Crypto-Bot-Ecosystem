@@ -75,7 +75,7 @@ class CryptoValueBot:
         Reloads the configuration data and initializes the bot's variables.
         This includes API tokens, cryptocurrency lists, and other settings.
         """
-        variables = src.handlers.load_variables_handler.load()
+        variables = src.handlers.load_variables_handler.load_json()
 
         self.market_update_api_token = variables.get("TELEGRAM_API_TOKEN_VALUE", "")
         self.articles_alert_api_token = variables.get("TELEGRAM_API_TOKEN_ARTICLES", "")

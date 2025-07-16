@@ -220,7 +220,7 @@ class PriceAlertBot:
         Main function to start the Price Alert Bot.
         This function initializes the bot, sets up command and message handlers,
         """
-        variables = load_variables_handler.load()
+        variables = load_variables_handler.load_json()
 
         bot_token = variables.get("TELEGRAM_API_TOKEN_ALERTS", "")
 

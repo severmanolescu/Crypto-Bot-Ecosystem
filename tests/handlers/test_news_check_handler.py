@@ -38,7 +38,7 @@ async def test_reload_the_data(news_check):
     mock_keywords = ["bitcoin", "ethereum"]
 
     with patch(
-        "src.handlers.news_check_handler.load", return_value=mock_variables
+        "src.handlers.news_check_handler.load_json", return_value=mock_variables
     ), patch(
         "src.handlers.news_check_handler.load_keyword_list",
         return_value=mock_keywords,
