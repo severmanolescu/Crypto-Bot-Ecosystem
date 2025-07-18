@@ -236,7 +236,7 @@ class CryptoRSIHandler:
             is_important (bool): Flag to indicate if the message is important.
             update (Update, optional): The update object containing the message context.
         """
-        logger.log("Starting to send RSI for all timeframes...")
+        logger.info("Starting to send RSI for all timeframes...")
         timeframes = ["1h", "4h", "1d", "1w"]
 
         for timeframe in timeframes:

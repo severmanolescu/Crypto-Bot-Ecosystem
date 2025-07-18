@@ -6,6 +6,7 @@ alerts users based on predefined thresholds.
 """
 
 import json
+import logging
 import os
 import time
 from datetime import datetime
@@ -25,6 +26,9 @@ from src.handlers.market_sentiment_handler import get_market_sentiment
 from src.handlers.news_check_handler import CryptoNewsCheck
 from src.handlers.portfolio_manager import PortfolioManager
 from src.handlers.send_telegram_message import TelegramMessagesHandler
+
+logger = logging.getLogger(__name__)
+logger.info("Load variables started")
 
 
 # pylint: disable=too-many-instance-attributes
@@ -138,6 +142,12 @@ class CryptoValueBot:
             self.coinmarketcap_api_url, headers=headers, params=parameters, timeout=30
         )
         data = json.loads(response.text)
+
+        if "status" not in data or data["status"]["error_code"] != 0 or not data:
+            logger.error(
+                "Error fetching data from CoinMarketCap API: %s", data.get("status", {})
+            )
+            return
 
         for crypto in data["data"]:
             symbol = crypto["symbol"]
