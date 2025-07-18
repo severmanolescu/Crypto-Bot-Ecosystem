@@ -85,26 +85,26 @@ class CryptoRSIHandler:
         found_rsi = False
 
         for key, value in rsi_value.items():
-            if value > 80:
+            if value >= 80:
                 found_rsi = True
                 self.message += (
                     f"<i>{key}</i> - <b>{value:.2f}</b>\n - Extremely Overbought\n"
                 )
-            elif value > 75:
+            elif value >= 75:
                 found_rsi = True
                 self.message += f"<i>{key}</i> - <b>{value:.2f}</b>\n - Overbought\n"
-            elif value > 70:
+            elif value >= 70:
                 found_rsi = True
                 self.message += f"<i>{key}</i> - <b>{value:.2f}</b>\n"
-            elif value < 20:
+            elif value <= 20:
                 found_rsi = True
                 self.message += (
                     f"<i>{key}</i> - <b>{value:.2f}</b>\n - Extremely Oversold\n"
                 )
-            elif value < 25:
+            elif value <= 25:
                 found_rsi = True
                 self.message += f"<i>{key}</i> - <b>{value:.2f}</b>\n - Oversold\n"
-            elif value < 30:
+            elif value <= 30:
                 found_rsi = True
                 self.message += f"<i>{key}</i> - <b>{value:.2f}</b>\n"
 
@@ -128,21 +128,21 @@ class CryptoRSIHandler:
 
         self.message = "RSI Data for " + timeframe + ":\n"
         for symbol, value in rsi_data.items():
-            if value > 80:
+            if value >= 80:
                 self.message += (
                     f"<i>{symbol}</i> - <b>{value:.2f}</b> - Extremely Overbought\n"
                 )
-            elif value > 75:
+            elif value >= 75:
                 self.message += f"<i>{symbol}</i> - <b>{value:.2f}</b> - Overbought\n"
-            elif value > 70:
+            elif value >= 70:
                 self.message += f"<i>{symbol}</i> - <b>{value:.2f}</b>\n"
-            elif value < 20:
+            elif value <= 20:
                 self.message += (
                     f"<i>{symbol}</i> - <b>{value:.2f}</b> - Extremely Oversold\n"
                 )
-            elif value < 25:
+            elif value <= 25:
                 self.message += f"<i>{symbol}</i> - <b>{value:.2f}</b> - Oversold\n"
-            elif value < 30:
+            elif value <= 30:
                 self.message += f"<i>{symbol}</i> - <b>{value:.2f}</b>\n"
 
         self.message += "#RSI" + timeframe
