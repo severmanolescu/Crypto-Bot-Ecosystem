@@ -9,9 +9,12 @@ import os
 from datetime import datetime, timezone
 from unittest.mock import mock_open, patch
 
+import pytest
+
 from src.handlers.save_data_handler import (
     save_data_to_json_file,
     save_keywords,
+    save_new_rsi_data,
     save_transaction,
     save_variables_json,
 )
@@ -208,3 +211,77 @@ class TestSaveKeywordFunctions:
             assert (
                 mock_json_dump.call_args[0][1] == mock_file()
             ), "Expected data to be saved correctly"
+
+
+@pytest.fixture
+def rsi_data():
+    return {
+        "values": {
+            "BTC": 75,
+            "ETH": 25,
+            "XRP": 50,  # Should not be saved
+        }
+    }
+
+
+def test_save_new_rsi_data_creates_file_and_saves_data(rsi_data):
+    """
+    Test saving new RSI data to a JSON file when the file does not exist.
+    """
+    current_json = {}
+    timeframe = "1h"
+    file_path = "./tests/test_files/rsi_data.json"
+
+    m = mock_open()
+    with patch("builtins.open", m), patch("os.path.exists", return_value=False), patch(
+        "os.makedirs"
+    ) as makedirs:
+        save_new_rsi_data(current_json, timeframe, rsi_data, file_path)
+        makedirs.assert_called_once_with(os.path.dirname(file_path), exist_ok=True)
+        m.assert_called_once_with(file_path, "w", encoding="utf-8")
+        handle = m()
+        written = "".join(call.args[0] for call in handle.write.call_args_list)
+        data = json.loads(written)
+        assert "1h" in data
+        assert "BTC" in data["1h"]["values"]
+        assert "ETH" in data["1h"]["values"]
+        assert "XRP" not in data["1h"]["values"]
+
+
+def test_save_new_rsi_data_appends_to_existing_json(rsi_data):
+    """
+    Test saving new RSI data to an existing JSON file, ensuring it appends correctly.
+    """
+    current_json = {"1h": {"date": "old", "values": {"OLD": 80}}}
+    timeframe = "1h"
+    file_path = "./tests/test_files/rsi_data.json"
+
+    m = mock_open()
+    with patch("builtins.open", m), patch("os.path.exists", return_value=True):
+        save_new_rsi_data(current_json, timeframe, rsi_data, file_path)
+        handle = m()
+        written = "".join(call.args[0] for call in handle.write.call_args_list)
+        data = json.loads(written)
+        assert "1h" in data
+        assert "BTC" in data["1h"]["values"]
+        assert "ETH" in data["1h"]["values"]
+        assert "OLD" not in data["1h"]["values"]
+
+
+def test_save_new_rsi_data_creates_timeframe_if_missing(rsi_data):
+    """
+    Test saving new RSI data to a JSON file, ensuring it creates the timeframe if missing.
+    """
+    current_json = {}
+    timeframe = "4h"
+    file_path = "./tests/test_files/rsi_data.json"
+
+    m = mock_open()
+    with patch("builtins.open", m), patch("os.path.exists", return_value=True):
+        save_new_rsi_data(current_json, timeframe, rsi_data, file_path)
+        handle = m()
+        written = "".join(call.args[0] for call in handle.write.call_args_list)
+        data = json.loads(written)
+        assert "4h" in data
+        assert "BTC" in data["4h"]["values"]
+        assert "ETH" in data["4h"]["values"]

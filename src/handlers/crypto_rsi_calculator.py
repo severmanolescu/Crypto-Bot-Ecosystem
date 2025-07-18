@@ -53,12 +53,17 @@ def calculate_rsi_for_symbol_batch(args):
 
     results = []
 
-    exchange = get_exchange()
+    exchange = ccxt.binance(
+        {
+            "enableRateLimit": True,
+            "timeout": 10000,
+        }
+    )
 
     for symbol in symbols:
         try:
             ohlcv = exchange.fetch_ohlcv(symbol, timeframe, limit=100)
-            time.sleep(0.05)  # Small delay to avoid rate limits
+            time.sleep(0.2)  # Small delay to avoid rate limits
 
             if not ohlcv or len(ohlcv) < rsi_period + 1:
                 continue
