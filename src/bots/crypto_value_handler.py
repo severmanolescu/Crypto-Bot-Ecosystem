@@ -143,7 +143,7 @@ class CryptoValueBot:
         )
         data = json.loads(response.text)
 
-        if "status" not in data or data["status"]["error_code"] != 0 or not data:
+        if not data:
             logger.error(
                 "Error fetching data from CoinMarketCap API: %s", data.get("status", {})
             )
