@@ -2,7 +2,7 @@
 Test cases for save_data_handler functions.
 """
 
-# pylint: disable=attribute-defined-outside-init,unused-variable
+# pylint: disable=attribute-defined-outside-init,unused-variable,redefined-outer-name
 
 import json
 import os
@@ -215,6 +215,9 @@ class TestSaveKeywordFunctions:
 
 @pytest.fixture
 def rsi_data():
+    """
+    Fixture to provide sample RSI data for testing.
+    """
     return {
         "values": {
             "BTC": 75,

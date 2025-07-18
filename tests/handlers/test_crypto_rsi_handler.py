@@ -4,6 +4,7 @@ Test cases for CryptoRSIHandler
 
 # pylint:disable=unused-variable,redefined-outer-name
 
+from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -107,7 +108,6 @@ def test_check_if_should_calculate_rsi_true(handler):
     it sets should_calculate_rsi to True
     when the last calculation was more than 10 minutes ago.
     """
-    from datetime import datetime, timedelta, timezone
 
     now = datetime.now(timezone.utc) - timedelta(minutes=10)
     handler.json = {"1h": {"date": now.strftime("%Y-%m-%dT%H:%M:%SZ")}}
@@ -119,7 +119,6 @@ def test_check_if_should_calculate_rsi_false(handler):
     """
     Test the check_if_should_calculate_rsi method to ensure
     """
-    from datetime import datetime, timezone
 
     now = datetime.now(timezone.utc)
     handler.json = {"1h": {"date": now.strftime("%Y-%m-%dT%H:%M:%SZ")}}
