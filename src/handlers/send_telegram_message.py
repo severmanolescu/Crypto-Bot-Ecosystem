@@ -100,7 +100,7 @@ class TelegramMessagesHandler:
         print(f"To {len(self.telegram_not_important_chat_id)} not important users!")
 
         try:
-            if is_important is False:
+            if not is_important:
                 for chat_id in self.telegram_not_important_chat_id:
                     await bot.send_message(
                         chat_id=chat_id, text=message, parse_mode="HTML"

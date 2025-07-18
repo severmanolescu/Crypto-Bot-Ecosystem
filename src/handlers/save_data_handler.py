@@ -89,3 +89,39 @@ def save_keywords(keywords, file_path="./config/keywords.json"):
     except Exception as e:
         logger.error(" Error saving keywords to %s: %s.", file_path, e)
         print(f"❌ Error saving keywords to '{file_path}': {e}.")
+
+
+def save_new_rsi_data(
+    current_json, timeframe, rsi_data, file_path="./config/rsi_data.json"
+):
+    """
+    Save the new RSI data to the JSON file.
+    Args:
+        current_json (dict): The current JSON data loaded from the file.
+        timeframe (str): The timeframe for which the RSI data is saved.
+        rsi_data (dict): The RSI data to save.
+        file_path (str): Path to the JSON file where RSI data will be saved.
+    """
+    try:
+        if timeframe not in current_json:
+            current_json[timeframe] = {}
+
+        current_json[timeframe]["date"] = datetime.now(timezone.utc).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        )
+        current_json[timeframe]["values"] = {}
+
+        for key, value in rsi_data["values"].items():
+            if value > 70 or value < 30:
+                current_json[timeframe]["values"][key] = value
+
+        if not os.path.exists(file_path):
+            # Create the directory if it doesn't exist
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", encoding="utf-8") as file:
+            json.dump(current_json, file, indent=4)
+        logger.info("RSI data saved successfully for %s", timeframe)
+    # pylint:disable=broad-exception-caught
+    except Exception as e:
+        logger.error("Error saving RSI data: %s", e)
