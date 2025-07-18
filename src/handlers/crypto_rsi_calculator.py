@@ -5,6 +5,7 @@ for cryptocurrency pairs using the Binance exchange API.
 
 # pylint: disable=broad-exception-caught, global-statement, too-many-locals
 
+import traceback
 import logging
 import os
 import time
@@ -49,63 +50,73 @@ def calculate_rsi_for_symbol_batch(args):
     Returns:
         list: A list of tuples containing symbol and its RSI value.
     """
-    symbols, timeframe, rsi_period, use_cache = args
+    try:
+        symbols, timeframe, rsi_period, use_cache = args
 
-    results = []
+        results = []
 
-    exchange = ccxt.binance(
-        {
-            "enableRateLimit": True,
-            "timeout": 10000,
-        }
-    )
+        exchange = ccxt.binance(
+            {
+                "enableRateLimit": True,
+                "timeout": 10000,
+            }
+        )
 
-    for symbol in symbols:
-        try:
-            ohlcv = exchange.fetch_ohlcv(symbol, timeframe, limit=100)
-            time.sleep(0.2)  # Small delay to avoid rate limits
+        for symbol in symbols:
+            try:
+                ohlcv = exchange.fetch_ohlcv(symbol, timeframe, limit=100)
+                time.sleep(0.2)  # Small delay to avoid rate limits
 
-            if not ohlcv or len(ohlcv) < rsi_period + 1:
-                continue
+                if not ohlcv or len(ohlcv) < rsi_period + 1:
+                    continue
 
-            # Fast NumPy-based RSI calculation
-            close_prices = np.array([candle[4] for candle in ohlcv])
-            deltas = np.diff(close_prices)
+                # Fast NumPy-based RSI calculation
+                close_prices = np.array([candle[4] for candle in ohlcv])
+                deltas = np.diff(close_prices)
 
-            # Skip if not enough data
-            if len(deltas) < rsi_period:
-                continue
+                logger.info(
+                    "Calculating RSI for %s with %d deltas", symbol, len(deltas)
+                )
 
-            gains = np.where(deltas > 0, deltas, 0)
-            losses = np.where(deltas < 0, -deltas, 0)
+                # Skip if not enough data
+                if len(deltas) < rsi_period:
+                    continue
 
-            # Use exponential moving average for RSI calculation
-            avg_gain = np.zeros_like(deltas)
-            avg_loss = np.zeros_like(deltas)
+                gains = np.where(deltas > 0, deltas, 0)
+                losses = np.where(deltas < 0, -deltas, 0)
 
-            # Initialize first values
-            avg_gain[0] = np.mean(gains[:rsi_period])
-            avg_loss[0] = np.mean(losses[:rsi_period])
+                # Use exponential moving average for RSI calculation
+                avg_gain = np.zeros_like(deltas)
+                avg_loss = np.zeros_like(deltas)
 
-            # Calculate smoothed averages
-            for i in range(1, len(deltas)):
-                avg_gain[i] = (
-                    avg_gain[i - 1] * (rsi_period - 1) + gains[i]
-                ) / rsi_period
-                avg_loss[i] = (
-                    avg_loss[i - 1] * (rsi_period - 1) + losses[i]
-                ) / rsi_period
+                # Initialize first values
+                avg_gain[0] = np.mean(gains[:rsi_period])
+                avg_loss[0] = np.mean(losses[:rsi_period])
 
-            rs = avg_gain / np.where(
-                avg_loss != 0, avg_loss, 0.0001
-            )  # Avoid division by zero
-            rsi = 100 - (100 / (1 + rs))
+                # Calculate smoothed averages
+                for i in range(1, len(deltas)):
+                    avg_gain[i] = (
+                        avg_gain[i - 1] * (rsi_period - 1) + gains[i]
+                    ) / rsi_period
+                    avg_loss[i] = (
+                        avg_loss[i - 1] * (rsi_period - 1) + losses[i]
+                    ) / rsi_period
 
-            results.append((symbol, rsi[-1]))
-        except Exception as e:
-            logger.error("Error calculating RSI for %s: %s", symbol, str(e))
+                rs = avg_gain / np.where(
+                    avg_loss != 0, avg_loss, 0.0001
+                )  # Avoid division by zero
+                rsi = 100 - (100 / (1 + rs))
 
-    return results
+                logger.info("RSI for %s: %f", symbol, rsi[-1])
+
+                results.append((symbol, rsi[-1]))
+            except Exception as e:
+                logger.error("Error calculating RSI for %s: %s", symbol, str(e))
+
+        return results
+    except Exception as e:
+        print("Exception in worker:", traceback.format_exc())
+        return []
 
 
 class CryptoRSICalculator:

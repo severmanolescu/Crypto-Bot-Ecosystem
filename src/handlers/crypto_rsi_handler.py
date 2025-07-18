@@ -31,7 +31,7 @@ class CryptoRSIHandler:
 
         self.new_data = None
 
-    def reload_data(self):
+    def reload_the_data(self):
         """
         Reload the data from the configuration file and update the Telegram chat IDs
         """
@@ -60,10 +60,11 @@ class CryptoRSIHandler:
 
         return {}
 
-    def send_new_rsi_to_telegram(self, rsi_data):
+    def prepare_new_rsi_message_for_telegram(self, timeframe, rsi_data):
         """
         Prepare RSI data for sending via Telegram.
         Args:
+            timeframe (str): The timeframe for which the RSI data is prepared.
             rsi_data (dict): The RSI data to prepare.
         """
         if not rsi_data:
@@ -79,15 +80,40 @@ class CryptoRSIHandler:
             self.message = "An error occurred while fetching RSI data."
             return
 
-        self.message = "RSI Data: \n"
+        self.message = "RSI Data for " + timeframe + ":\n"
+
+        found_rsi = False
 
         for key, value in rsi_value.items():
-            if value > 70:
-                self.message += f"{key}: <b>{value:.2f}</b>\n"
+            if value > 80:
+                found_rsi = True
+                self.message += (
+                    f"<i>{key}</i> - <b>{value:.2f}</b>\n - Extremely Overbought\n"
+                )
+            elif value > 75:
+                found_rsi = True
+                self.message += f"<i>{key}</i> - <b>{value:.2f}</b>\n - Overbought\n"
+            elif value > 70:
+                found_rsi = True
+                self.message += f"<i>{key}</i> - <b>{value:.2f}</b>\n"
+            elif value < 20:
+                found_rsi = True
+                self.message += (
+                    f"<i>{key}</i> - <b>{value:.2f}</b>\n - Extremely Oversold\n"
+                )
+            elif value < 25:
+                found_rsi = True
+                self.message += f"<i>{key}</i> - <b>{value:.2f}</b>\n - Oversold\n"
             elif value < 30:
-                self.message += f"{key}: <b>{value:.2f}</b>\n"
+                found_rsi = True
+                self.message += f"<i>{key}</i> - <b>{value:.2f}</b>\n"
 
-    def send_json_rsi_to_telegram(self, timeframe="1h"):
+        self.message += "#RSI" + timeframe
+
+        if not found_rsi:
+            self.message = "No RSI values above 70 or below 30 for " + timeframe + ".\n"
+
+    def prepare_old_rsi_message_for_telegram(self, timeframe="1h"):
         """
         Send RSI data to Telegram using the TelegramMessagesHandler.
         Args:
@@ -97,12 +123,29 @@ class CryptoRSIHandler:
 
         if not rsi_data:
             logger.warning("No RSI data available for %s", timeframe)
-            self.message = "An error occurred while fetching RSI data."
+            self.message = "No RSI values above 70 or below 30 for " + timeframe + ".\n"
             return
 
-        self.message = "RSI Data:\n"
+        self.message = "RSI Data for " + timeframe + ":\n"
         for symbol, value in rsi_data.items():
-            self.message += f"{symbol}: <b>{value:.2f}</b>\n"
+            if value > 80:
+                self.message += (
+                    f"<i>{symbol}</i> - <b>{value:.2f}</b> - Extremely Overbought\n"
+                )
+            elif value > 75:
+                self.message += f"<i>{symbol}</i> - <b>{value:.2f}</b> - Overbought\n"
+            elif value > 70:
+                self.message += f"<i>{symbol}</i> - <b>{value:.2f}</b>\n"
+            elif value < 20:
+                self.message += (
+                    f"<i>{symbol}</i> - <b>{value:.2f}</b> - Extremely Oversold\n"
+                )
+            elif value < 25:
+                self.message += f"<i>{symbol}</i> - <b>{value:.2f}</b> - Oversold\n"
+            elif value < 30:
+                self.message += f"<i>{symbol}</i> - <b>{value:.2f}</b>\n"
+
+        self.message += "#RSI" + timeframe
 
     async def send_rsi_to_telegram(self, bot, is_important=False, update=None):
         """
@@ -168,13 +211,8 @@ class CryptoRSIHandler:
             is_important (bool): Flag to indicate if the message is important.
             update (Update, optional): The update object containing the message context.
         """
-        self.reload_data()
-
+        logger.info("Sending RSI for timeframe: %s", timeframe)
         self.json = load_json("./config/rsi_data.json")
-
-        await self.telegram_handler.send_telegram_message(
-            "Calculating RSI...", bot, is_important, update
-        )
 
         if isinstance(self.json, dict) and timeframe in self.json:
             self.check_if_should_calculate_rsi(timeframe)
@@ -182,10 +220,24 @@ class CryptoRSIHandler:
         if self.should_calculate_rsi:
             rsi_data = self.prepare_message_for_timeframes_parallel(timeframe)
 
-            self.send_new_rsi_to_telegram(rsi_data)
+            self.prepare_new_rsi_message_for_telegram(timeframe, rsi_data)
 
             save_new_rsi_data(self.json, timeframe, rsi_data)
         else:
-            self.send_json_rsi_to_telegram(timeframe)
+            self.prepare_old_rsi_message_for_telegram(timeframe)
 
         await self.send_rsi_to_telegram(bot, is_important, update)
+
+    async def send_rsi_for_all_timeframes(self, bot, is_important=False, update=None):
+        """
+        Calculate RSI for all timeframes using the CryptoRSIHandler.
+        Args:
+            bot (Bot): The Telegram bot instance to send messages.
+            is_important (bool): Flag to indicate if the message is important.
+            update (Update, optional): The update object containing the message context.
+        """
+        logger.log("Starting to send RSI for all timeframes...")
+        timeframes = ["1h", "4h", "1d", "1w"]
+
+        for timeframe in timeframes:
+            await self.send_rsi_for_timeframe(timeframe, bot, is_important, update)

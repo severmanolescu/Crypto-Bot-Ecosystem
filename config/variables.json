@@ -71,5 +71,6 @@
         "4h",
         "1d",
         "1w"
-    ]
+    ],
+    "SEND_RSI_ALERTS": true,
 }
