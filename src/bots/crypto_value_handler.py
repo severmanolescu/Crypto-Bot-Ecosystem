@@ -15,6 +15,7 @@ import requests
 import src.handlers.load_variables_handler
 from src.data_base.data_base_handler import DataBaseHandler
 from src.handlers.alerts_handler import AlertsHandler
+from src.handlers.crypto_rsi_handler import CryptoRSIHandler
 from src.handlers.data_fetcher_handler import (
     get_eth_gas_fee,
     get_fear_and_greed,
@@ -24,7 +25,6 @@ from src.handlers.market_sentiment_handler import get_market_sentiment
 from src.handlers.news_check_handler import CryptoNewsCheck
 from src.handlers.portfolio_manager import PortfolioManager
 from src.handlers.send_telegram_message import TelegramMessagesHandler
-from src.handlers.crypto_rsi_handler import CryptoRSIHandler
 
 
 # pylint: disable=too-many-instance-attributes

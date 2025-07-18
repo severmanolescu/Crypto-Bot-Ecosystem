@@ -5,10 +5,10 @@ for cryptocurrency pairs using the Binance exchange API.
 
 # pylint: disable=broad-exception-caught, global-statement, too-many-locals
 
-import traceback
 import logging
 import os
 import time
+import traceback
 from multiprocessing import Pool
 
 import ccxt

@@ -54,7 +54,7 @@ def test_send_new_rsi_to_telegram_sets_message(handler):
     when RSI data is provided.
     """
     rsi_data = {"values": {"BTC": 80, "ETH": 20, "XRP": 50}}
-    handler.send_new_rsi_to_telegram(rsi_data)
+    handler.send_rsi_for_timeframe(rsi_data)
     assert "BTC" in handler.message
     assert "ETH" in handler.message
     assert "XRP" not in handler.message
@@ -64,7 +64,7 @@ def test_send_new_rsi_to_telegram_no_data(handler):
     """
     Test the send_new_rsi_to_telegram method when no RSI data is provided.
     """
-    handler.send_new_rsi_to_telegram({})
+    handler.send_rsi_for_timeframe({})
     assert "error" in handler.message.lower()
 
 
@@ -74,7 +74,7 @@ def test_send_json_rsi_to_telegram_sets_message(handler):
     when RSI data is provided in JSON format.
     """
     handler.json = {"1h": {"values": {"BTC": 60}}}
-    handler.send_json_rsi_to_telegram("1h")
+    handler.send_rsi_for_timeframe("1h")
     assert "BTC" in handler.message
 
 
@@ -83,7 +83,7 @@ def test_send_json_rsi_to_telegram_no_data(handler):
     Test the send_json_rsi_to_telegram method when no RSI data is available.
     """
     handler.json = {}
-    handler.send_json_rsi_to_telegram("1h")
+    handler.send_rsi_for_timeframe("1h")
     assert "error" in handler.message.lower()
 
 
@@ -144,7 +144,7 @@ async def test_send_rsi_for_timeframe_should_calculate(handler):
     with patch(
         "src.handlers.crypto_rsi_handler.load_json",
         return_value={"1h": {"date": "2020-01-01T00:00:00Z"}},
-    ), patch.object(handler, "reload_data"), patch.object(
+    ), patch.object(handler, "reload_the_data"), patch.object(
         handler, "check_if_should_calculate_rsi"
     ), patch.object(
         handler,
@@ -172,7 +172,7 @@ async def test_send_rsi_for_timeframe_should_not_calculate(handler):
     with patch(
         "src.handlers.crypto_rsi_handler.load_json",
         return_value={"1h": {"date": "2020-01-01T00:00:00Z"}},
-    ), patch.object(handler, "reload_data"), patch.object(
+    ), patch.object(handler, "reload_the_data"), patch.object(
         handler, "check_if_should_calculate_rsi"
     ), patch.object(
         handler, "send_json_rsi_to_telegram"

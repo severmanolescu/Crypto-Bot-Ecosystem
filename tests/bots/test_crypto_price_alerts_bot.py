@@ -120,7 +120,7 @@ async def test_handle_buttons_1h_alert_no_alerts(price_alert_bot, mock_update):
 async def test_handle_buttons_all_timeframes(price_alert_bot, mock_update):
     """Test handling the all timeframes alert button press"""
     bot, mock_crypto_bot = price_alert_bot
-    mock_update.message.text = "🚨 Check for all timeframes Alerts"
+    mock_update.message.text = "🌐 Check for all timeframes Alerts"
     context = MagicMock()
 
     await bot.handle_buttons(mock_update, context)
