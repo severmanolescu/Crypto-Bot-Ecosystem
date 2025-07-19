@@ -17,12 +17,14 @@ Uses **GPIO 4** (`BCM mode`) for fan control.
 
 ## Hardware Requirements
 
-- Raspberry Pi (any model with GPIO support)
-- 5V Fan (2-pin)
-- NPN Transistor (e.g., 2N2222) for switching
-- 1kΩ resistor (for base)
-- Jumper wires and breadboard or soldered setup
-- Optional: Diode (e.g., 1N5819) for flyback protection
+| Component        | Specification              | Purpose                              |
+|------------------|----------------------------|--------------------------------------|
+| Raspberry Pi     | Any model with GPIO        | Main controller                      |
+| 5V Fan           | 2-pin                      | Cooling                              |
+| NPN Transistor   | 2N2222 or similar          | Switch for fan control               |
+| Resistor         | For transistor base        | Current limiting for transistor base |
+| Diode (optional) | 1N5819(optional)           | Flyback protection                   |
+| Wires/Breadboard | Jumper wires or breadboard | Connections setup                    |
 
 **Diagram:** \
 <img src="./../../assets/fan_controller/RaspberryPIFanDiagram.png" alt="Fan Controller Wiring" width="500"/>
@@ -31,14 +33,15 @@ Uses **GPIO 4** (`BCM mode`) for fan control.
 
 ## Wiring
 
-| Fan Pin              | Connects To                                                           |
-|----------------------|-----------------------------------------------------------------------|
-| Fan `+` (positive)   | 5V GPIO header                                                        |
-| Fan `-` (negative)   | Collector of 2N2222                                                   |
-| Transistor Collector | Fan `-` (negative)                                                    |
-| Transistor Emitter   | GND                                                                   |
-| Transistor Base      | GPIO 4 and transistor base                                            |
-| Diode (1N5819)       | Fan `-` (negative) to GND (cathode to GND, anode to fan negative pin) |
+| Fan Pin               | Connects To                                                            | Notes                                   |
+|-----------------------|------------------------------------------------------------------------|-----------------------------------------|
+| Fan `+` (positive)    | 5V GPIO header                                                         | Powers the fan                          |
+| Fan `-` (negative)    | Collector of 2N2222                                                    | Fan controlled by transistor switching  |
+| Transistor Collector  | Fan `-` (negative)                                                     | Connected to fan's ground side          |
+| Transistor Emitter    | GND                                                                    | Completes the circuit                   |
+| Transistor Base       | GPIO 4 and transistor base                                             | Controls transistor switching           |
+| Resistor (1kΩ)        | GPIO 4 to base of transistor                                           | Limits base current                     |
+| Diode (1N5819)        | Fan `-` (negative) to GND (cathode to GND, anode to fan negative pin)  | Protects transistor from voltage spikes |
 
 ---
 
