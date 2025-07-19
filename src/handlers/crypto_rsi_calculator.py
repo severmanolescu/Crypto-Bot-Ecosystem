@@ -371,6 +371,9 @@ class CryptoRSICalculator:
         return summary
 
     def _calculate_rsi_for_timeframes(self, symbols, timeframe, period, use_cache):
+        """
+        Calculate RSI for a list of symbols in parallel using multiprocessing.
+        """
         chunk_size = max(5, len(symbols) // max(1, os.cpu_count() - 1))
         symbol_chunks = [
             symbols[i : i + chunk_size] for i in range(0, len(symbols), chunk_size)
@@ -388,6 +391,9 @@ class CryptoRSICalculator:
     async def calculate_rsi_for_timeframes_parallel(
         self, timeframe="1h", use_cache=True
     ):
+        """
+        Calculate RSI for all pairs in parallel using asyncio and ProcessPoolExecutor.
+        """
         loop = asyncio.get_running_loop()
         result = await loop.run_in_executor(
             None,  # None = use default executor (ProcessPoolExecutor)
