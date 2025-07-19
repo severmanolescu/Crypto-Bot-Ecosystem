@@ -1,4 +1,3 @@
-
 # Crypto Bot Ecosystem
 
 <div align="center">
