@@ -6,7 +6,6 @@ This script is the main entry point for the Crypto Value Bot and News Check appl
 import argparse
 import asyncio
 import logging
-import signal
 from datetime import datetime
 from typing import NoReturn
 
