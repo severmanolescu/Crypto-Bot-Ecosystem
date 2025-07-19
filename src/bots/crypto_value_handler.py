@@ -16,7 +16,6 @@ import requests
 import src.handlers.load_variables_handler
 from src.data_base.data_base_handler import DataBaseHandler
 from src.handlers.alerts_handler import AlertsHandler
-from src.handlers.crypto_rsi_handler import CryptoRSIHandler
 from src.handlers.data_fetcher_handler import (
     get_eth_gas_fee,
     get_fear_and_greed,
@@ -65,8 +64,6 @@ class CryptoValueBot:
 
         self.today_ai_summary = None
 
-        self.send_rsi_alerts = None
-
         self.last_api_call = 0
         self.cache_duration = 60
 
@@ -74,7 +71,6 @@ class CryptoValueBot:
         self.alert_handler = AlertsHandler()
         self.portfolio = PortfolioManager()
         self.telegram_message = TelegramMessagesHandler()
-        self.rsi_handler = CryptoRSIHandler()
 
         self.news_check = CryptoNewsCheck()
 
@@ -98,7 +94,6 @@ class CryptoValueBot:
         self.save_portfolio_hours = variables.get("PORTFOLIO_SAVE_HOURS", "")
         self.sentiment_hours = variables.get("SENTIMENT_HOURS", "")
         self.save_hours = variables.get("SAVE_HOURS", "")
-        self.send_rsi_alerts = variables.get("SEND_RSI_ALERTS", False)
 
         self.my_crypto = {}
         self.top_100_crypto = {}
@@ -111,8 +106,6 @@ class CryptoValueBot:
 
         # Reload telegram message handler variables
         self.telegram_message.reload_the_data()
-
-        self.rsi_handler.reload_the_data()
 
         self.crypto_currencies = variables.get("CRYPTOCURRENCIES", "")
 
@@ -297,10 +290,7 @@ class CryptoValueBot:
                 print("\nSaving the data...")
                 await self.save_today_data()
 
-        if self.send_rsi_alerts:
-            await self.rsi_handler.send_rsi_for_all_timeframes(
-                bot=self.market_update_api_token
-            )
+        await self.alert_handler.rsi_handler()
 
     async def check_for_major_updates(self, now_date, update=None):
         """

@@ -6,6 +6,7 @@ import logging
 from datetime import datetime
 
 from src.handlers import load_variables_handler as LoadVariables
+from src.handlers.crypto_rsi_handler import CryptoRSIHandler
 from src.handlers.send_telegram_message import TelegramMessagesHandler
 from src.utils.utils import format_change
 
@@ -36,7 +37,10 @@ class AlertsHandler:
 
         self.last_hour_sent = None
 
+        self.send_rsi_alerts = None
+
         self.telegram_message = TelegramMessagesHandler()
+        self.rsi_handler = CryptoRSIHandler()
 
         self.reload_the_data()
 
@@ -57,7 +61,10 @@ class AlertsHandler:
         self.alert_send_hours_7d = variables.get("7D_ALERTS_SEND_HOURS", "")
         self.alert_send_hours_30d = variables.get("30D_ALERTS_SEND_HOURS", "")
 
+        self.send_rsi_alerts = variables.get("SEND_RSI_ALERTS", False)
+
         self.telegram_message.reload_the_data()
+        self.rsi_handler.reload_the_data()
 
     # Check for alerts every 30 minutes
     async def check_for_major_updates_1h(self, top_100_crypto, update=None):
@@ -196,3 +203,12 @@ class AlertsHandler:
                 )
 
         return found_alerts
+
+    async def rsi_check(self):
+        """
+        Checks and sends RSI alerts for all timeframes if enabled.
+        """
+        if self.send_rsi_alerts:
+            await self.rsi_handler.send_rsi_for_all_timeframes(
+                bot=self.telegram_api_token_alerts
+            )
