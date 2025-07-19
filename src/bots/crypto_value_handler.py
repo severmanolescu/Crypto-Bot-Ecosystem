@@ -290,7 +290,7 @@ class CryptoValueBot:
                 print("\nSaving the data...")
                 await self.save_today_data()
 
-        await self.alert_handler.rsi_handler()
+        await self.alert_handler.rsi_check()
 
     async def check_for_major_updates(self, now_date, update=None):
         """
