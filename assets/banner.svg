@@ -1,4 +1,4 @@
-<svg viewBox="0 0 1400 300" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 1600 300" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <!-- Gradients -->
     <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -10,6 +10,11 @@
     <linearGradient id="bitcoinGradient" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:#f7931a;stop-opacity:1" />
       <stop offset="100%" style="stop-color:#ffb84d;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="ethereumGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#627eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8a9ff7;stop-opacity:1" />
     </linearGradient>
 
     <linearGradient id="telegramGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -27,6 +32,10 @@
       <stop offset="100%" style="stop-color:#8e44ad;stop-opacity:1" />
     </linearGradient>
 
+    <linearGradient id="profileGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e67e22;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d35400;stop-opacity:1" />
+    </linearGradient>
     <!-- Glow effects -->
     <filter id="glow">
       <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
@@ -46,30 +55,33 @@
   </defs>
 
   <!-- Background -->
-  <rect width="1400" height="300" fill="url(#bgGradient)"/>
+  <rect width="1600" height="300" fill="url(#bgGradient)"/>
 
   <!-- Background pattern -->
   <g opacity="0.05">
     <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
       <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#00d4aa" stroke-width="1"/>
     </pattern>
-    <rect width="1400" height="300" fill="url(#grid)" />
+    <rect width="1600" height="300" fill="url(#grid)" />
   </g>
 
   <!-- Title -->
-  <text x="700" y="50" text-anchor="middle" fill="#ffffff" font-family="'Segoe UI', Arial, sans-serif" font-size="32" font-weight="bold">
+  <text x="800" y="50" text-anchor="middle" fill="#ffffff" font-family="'Segoe UI', Arial, sans-serif" font-size="32" font-weight="bold">
+
     🤖 Crypto Bot Ecosystem
   </text>
 
   <!-- Subtitle -->
-  <text x="700" y="75" text-anchor="middle" fill="#a0a9c0" font-family="'Segoe UI', Arial, sans-serif" font-size="14">
-    Automated Telegram ecosystem • Market data • News • Smart alerts • Centralized management • Real-time analysis
+  <text x="800" y="75" text-anchor="middle" fill="#a0a9c0" font-family="'Segoe UI', Arial, sans-serif" font-size="14">
+    Automated Telegram ecosystem • Market data • News • Smart alerts • Profile management • Centralized control • Real-time analysis
+
   </text>
 
   <!-- Connection lines BEHIND icons with animation -->
   <g stroke="#00d4aa" stroke-width="3" fill="none" opacity="0.6">
     <!-- Main horizontal connection line -->
-    <line x1="150" y1="150" x2="1250" y2="150" stroke-dasharray="10,5">
+    <line x1="150" y1="150" x2="1450" y2="150" stroke-dasharray="10,5">
+
       <animate attributeName="stroke-dashoffset" values="0;15" dur="3s" repeatCount="indefinite"/>
     </line>
 
@@ -94,6 +106,11 @@
       <animate attributeName="r" values="4;6;4" dur="2s" begin="1.6s" repeatCount="indefinite"/>
       <animate attributeName="opacity" values="0.8;0.4;0.8" dur="2s" begin="1.6s" repeatCount="indefinite"/>
     </circle>
+    <circle cx="1320" cy="150" r="4" fill="#00d4aa" opacity="0.8">
+      <animate attributeName="r" values="4;6;4" dur="2s" begin="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.8;0.4;0.8" dur="2s" begin="2s" repeatCount="indefinite"/>
+    </circle>
+
   </g>
 
   <!-- Bot Icons Container -->
@@ -101,12 +118,27 @@
 
     <!-- Bot 1: Market Data Bot -->
     <g transform="translate(120, 120)">
-      <circle cx="30" cy="30" r="30" fill="url(#bitcoinGradient)" filter="url(#softGlow)">
+      <!-- Animated gradient circle that transitions between Bitcoin and Ethereum colors -->
+      <circle cx="30" cy="30" r="30" filter="url(#softGlow)">
         <animate attributeName="r" values="30;32;30" dur="4s" repeatCount="indefinite"/>
+        <animate attributeName="fill" values="url(#bitcoinGradient);url(#ethereumGradient);url(#bitcoinGradient)" dur="6s" repeatCount="indefinite"/>
       </circle>
-      <!-- Proper Bitcoin symbol -->
       <g transform="translate(30, 30)" fill="#fff">
-        <text x="0" y="8" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold">₿</text>
+        <!-- Bitcoin symbol -->
+        <text x="0" y="8" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" opacity="1">
+          ₿
+          <animate attributeName="opacity" values="1;0;1" dur="6s" repeatCount="indefinite"/>
+        </text>
+        <!-- Ethereum diamond logo -->
+        <g opacity="0">
+          <animate attributeName="opacity" values="0;1;0" dur="6s" begin="0s" repeatCount="indefinite"/>
+          <!-- Ethereum diamond shape -->
+          <path d="M0 -12 L-6 -2 L0 2 L6 -2 Z" fill="#fff" opacity="0.9"/>
+          <path d="M0 -12 L6 -2 L0 2 Z" fill="#fff" opacity="0.6"/>
+          <path d="M0 2 L-6 -2 L0 8 L6 -2 Z" fill="#fff" opacity="0.8"/>
+          <path d="M0 2 L6 -2 L0 8 Z" fill="#fff" opacity="0.4"/>
+        </g>
+
       </g>
       <text x="30" y="80" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="11" font-weight="600">Market Data</text>
       <text x="30" y="95" text-anchor="middle" fill="#a0a9c0" font-family="Arial, sans-serif" font-size="9">Price Tracking</text>
@@ -125,6 +157,13 @@
         <line x1="-7" y1="0" x2="4" y2="0" stroke="#fff" stroke-width="1.2"/>
         <line x1="-7" y1="4" x2="7" y2="4" stroke="#fff" stroke-width="1.2"/>
         <line x1="-7" y1="8" x2="2" y2="8" stroke="#fff" stroke-width="1.2"/>
+        <!-- Reading animation - moving line -->
+        <line x1="-7" y1="-8" x2="-7" y2="-8" stroke="#4a90e2" stroke-width="2" opacity="0.8">
+          <animate attributeName="x2" values="-7;7;-7" dur="3s" repeatCount="indefinite"/>
+          <animate attributeName="y1" values="-8;-8;-4;0;4;8;-8" dur="3s" repeatCount="indefinite"/>
+          <animate attributeName="y2" values="-8;-8;-4;0;4;8;-8" dur="3s" repeatCount="indefinite"/>
+        </line>
+
       </g>
       <text x="30" y="80" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="11" font-weight="600">News &amp; Articles</text>
       <text x="30" y="95" text-anchor="middle" fill="#a0a9c0" font-family="Arial, sans-serif" font-size="9">Content Analysis</text>
@@ -153,14 +192,23 @@
         <animate attributeName="r" values="30;32;30" dur="4s" begin="1.5s" repeatCount="indefinite"/>
       </circle>
       <g transform="translate(30, 30)" fill="#fff">
-        <!-- Alert/Bell icon -->
+        <!-- Alert/Bell icon with enhanced animation -->
         <path d="M0 -12 C-6 -12 -10 -8 -10 -2 L-10 6 L-14 10 L14 10 L10 6 L10 -2 C10 -8 6 -12 0 -12 Z">
-          <animateTransform attributeName="transform" values="rotate(0);rotate(-5);rotate(5);rotate(0)" dur="2s" repeatCount="indefinite"/>
+          <animateTransform attributeName="transform" values="rotate(0);rotate(-8);rotate(8);rotate(-5);rotate(5);rotate(0)" dur="3s" repeatCount="indefinite"/>
         </path>
         <path d="M-4 12 C-4 15 -2 16 0 16 C2 16 4 15 4 12" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
-        <circle cx="0" cy="-8" r="2" fill="#fff">
-          <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite"/>
-        </circle>
+        <!-- Sound waves -->
+        <g stroke="#fff" stroke-width="1" fill="none" opacity="0.6">
+          <circle cx="12" cy="-8" r="3">
+            <animate attributeName="r" values="3;6;3" dur="2s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.6;0;0.6" dur="2s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="12" cy="-8" r="5">
+            <animate attributeName="r" values="5;8;5" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.4;0;0.4" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+          </circle>
+        </g>
+
       </g>
       <text x="30" y="80" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="11" font-weight="600">Price Alerts</text>
       <text x="30" y="95" text-anchor="middle" fill="#a0a9c0" font-family="Arial, sans-serif" font-size="9">Smart Notifications</text>
@@ -172,10 +220,34 @@
         <animate attributeName="r" values="30;32;30" dur="4s" begin="2s" repeatCount="indefinite"/>
       </circle>
       <g transform="translate(30, 30)" fill="#fff">
-        <!-- Proper Telegram paper plane icon -->
-        <path d="M12 -12 L-8 -4 C-9.5 -3.5 -9.5 -2.5 -8 -2 L-2.5 -0.5 L10 -10 C10.5 -10.5 11 -10.2 10.5 -9.7 L0 0 L-0.5 6.5 C0 6.5 0.3 6.2 0.7 5.8 L3 3.5 L7.5 7 C8.3 7.5 8.8 7.2 9 6.2 L12 -10.8 C12.2 -12 11.5 -12.5 10.8 -12.2 Z">
-          <animateTransform attributeName="transform" values="translate(0,0);translate(2,0);translate(0,0)" dur="2s" repeatCount="indefinite"/>
-        </path>
+        <!-- Enhanced Telegram paper plane icon with send animation -->
+        <g>
+          <path d="M12 -12 L-8 -4 C-9.5 -3.5 -9.5 -2.5 -8 -2 L-2.5 -0.5 L10 -10 C10.5 -10.5 11 -10.2 10.5 -9.7 L0 0 L-0.5 6.5 C0 6.5 0.3 6.2 0.7 5.8 L3 3.5 L7.5 7 C8.3 7.5 8.8 7.2 9 6.2 L12 -10.8 C12.2 -12 11.5 -12.5 10.8 -12.2 Z">
+            <animateTransform attributeName="transform" values="translate(0,0) scale(1);translate(3,-2) scale(1.1);translate(0,0) scale(1)" dur="2s" repeatCount="indefinite"/>
+          </path>
+          <!-- Message sending effect -->
+          <circle cx="8" cy="-8" r="1" fill="#0088cc" opacity="0">
+            <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite"/>
+            <animateTransform attributeName="transform" values="translate(0,0) scale(1);translate(6,-4) scale(0.3);translate(12,-8) scale(0)" dur="2s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="6" cy="-6" r="1" fill="#229ed9" opacity="0">
+            <animate attributeName="opacity" values="0;1;0" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+            <animateTransform attributeName="transform" values="translate(0,0) scale(1);translate(4,-3) scale(0.3);translate(8,-6) scale(0)" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+          </circle>
+        </g>
+        <!-- Typing indicator dots -->
+        <g fill="#fff" opacity="0.8">
+          <circle cx="-8" cy="8" r="1">
+            <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.5s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="-5" cy="8" r="1">
+            <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.5s" begin="0.3s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="-2" cy="8" r="1">
+            <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1.5s" begin="0.6s" repeatCount="indefinite"/>
+          </circle>
+        </g>
+
       </g>
       <text x="30" y="80" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="11" font-weight="600">Telegram</text>
       <text x="30" y="95" text-anchor="middle" fill="#a0a9c0" font-family="Arial, sans-serif" font-size="9">Message Distribution</text>
@@ -200,35 +272,86 @@
           <path d="-7 -7 L-8.5 -8.5"/>
           <animateTransform attributeName="transform" values="rotate(0);rotate(360)" dur="8s" repeatCount="indefinite"/>
         </g>
-        <circle cx="0" cy="0" r="3" fill="#fff"/>
+        <circle cx="0" cy="0" r="3" fill="#fff">
+          <animate attributeName="r" values="3;4;3" dur="2s" repeatCount="indefinite"/>
+        </circle>
+        <!-- Activity indicator -->
+        <circle cx="6" cy="-6" r="1.5" fill="#9b59b6" opacity="0.8">
+          <animate attributeName="opacity" values="0.8;0.3;0.8" dur="1s" repeatCount="indefinite"/>
+        </circle>
+
       </g>
       <text x="30" y="80" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="11" font-weight="600">Management</text>
       <text x="30" y="95" text-anchor="middle" fill="#a0a9c0" font-family="Arial, sans-serif" font-size="9">Config Control</text>
+    </g>
+
+    <!-- Bot 7: Portfolio Management -->
+    <g transform="translate(1320, 120)">
+      <circle cx="30" cy="30" r="30" fill="url(#profileGradient)" filter="url(#softGlow)">
+        <animate attributeName="r" values="30;32;30" dur="4s" begin="3s" repeatCount="indefinite"/>
+      </circle>
+      <g transform="translate(30, 30)" fill="#fff">
+        <!-- Enhanced Portfolio/Pie chart icon with dynamic segments -->
+        <circle cx="0" cy="0" r="10" fill="none" stroke="#fff" stroke-width="2"/>
+        <!-- Animated pie segments -->
+        <path d="M0 -10 A10 10 0 0 1 7.07 -7.07 L0 0 Z" fill="#fff" opacity="0.8">
+          <animateTransform attributeName="transform" values="rotate(0);rotate(20);rotate(0)" dur="4s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.8;0.5;0.8" dur="3s" repeatCount="indefinite"/>
+        </path>
+        <path d="M0 -10 A10 10 0 0 1 9.51 -3.09 L0 0 Z" fill="#fff" opacity="0.6">
+          <animateTransform attributeName="transform" values="rotate(0);rotate(-15);rotate(0)" dur="3s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.6;0.3;0.6" dur="4s" begin="1s" repeatCount="indefinite"/>
+        </path>
+        <path d="M0 -10 A10 10 0 1 1 -8.66 5 L0 0 Z" fill="#fff" opacity="0.4">
+          <animateTransform attributeName="transform" values="rotate(0);rotate(25);rotate(0)" dur="5s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.4;0.2;0.4" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+        </path>
+        <!-- Animated dollar sign in center -->
+        <text x="0" y="3" text-anchor="middle" fill="#e67e22" font-size="8" font-weight="bold">
+          $
+          <animate attributeName="fill" values="#e67e22;#f39c12;#e67e22" dur="3s" repeatCount="indefinite"/>
+          <animateTransform attributeName="transform" values="scale(1);scale(1.2);scale(1)" dur="2s" repeatCount="indefinite"/>
+        </text>
+        <!-- Value indicators around the chart -->
+        <circle cx="8" cy="0" r="1" fill="#00ff88">
+          <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="-8" cy="0" r="1" fill="#ff4444">
+          <animate attributeName="opacity" values="1;0.3;1" dur="2s" begin="0.7s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="0" cy="10" r="1" fill="#4488ff">
+          <animate attributeName="opacity" values="1;0.3;1" dur="2s" begin="1.3s" repeatCount="indefinite"/>
+        </circle>
+      </g>
+      <text x="30" y="80" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="11" font-weight="600">Portfolio</text>
+      <text x="30" y="95" text-anchor="middle" fill="#a0a9c0" font-family="Arial, sans-serif" font-size="9">Asset Tracking</text>
     </g>
   </g>
 
   <!-- Data flow particles -->
   <g fill="#00d4aa" opacity="0.7">
     <circle cx="250" cy="150" r="2">
-      <animate attributeName="cx" values="150;1250;150" dur="6s" repeatCount="indefinite"/>
+      <animate attributeName="cx" values="150;1450;150" dur="6s" repeatCount="indefinite"/>
       <animate attributeName="opacity" values="0.7;0.2;0.7" dur="3s" repeatCount="indefinite"/>
     </circle>
     <circle cx="600" cy="150" r="1.5" fill="#f7931a">
-      <animate attributeName="cx" values="1250;150;1250" dur="8s" repeatCount="indefinite"/>
+      <animate attributeName="cx" values="1450;150;1450" dur="8s" repeatCount="indefinite"/>
       <animate attributeName="opacity" values="0.6;0.1;0.6" dur="4s" repeatCount="indefinite"/>
     </circle>
     <circle cx="800" cy="150" r="2" fill="#0088cc">
-      <animate attributeName="cx" values="150;1250;150" dur="7s" begin="2s" repeatCount="indefinite"/>
+      <animate attributeName="cx" values="150;1450;150" dur="7s" begin="2s" repeatCount="indefinite"/>
+
       <animate attributeName="opacity" values="0.8;0.3;0.8" dur="3.5s" repeatCount="indefinite"/>
     </circle>
   </g>
 
   <!-- Bottom tech stack indicators -->
-  <g transform="translate(200, 240)">
-    <rect x="0" y="0" width="1000" height="35" rx="17" fill="rgba(0,212,170,0.15)" stroke="rgba(0,212,170,0.4)" stroke-width="1">
+  <g transform="translate(100, 240)">
+    <rect x="0" y="0" width="1400" height="35" rx="17" fill="rgba(0,212,170,0.15)" stroke="rgba(0,212,170,0.4)" stroke-width="1">
       <animate attributeName="fill-opacity" values="0.15;0.25;0.15" dur="4s" repeatCount="indefinite"/>
     </rect>
-    <text x="500" y="23" text-anchor="middle" fill="#00d4aa" font-family="'SF Mono', 'Monaco', monospace" font-size="14" font-weight="500">
+    <text x="700" y="23" text-anchor="middle" fill="#00d4aa" font-family="'SF Mono', 'Monaco', monospace" font-size="14" font-weight="500">
+
       Python • Telegram Bot API • SQLite • Raspberry Pi • CoinMarketCap API • OpenAI API • EtherScan API • Binance API
     </text>
   </g>
@@ -238,14 +361,16 @@
     <path d="M30 30 L30 50 L50 50">
       <animate attributeName="opacity" values="0.4;0.8;0.4" dur="3s" repeatCount="indefinite"/>
     </path>
-    <path d="M1370 30 L1350 30 L1350 50">
+    <path d="M1570 30 L1550 30 L1550 50">
+
       <animate attributeName="opacity" values="0.4;0.8;0.4" dur="3s" begin="1s" repeatCount="indefinite"/>
     </path>
     <path d="M30 270 L50 270 L50 250">
       <animate attributeName="opacity" values="0.4;0.8;0.4" dur="3s" begin="2s" repeatCount="indefinite"/>
     </path>
-    <path d="M1370 270 L1370 250 L1350 250">
-      <animate attributeName="opacity" values="0.4;0.8;0.4" dur="3s" begin="0.5s" repeatCount="indefinite"/>
+    <path d="M1570 270 L1550 270 L1550 250">
+      <animate attributeName="opacity" values="0.4;0.8;0.4" dur="3s" begin="3s" repeatCount="indefinite"/>
     </path>
-  </g>
+    </g>
+
 </svg>
