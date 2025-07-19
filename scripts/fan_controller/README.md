@@ -15,26 +15,30 @@ Uses **GPIO 4** (`BCM mode`) for fan control.
 
 ---
 
-## ⚙Hardware Requirements
+## Hardware Requirements
 
 - Raspberry Pi (any model with GPIO support)
 - 5V Fan (2-pin)
 - NPN Transistor (e.g., 2N2222) for switching
-- 10kΩ resistor (for base)
+- 1kΩ resistor (for base)
 - Jumper wires and breadboard or soldered setup
+- Optional: Diode (e.g., 1N5819) for flyback protection
 
-**Diagram Tip:**
+**Diagram:** \
+<img src="./../../assets/fan_controller/RaspberryPIFanDiagram.png" alt="Fan Controller Wiring" width="500"/>
 
 ---
 
 ## Wiring
 
-| Fan Pin | Connects To                   |
-|---------|-------------------------------|
-| `+`     | 5V GPIO header                |
-| `-`     | Collector of 2N2222           |
-| Transistor Emitter | GND                           |
-| Transistor Base    | GPIO 4 (through 1kΩ resistor) |
+| Fan Pin              | Connects To                                                           |
+|----------------------|-----------------------------------------------------------------------|
+| Fan `+` (positive)   | 5V GPIO header                                                        |
+| Fan `-` (negative)   | Collector of 2N2222                                                   |
+| Transistor Collector | Fan `-` (negative)                                                    |
+| Transistor Emitter   | GND                                                                   |
+| Transistor Base      | GPIO 4 and transistor base                                            |
+| Diode (1N5819)       | Fan `-` (negative) to GND (cathode to GND, anode to fan negative pin) |
 
 ---
 
@@ -96,3 +100,5 @@ Change `FAN_PIN` to the GPIO pin you are using for the fan control. Adjust `ON_T
 - Ensure the fan is rated for 5V operation.
 - The script requires root privileges to access GPIO pins. You can run it with `sudo` or set up the script to run as a service.
 - Test the fan operation manually before relying on the script to ensure everything is wired correctly.
+- The project uses a 5V fan, a 3.3V maybe can work with a transistor, but it's not recommended as it may not provide sufficient power.
+- The script is designed to run continuously, monitoring the CPU temperature and controlling the fan accordingly.
