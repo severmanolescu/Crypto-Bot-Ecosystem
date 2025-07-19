@@ -111,9 +111,14 @@ def test_calculate_rsi_for_timeframes_parallel(calculator):
     """
     calculator.tradable_pairs = ["BTC/USDT", "ETH/USDT"]
     with patch("src.handlers.crypto_rsi_calculator.Pool") as mock_pool:
-        mock_pool.return_value.__enter__.return_value.map.return_value = [
+        mock_async_result = MagicMock()
+        mock_async_result.get.return_value = [
             [("BTC/USDT", 80)],
             [("ETH/USDT", 25)],
         ]
+        mock_pool.return_value.__enter__.return_value.map_async.return_value = (
+            mock_async_result
+        )
+
         result = calculator.calculate_rsi_for_timeframes_parallel("1h")
         assert result["values"] == {"BTC/USDT": 80, "ETH/USDT": 25}
