@@ -1,13 +1,21 @@
 
-# Crypto Telegram Bots
+# Crypto Bot Ecosystem
+
+<div align="center">
+  <img src="./assets/banner.svg" alt="Crypto Intelligence Bots" width="100%">
+</div>
 
 A suite of powerful Telegram bots providing real-time cryptocurrency news, market data, alerts, and portfolio management.
 
+---
+
 ## Overview
 
-This project consists of four specialized Telegram bots running on a Raspberry Pi 4, providing comprehensive cryptocurrency monitoring and management tools.
+This project features a set of Telegram bots designed to enhance cryptocurrency trading and investment strategies. The bots provide real-time news updates, market value tracking, price alerts, and detailed portfolio management tools. They leverage AI for article summarization and sentiment analysis, making it easier for users to stay informed about the crypto market.
 
 ## Bots
+
+---
 
 ### 1. Crypto News Bot
 - **Article Sources:**
@@ -19,6 +27,9 @@ This project consists of four specialized Telegram bots running on a Raspberry P
   - Tag-based article search
   - Daily statistics reporting
   - Market sentiment analysis
+  - News categorization (e.g., Bitcoin, Ethereum, Altcoins)
+  - Keyword-based news filtering
+  - Real-time news updates
 
 ### 2. Crypto Market Value Bot
 - **Features:**
@@ -28,10 +39,16 @@ This project consists of four specialized Telegram bots running on a Raspberry P
   - Portfolio tracking (P/L, holdings, average buy price)
   - Visual analytics (portfolio history, value trends, investment totals)
   - Trade visualization (buy/sell charts)
+  - Market cap tracking
+  - CoinMarketCap integration for detailed coin data
+  - AI-powered article summarization for market news
+  - Daily market summary generation
 
 ### 3. Crypto Alerts Bot
 - **Features:**
-  - Customizable price alerts (1h, 24h, 7d, 30d)
+  - Real-time price tracking for selected coins
+  - Price change notifications (1h, 24h, 7d, 30d)
+  - RSI (Relative Strength Index) tracking
   - Notification system for market movements
 
 ### 4. Slave Bot (Management Bot)
@@ -46,6 +63,8 @@ This project consists of four specialized Telegram bots running on a Raspberry P
   - News bot keyword configuration
   - System variable management
 
+---
+
 ## Project Structure
 ├── src/ \
 │ ├── bots/ # Main bot implementations \
@@ -59,8 +78,10 @@ This project consists of four specialized Telegram bots running on a Raspberry P
 ├── dev_requirements.txt # Development dependencies \
 ├── start_bots.sh # Script to start all bots
 
+---
+
 ## Configuration
-For the bots to work correctly, you need to set up the following in `config/variables.json`:
+To run the bots, you need to configure the environment variables and API keys. The configuration file is located at `config/variables.json`. This file contains all necessary API keys and settings for the bots to function correctly.
 ```json
 {
   "CMC_API_KEY": "your_etherscan_api_key", 
@@ -83,14 +104,22 @@ For the bots to work correctly, you need to set up the following in `config/vari
 
 **AI_ARTICLE_SUMMARY_PROMPT** and **AI_TODAY_SUMMARY_PROMPT** - AI prompts that can be customized to change the way the AI summarizes articles and news and the language used, currently set to **Romanian**.
 
-## Prerequisites
+---
 
+## Prerequisites
+Before running the bots, ensure you have the following prerequisites installed:
  - Python 3.12+ 
  - Telegram Bot API access (see [BotFather](https://core.telegram.org/bots#botfather) for more details)
  - CoinMarketCap API key (see [CoinMarketCap](https://coinmarketcap.com/api/) for more details)
  - EtherscanAPI key (see [Etherscan](https://etherscan.io/apis) for more details)
  - OpenAI API key (see [OpenAI](https://platform.openai.com/docs/api-reference) for more details)
  - SQLite (or any other database) for data storage
+ - A Raspberry Pi 4 (recommended for running the bots)
+ - A Linux-based operating system (e.g., Raspberry Pi OS, Ubuntu) for optimal performance
+ - Internet connection for API access and Telegram communication
+ - Git for cloning the repository
+
+---
 
 ## Installation
 ### Clone the repository  
@@ -107,11 +136,13 @@ or
 py -m pip install -r requirements.txt
 ```
 ### Configuration
-Update the config/variables.json file with your API keys and settings 
+Update the config/variables.json file with your API keys and settings.
+
+---
 
 ## Running the Bots
 ### Individual Startup
-Run each bot separately:
+To run each bot individually, you can use the following commands:
 ```bash  
 py src/bots/market_update_bot.py  
 py src/bots/news_check_bot.py  
@@ -119,12 +150,28 @@ py src/bots/crypto_price_alerts_bot.py
 py src/bots/my_slave_bot.py
 ```
 ### Automated Startup (Linux/Raspberry Pi)
+To start all bots automatically, you can use the provided `start_bots.sh` script. This script will run all bots in the background.
 ```bash  
 # Update BOT_DIR in the script to your directory  
 chmod +x start_bots.sh  
 ./start_bots.sh
 ```
-## Running Tests:
+---
+
+## Auto-Start on Boot (Linux/Raspberry Pi)
+To ensure the bots start automatically on boot, you can add the `start_bots.sh` script to your crontab:
+```bash
+crontab -e
+```
+Add the following line to the end of the file:
+```bash
+@reboot /path/to/your/start_bots.sh
+```
+
+---
+
+## Running Tests
+To ensure the bots are functioning correctly, you can run the test suite. The tests cover various functionalities of the bots, including database interactions, API calls, and bot commands.
 To run the test suite:
 ```bash  
 pytest tests/
@@ -134,13 +181,19 @@ or
 py -m pytest ./tests/
 ```
 
-### Planned Features  
+---
+
+## Planned Features
 + Forex news integration  
 + Web dashboard enhancements (please see: [trades_command_center](https://github.com/severmanolescu/trades_command_center))  
 + AI trading bots
 
-### Contributing
+---
+
+## Contributing
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-### Contact 
+---
+
+## Contact 
 For questions or support, please open an issue on GitHub.
