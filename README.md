@@ -1,7 +1,7 @@
 # Crypto Bot Ecosystem
 
 <div align="center">
-  <img src="./assets/banner.svg" alt="Crypto Intelligence Bots" width="100%">
+  <img src="./assets/banner.svg" alt="Crypto Intelligence Bots" width="99%">
 </div>
 
 A suite of powerful Telegram bots providing real-time cryptocurrency news, market data, alerts, and portfolio management.
