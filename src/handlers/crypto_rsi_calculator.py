@@ -411,7 +411,17 @@ class CryptoRSICalculator:
 
         logger.info("Starting multiprocessing pool")
         with Pool(processes=optimal_processes) as pool:
-            nested_results = pool.map(calculate_rsi_for_symbol_batch, args_list)
+            async_result = pool.map_async(calculate_rsi_for_symbol_batch, args_list)
+            try:
+                nested_results = async_result.get(timeout=300)  # 5 minutes timeout
+            except TimeoutError:
+                logger.error("Timeout: One or more processes took too long.")
+                pool.terminate()
+                pool.join()
+                nested_results = []
+            except Exception as e:
+                logger.error("Error in multiprocessing pool: %s", str(e))
+                nested_results = []
 
         logger.info("Finished multiprocessing pool")
 
