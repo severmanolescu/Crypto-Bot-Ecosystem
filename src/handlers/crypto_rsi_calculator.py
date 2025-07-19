@@ -16,7 +16,6 @@ import numpy as np
 # pylint: disable=broad-exception-caught, global-statement, too-many-locals
 
 
-
 logger = logging.getLogger(__name__)
 logger.info("CryptoRSICalculator started")
 
