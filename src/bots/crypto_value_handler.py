@@ -297,10 +297,10 @@ class CryptoValueBot:
                 print("\nSaving the data...")
                 await self.save_today_data()
 
-            if self.send_rsi_alerts:
-                await self.rsi_handler.send_rsi_for_all_timeframes(
-                    bot=self.market_update_api_token
-                )
+        if self.send_rsi_alerts:
+            await self.rsi_handler.send_rsi_for_all_timeframes(
+                bot=self.market_update_api_token
+            )
 
     async def check_for_major_updates(self, now_date, update=None):
         """
