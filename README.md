@@ -4,63 +4,63 @@
   <img src="./assets/banner.svg" alt="Crypto Intelligence Bots" width="99%">
 </div>
 
-A suite of powerful Telegram bots providing real-time cryptocurrency news, market data, alerts, and portfolio management.
+A comprehensive suite of intelligent Telegram bots for cryptocurrency trading, market analysis, and portfolio management.
 
 ---
 
-## Overview
+## Features
 
-This project features a set of Telegram bots designed to enhance cryptocurrency trading and investment strategies. The bots provide real-time news updates, market value tracking, price alerts, and detailed portfolio management tools. They leverage AI for article summarization and sentiment analysis, making it easier for users to stay informed about the crypto market.
-
-## Bots
+- Real-time cryptocurrency news with AI-powered summaries
+- Advanced market analysis and price tracking
+- Smart price alerts with technical indicators
+- Portfolio management with P/L tracking and analytics
+- Multi-bot architecture for specialized functionality
 
 ---
+
+## Bot Overview
 
 ### 1. Crypto News Bot
+Intelligent news aggregation and analysis from premium sources.
 - **Article Sources:**
   - [crypto.news](https://crypto.news/)
   - [CoinTelegraph](https://cointelegraph.com/)
   - [Bitcoin Magazine](https://bitcoinmagazine.com/articles)
-- **Features:**
+- **Key Features:**
   - AI-powered article summarization
   - Tag-based article search
   - Daily statistics reporting
   - Market sentiment analysis
-  - News categorization (e.g., Bitcoin, Ethereum, Altcoins)
   - Keyword-based news filtering
   - Real-time news updates
 
 ### 2. Crypto Market Value Bot
-- **Features:**
+Comprehensive market tracking and portfolio management.
+- **Core Features:**
   - Real-time market updates for selected coins
   - ETH gas fee tracking
   - Fear and Greed Index monitoring
   - Portfolio tracking (P/L, holdings, average buy price)
-  - Visual analytics (portfolio history, value trends, investment totals)
-  - Trade visualization (buy/sell charts)
-  - Market cap tracking
-  - CoinMarketCap integration for detailed coin data
+  - Visual analytics (P/L, holdings, averages)
   - AI-powered article summarization for market news
-  - Daily market summary generation
 
 ### 3. Crypto Alerts Bot
-- **Features:**
-  - Real-time price tracking for selected coins
+Smart notification system for market movements.
+- **Alert Types:**
   - Price change notifications (1h, 24h, 7d, 30d)
-  - RSI (Relative Strength Index) tracking
-  - Notification system for market movements
+  - RSI (Relative Strength Index) tracking 
+  - Custom threshold alerts 
+  - Real-time market movement detection
 
 ### 4. Slave Bot (Management Bot)
-- **Features:**
-  - Detailed coin analysis
-  - Top 10 coins ranking
-  - Coin comparison tools
-  - Currency conversion
-  - 24h market cap change tracking
-  - ROI calculator
-  - Trade order management (buy/sell)
-  - News bot keyword configuration
-  - System variable management
+Central command center for advanced operations.
+- **Management Tools:**
+  - Detailed coin analysis 
+  - Top 10 rankings and comparisons 
+  - Currency conversion 
+  - ROI calculator 
+  - System configuration 
+  - News bot keyword management
 
 ---
 
@@ -79,12 +79,44 @@ This project features a set of Telegram bots designed to enhance cryptocurrency 
 
 ---
 
+## Installation
+### Prerequisites
+Before installation, ensure you have:
+
+| Requirement         | Version | Purpose                                           |
+|---------------------|---------|---------------------------------------------------|
+| Python              | 3.12+   | Programming language for the bots                 |
+| Git                 | Latest  | Version control system for cloning the repository |
+| Linux/Raspberry Pi  | Any     | Optional, for automated startup scripts           |
+| Internet Connection | Stable  | Required for API calls and news scraping          |
+
+### Api Keys Required
+You'll need accounts and API keys for:
+- **Telegram Bot API** - [BotFather Guide](https://core.telegram.org/bots#botfather)
+- **CoinMarketCap API** - [Get API Key](https://coinmarketcap.com/api/) 
+- **Etherscan API** - [Register Here](https://etherscan.io/apis) 
+- **OpenAI API** - [OpenAI Platform](https://platform.openai.com/docs/api-reference)
+
+### Quick Setup
+```bash  
+# 1. Clone the repository
+git clone git@github.com:severmanolescu/Crypto-Articles-Bots.git
+cd Crypto-Articles-Bots
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# Edit config/variables.json with your API keys
+```
+
+---
+
 ## Configuration
-To run the bots, you need to configure the environment variables and API keys. The configuration file is located at `config/variables.json`. This file contains all necessary API keys and settings for the bots to function correctly.
+To run the bots, you need to configure the environment variables and API keys. The configuration file is located at `./config/variables.json`. This file contains all necessary API keys and settings for the bots to function correctly.
 ```json
 {
-  "CMC_API_KEY": "your_etherscan_api_key", 
-  "ETHERSCAN_API_KEY": "your_etherscan_api", 
+  "CMC_API_KEY": "your_coinmarketcap_api_key", 
+  "ETHERSCAN_API_KEY": "your_etherscan_api_key", 
   "TELEGRAM_API_TOKEN_SLAVE": "your_slave_bot_token", 
   "TELEGRAM_API_TOKEN_ARTICLES": "your_news_bot_token", 
   "TELEGRAM_API_TOKEN_VALUE": "your_market_bot_token", 
@@ -92,50 +124,27 @@ To run the bots, you need to configure the environment variables and API keys. T
   "OPEN_AI_API": "open_ai_api_key", 
   "TELEGRAM_CHAT_ID_FULL_DETAILS": ["list_of_user_ids_full_details"], 
   "TELEGRAM_CHAT_ID_PARTIAL_DATA": ["list_of_user_ids_partial_data"], 
-  "COINMARKETCAP_API_KEY": "your_coinmarketcap_api_key",
   "AI_ARTICLE_SUMMARY_PROMPT": "AI Prompt for summarizing articles",
   "AI_TODAY_SUMMARY_PROMPT": "AI Prompt for summarizing today's news"
 }
 ```
-**TELEGRAM_CHAT_ID_FULL_DETAILS** - List of user IDs who will receive full details from the bots and can use all commands.
 
-**TELEGRAM_CHAT_ID_PARTIAL_DATA** - List of user IDs who will receive partial data from the bots and can use only a limited set of commands.
+### Configuration Options 
 
-**AI_ARTICLE_SUMMARY_PROMPT** and **AI_TODAY_SUMMARY_PROMPT** - AI prompts that can be customized to change the way the AI summarizes articles and news and the language used, currently set to **Romanian**.
+| Setting                           | Description                                     | Access Level                                                           |
+|-----------------------------------|-------------------------------------------------|------------------------------------------------------------------------|
+| **CMC_API_KEY**                   | API key for CoinMarketCap                       | Required for market data retrieval.                                    |
+| **ETHERSCAN_API_KEY**             | API key for Etherscan                           | Required for blockchain data retrieval.                                |
+| **OPEN_AI_API**                   | API key for OpenAI                              | Required for AI-powered features like article summarization.           |
+| **TELEGRAM_API_TOKEN_SLAVE**      | Token for the Slave Bot                         | Required for management operations.                                    |
+| **TELEGRAM_API_TOKEN_ARTICLES**   | Token for the News Bot                          | Required for news aggregation and summarization.                       |
+| **TELEGRAM_API_TOKEN_VALUE**      | Token for the Market Value Bot                  | Required for market tracking and portfolio management.                 |
+| **TELEGRAM_API_TOKEN_ALERTS**     | Token for the Alerts Bot                        | Required for price alerts and notifications.                           |
+| **TELEGRAM_CHAT_ID_FULL_DETAILS** | Users with complete bot access                  | Full access to all commands and features.                              |
+| **TELEGRAM_CHAT_ID_PARTIAL_DATA** | Users with limited bot access                   | Limited access to basic commands and features.                         |
+| **AI_ARTICLE_SUMMARY_PROMPT**     | Customizable AI prompt for article summaries    | Used by the news bot to summarize articles in a specific language.     |
+| **AI_TODAY_SUMMARY_PROMPT**       | Customizable AI prompt for daily news summaries | Used by the news bot to summarize today's news in a specific language. |
 
----
-
-## Prerequisites
-Before running the bots, ensure you have the following prerequisites installed:
- - Python 3.12+ 
- - Telegram Bot API access (see [BotFather](https://core.telegram.org/bots#botfather) for more details)
- - CoinMarketCap API key (see [CoinMarketCap](https://coinmarketcap.com/api/) for more details)
- - EtherscanAPI key (see [Etherscan](https://etherscan.io/apis) for more details)
- - OpenAI API key (see [OpenAI](https://platform.openai.com/docs/api-reference) for more details)
- - SQLite (or any other database) for data storage
- - A Raspberry Pi 4 (recommended for running the bots)
- - A Linux-based operating system (e.g., Raspberry Pi OS, Ubuntu) for optimal performance
- - Internet connection for API access and Telegram communication
- - Git for cloning the repository
-
----
-
-## Installation
-### Clone the repository  
-```bash  
-git clone git@github.com:severmanolescu/Crypto-Articles-Bots.git  
-cd Crypto-Articles-Bots
-```
-### Install Dependencies
-```bash  
-pip install -r requirements.txt
-```
-or
-```bash  
-py -m pip install -r requirements.txt
-```
-### Configuration
-Update the config/variables.json file with your API keys and settings.
 
 ---
 
@@ -143,41 +152,80 @@ Update the config/variables.json file with your API keys and settings.
 ### Individual Startup
 To run each bot individually, you can use the following commands:
 ```bash  
-py src/bots/market_update_bot.py  
-py src/bots/news_check_bot.py  
-py src/bots/crypto_price_alerts_bot.py  
-py src/bots/my_slave_bot.py
+# News Bot
+python ./src/bots/news_check_bot.py
+
+# Market Bot  
+python ./src/bots/market_update_bot.py
+
+# Alerts Bot
+python ./src/bots/crypto_price_alerts_bot.py
+
+# Management Bot
+python ./src/bots/my_slave_bot.py
 ```
 ### Automated Startup (Linux/Raspberry Pi)
 To start all bots automatically, you can use the provided `start_bots.sh` script. This script will run all bots in the background.
 ```bash  
-# Update BOT_DIR in the script to your directory  
-chmod +x start_bots.sh  
+# Make script executable
+chmod +x start_bots.sh
+
+# Start all bots
 ./start_bots.sh
 ```
+**Note: Update **BOT_DIR** in start_bots.sh to match your installation path.**
+
 ---
 
 ## Auto-Start on Boot (Linux/Raspberry Pi)
 To ensure the bots start automatically on boot, you can add the `start_bots.sh` script to your crontab:
 ```bash
+# Edit crontab
 crontab -e
-```
-Add the following line to the end of the file:
-```bash
+
+# Add this line (replace with your actual path)
 @reboot /path/to/your/start_bots.sh
 ```
 
 ---
 
-## Running Tests
-To ensure the bots are functioning correctly, you can run the test suite. The tests cover various functionalities of the bots, including database interactions, API calls, and bot commands.
-To run the test suite:
+## Testing
+Ensure everything works correctly with our test suite:
+
 ```bash  
+# Run all tests
 pytest tests/
+
+# Run with verbose output
+pytest tests/ -v
+
+# Run specific test category
+pytest tests/test_bots.py
 ```
-or
-```bash  
-py -m pytest ./tests/
+---
+
+## Usage Examples
+### Getting Started
+Getting Started
+- Add bots to Telegram using their respective tokens 
+- Send **/start** to initialize each bot
+- Use the buttons in the bot interface to use the features
+- Use **/help** to see available commands
+
+---
+
+## Development
+### Development Setup
+```bash
+# Install development dependencies
+pip install -r dev_requirements.txt
+
+# Run tests in watch mode
+pytest tests/ --watch
+
+# Code formatting
+black src/
+flake8 src/
 ```
 
 ---
@@ -186,6 +234,7 @@ py -m pytest ./tests/
 + Forex news integration  
 + Web dashboard enhancements (please see: [trades_command_center](https://github.com/severmanolescu/trades_command_center))  
 + AI trading bots
++ Advanced analytics
 
 ---
 
@@ -196,3 +245,8 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Contact 
 For questions or support, please open an issue on GitHub.
+
+---
+
+⭐ Star this repository if you find it useful! \
+Made with ❤️ for the crypto community.
