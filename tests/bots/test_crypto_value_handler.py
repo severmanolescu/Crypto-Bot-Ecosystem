@@ -48,7 +48,7 @@ def crypto_bot():
         mock_portfolio.save_portfolio_history_hourly = AsyncMock()
         mock_portfolio.reload_the_data = MagicMock()
 
-        mock_alerts.rsi_handler = AsyncMock()
+        mock_alerts.rsi_check = AsyncMock()
 
         mock_telegram = MagicMock()
         mock_telegram_class.return_value = mock_telegram
