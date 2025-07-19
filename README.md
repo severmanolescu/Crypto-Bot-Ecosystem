@@ -1,5 +1,5 @@
 
-# Crypto Telegram Bots
+# Crypto Bot Ecosystem
 
 <div align="center">
   <img src="./assets/banner.svg" alt="Crypto Intelligence Bots" width="100%">
