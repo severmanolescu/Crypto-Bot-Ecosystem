@@ -44,6 +44,7 @@ class Application:
                 await self.crypto_news_check.run()
 
                 print("\n📤 Send crypto value!")
+                self.crypto_value_bot.reload_the_data()
                 await self.crypto_value_bot.fetch_data()
 
                 now_date = datetime.now()

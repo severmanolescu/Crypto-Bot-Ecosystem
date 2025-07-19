@@ -43,6 +43,8 @@ class AlertsHandler:
         self.telegram_message = TelegramMessagesHandler()
         self.rsi_handler = CryptoRSIHandler()
 
+        self.rsi_timeframes = []
+
         self.reload_the_data()
 
     def reload_the_data(self):
@@ -63,6 +65,8 @@ class AlertsHandler:
         self.alert_send_hours_30d = variables.get("30D_ALERTS_SEND_HOURS", "")
 
         self.send_rsi_alerts = variables.get("SEND_RSI_ALERTS", False)
+
+        self.rsi_timeframes = variables.get("RSI_CHECK_TIMEFRAMES", ["1h"])
 
         self.telegram_message.reload_the_data()
         self.rsi_handler.reload_the_data()
@@ -215,9 +219,8 @@ class AlertsHandler:
             return
 
         logger.info("Starting to send RSI for all timeframes...")
-        timeframes = ["1h", "4h", "1d", "1w"]
 
-        for timeframe in timeframes:
+        for timeframe in self.rsi_timeframes:
             try:
                 # Send RSI data to Telegram
                 await asyncio.wait_for(
