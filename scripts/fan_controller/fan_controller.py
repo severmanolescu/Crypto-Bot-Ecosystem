@@ -11,7 +11,7 @@ import time
 import RPi.GPIO as GPIO
 
 logger = logging.getLogger(__name__)
-logger.info("Alerts script started")
+logger.info("Fan controller started")
 
 FAN_PIN = 4  # GPIO 4
 ON_TEMP = 80
