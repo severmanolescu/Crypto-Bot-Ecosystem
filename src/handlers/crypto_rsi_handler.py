@@ -36,8 +36,9 @@ class CryptoRSIHandler:
         Reload the data from the configuration file and update the Telegram chat IDs
         """
         self.telegram_handler.reload_the_data()
+        self.should_calculate_rsi = True
 
-    def prepare_message_for_timeframes_parallel(self, timeframe="1h"):
+    async def prepare_message_for_timeframes_parallel(self, timeframe="1h"):
         """
         Calculate RSI for the specified timeframe using the CryptoRSIHandler.
         Args:
@@ -47,7 +48,9 @@ class CryptoRSIHandler:
         """
         try:
             rsi_handler = CryptoRSICalculator()
-            rsi_data = rsi_handler.calculate_rsi_for_timeframes_parallel(timeframe)
+            rsi_data = await rsi_handler.calculate_rsi_for_timeframes_parallel(
+                timeframe
+            )
 
             if rsi_data:
                 logger.info("RSI data calculated and updated for %s", timeframe)
@@ -173,6 +176,11 @@ class CryptoRSIHandler:
             bool: True if RSI should be calculated, False otherwise.
         """
         try:
+            if self.json is None or not isinstance(self.json, dict):
+                logger.error("JSON data is not loaded or is not a dictionary.")
+                self.should_calculate_rsi = True
+                return
+
             date_str = self.json[timeframe]["date"]
             last_check = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ").replace(
                 tzinfo=timezone.utc
@@ -216,9 +224,12 @@ class CryptoRSIHandler:
 
         if isinstance(self.json, dict) and timeframe in self.json:
             self.check_if_should_calculate_rsi(timeframe)
+        else:
+            logger.info("No RSI data found for %s, will calculate new data", timeframe)
+            self.should_calculate_rsi = True
 
         if self.should_calculate_rsi:
-            rsi_data = self.prepare_message_for_timeframes_parallel(timeframe)
+            rsi_data = await self.prepare_message_for_timeframes_parallel(timeframe)
 
             self.prepare_new_rsi_message_for_telegram(timeframe, rsi_data)
 

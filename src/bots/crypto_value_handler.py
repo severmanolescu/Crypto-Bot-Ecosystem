@@ -266,31 +266,40 @@ class CryptoValueBot:
             await self.save_portfolio()
 
             if now_date.hour in self.send_hours:
+                logger.info("\nFetching the latest cryptocurrency data...")
                 await self.send_market_update(now_date)
 
+                logger.info("\nSending market update...")
                 await self.send_eth_gas_fee()
 
                 if now_date.hour == sorted(self.send_hours)[0]:
+                    logger.info("\nSending Fear and Greed Index...")
                     await self.show_fear_and_greed()
 
+                logger.info("\nChecking for major updates...")
                 await self.send_portfolio_update()
 
+            logger.info("\nChecking for major updates...")
             await self.check_for_major_updates(now_date)
 
             if now_date.hour in self.save_portfolio_hours:
+                logger.info("\nSaving the portfolio data...")
                 await self.send_portfolio_update(detailed=True, save_data=True)
 
             if now_date.hour in self.sentiment_hours:
+                logger.info("\nSending market sentiment...")
                 await self.send_market_sentiment()
 
             if now_date.hour in self.today_ai_summary:
+                logger.info("\nSending today's AI summary...")
                 await self.send_today_ai_summary()
 
             if now_date.hour in self.save_hours:
-                print("\nSaving the data...")
+                logger.info("\nSaving the data...")
                 await self.save_today_data()
 
-        await self.alert_handler.rsi_check()
+            logger.info("\nChecking RSI values...")
+            await self.alert_handler.rsi_check()
 
     async def check_for_major_updates(self, now_date, update=None):
         """

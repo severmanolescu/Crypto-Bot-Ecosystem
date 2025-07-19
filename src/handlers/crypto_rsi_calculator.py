@@ -3,8 +3,7 @@ CryptoRSICalculator: A Python module for calculating RSI (Relative Strength Inde
 for cryptocurrency pairs using the Binance exchange API.
 """
 
-# pylint: disable=broad-exception-caught, global-statement, too-many-locals
-
+import asyncio
 import logging
 import os
 import time
@@ -13,6 +12,10 @@ from multiprocessing import Pool
 
 import ccxt
 import numpy as np
+
+# pylint: disable=broad-exception-caught, global-statement, too-many-locals
+
+
 
 logger = logging.getLogger(__name__)
 logger.info("CryptoRSICalculator started")
@@ -368,69 +371,31 @@ class CryptoRSICalculator:
 
         return summary
 
-    def calculate_rsi_for_timeframes_parallel(
-        self,
-        timeframe="1h",
-        use_cache=True,
-    ):
-        """
-        Optimized multiprocessing version with improved performance
-        Args:
-            timeframe (str): The timeframe for the OHLCV data (default is '1h').
-            use_cache (bool): Whether to use cached OHLCV data (default is True).
-        Returns:
-            dict: A summary dictionary containing:
-                - overbought: List of tuples (symbol, rsi) for overbought pairs.
-                - oversold: List of tuples (symbol, rsi) for oversold pairs.
-                - rsi_values: Dictionary mapping trading pairs to their RSI values.
-        """
-        # Determine optimal process count based on system
-        cpu_count = os.cpu_count()
-        optimal_processes = max(
-            2, min(cpu_count - 1, 8)
-        )  # Between 2 and 8, leaving 1 core free
-
-        logger.info("Using %d processes for RSI calculation", optimal_processes)
-
-        # Split symbols into roughly equal chunks for each process
-        symbols = self.tradable_pairs
-
-        # If very few symbols, just use one process
-        if len(symbols) < 10:
-            optimal_processes = 1
-
-        chunk_size = max(5, len(symbols) // optimal_processes)
+    def _calculate_rsi_for_timeframes(self, symbols, timeframe, period, use_cache):
+        chunk_size = max(5, len(symbols) // max(1, os.cpu_count() - 1))
         symbol_chunks = [
             symbols[i : i + chunk_size] for i in range(0, len(symbols), chunk_size)
         ]
+        args_list = [(chunk, timeframe, period, use_cache) for chunk in symbol_chunks]
 
-        # Prepare arguments for each process
-        args_list = [
-            (chunk, timeframe, self.rsi_period, use_cache) for chunk in symbol_chunks
-        ]
+        with Pool(processes=min(8, max(2, os.cpu_count() - 1))) as pool:
+            nested_results = pool.map(calculate_rsi_for_symbol_batch, args_list)
 
-        logger.info("Starting multiprocessing pool")
-        with Pool(processes=optimal_processes) as pool:
-            async_result = pool.map_async(calculate_rsi_for_symbol_batch, args_list)
-            try:
-                nested_results = async_result.get(timeout=300)  # 5 minutes timeout
-            except TimeoutError:
-                logger.error("Timeout: One or more processes took too long.")
-                pool.terminate()
-                pool.join()
-                nested_results = []
-            except Exception as e:
-                logger.error("Error in multiprocessing pool: %s", str(e))
-                nested_results = []
-
-        logger.info("Finished multiprocessing pool")
-
-        # Flatten results
         all_results = [item for sublist in nested_results for item in sublist]
-
-        # Convert to dictionary
         rsi_values = {symbol: rsi for symbol, rsi in all_results if rsi is not None}
 
-        return {
-            "values": rsi_values,
-        }
+        return {"values": rsi_values}
+
+    async def calculate_rsi_for_timeframes_parallel(
+        self, timeframe="1h", use_cache=True
+    ):
+        loop = asyncio.get_running_loop()
+        result = await loop.run_in_executor(
+            None,  # None = use default executor (ProcessPoolExecutor)
+            self._calculate_rsi_for_timeframes,
+            self.tradable_pairs,
+            timeframe,
+            self.rsi_period,
+            use_cache,
+        )
+        return result

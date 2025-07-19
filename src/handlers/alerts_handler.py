@@ -2,6 +2,7 @@
 Alerts module for monitoring significant price changes in cryptocurrencies.
 """
 
+import asyncio
 import logging
 from datetime import datetime
 
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 logger.info("Alerts script started")
 
 
-# pylint:disable=too-many-instance-attributes
+# pylint:disable=too-many-instance-attributes, broad-exception-caught
 class AlertsHandler:
     """
     Handles alerts for significant price changes in cryptocurrencies.
@@ -208,7 +209,36 @@ class AlertsHandler:
         """
         Checks and sends RSI alerts for all timeframes if enabled.
         """
-        if self.send_rsi_alerts:
-            await self.rsi_handler.send_rsi_for_all_timeframes(
-                bot=self.telegram_api_token_alerts
-            )
+
+        if not self.send_rsi_alerts:
+            logger.info("RSI alerts are disabled.")
+            return
+
+        logger.info("Starting to send RSI for all timeframes...")
+        timeframes = ["1h", "4h", "1d", "1w"]
+
+        for timeframe in timeframes:
+            try:
+                # Send RSI data to Telegram
+                await asyncio.wait_for(
+                    self.rsi_handler.send_rsi_for_timeframe(
+                        timeframe=timeframe, bot=self.telegram_api_token_alerts
+                    ),
+                    timeout=180,  # 3 minutes timeout
+                )
+            except asyncio.TimeoutError:
+                logger.error("Timeout occurred while sending RSI data.")
+                await self.telegram_message.send_telegram_message(
+                    "⏳ Timeout occurred while sending RSI data for timeframe: "
+                    + timeframe
+                    + ". Please try again.",
+                    self.telegram_api_token_alerts,
+                )
+            except Exception as e:
+                logger.error("An error occurred while sending RSI data: %s", e)
+                await self.telegram_message.send_telegram_message(
+                    "❌ An error occurred while processing your request for timeframe: "
+                    + timeframe
+                    + ". Please try again.",
+                    self.telegram_api_token_alerts,
+                )

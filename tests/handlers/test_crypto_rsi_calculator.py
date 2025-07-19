@@ -105,20 +105,14 @@ def test_calculate_rsi_for_timeframes(calculator):
     assert summary["rsi_values"] == {"BTC/USDT": 75}
 
 
-def test_calculate_rsi_for_timeframes_parallel(calculator):
+@pytest.mark.asyncio
+async def test_calculate_rsi_for_timeframes_parallel(calculator):
     """
     Test that calculate_rsi_for_timeframes_parallel returns RSI values for multiple pairs.
     """
-    calculator.tradable_pairs = ["BTC/USDT", "ETH/USDT"]
-    with patch("src.handlers.crypto_rsi_calculator.Pool") as mock_pool:
-        mock_async_result = MagicMock()
-        mock_async_result.get.return_value = [
-            [("BTC/USDT", 80)],
-            [("ETH/USDT", 25)],
-        ]
-        mock_pool.return_value.__enter__.return_value.map_async.return_value = (
-            mock_async_result
-        )
-
-        result = calculator.calculate_rsi_for_timeframes_parallel("1h")
+    expected = {"values": {"BTC/USDT": 80, "ETH/USDT": 25}}
+    with patch.object(
+        calculator, "_calculate_rsi_for_timeframes", return_value=expected
+    ):
+        result = await calculator.calculate_rsi_for_timeframes_parallel("1h")
         assert result["values"] == {"BTC/USDT": 80, "ETH/USDT": 25}

@@ -23,19 +23,21 @@ def handler():
         return CryptoRSIHandler()
 
 
-def test_prepare_message_for_timeframes_parallel_success(handler):
+@pytest.mark.asyncio
+async def test_prepare_message_for_timeframes_parallel_success(handler):
     """
     Test the prepare_message_for_timeframes_parallel method for successful RSI calculation.
     """
     with patch("src.handlers.crypto_rsi_handler.CryptoRSICalculator") as mock_calc:
-        mock_calc.return_value.calculate_rsi_for_timeframes_parallel.return_value = {
-            "values": {"BTC": 80}
-        }
-        result = handler.prepare_message_for_timeframes_parallel("1h")
+        mock_calc.return_value.calculate_rsi_for_timeframes_parallel = AsyncMock(
+            return_value={"values": {"BTC": 80}}
+        )
+        result = await handler.prepare_message_for_timeframes_parallel("1h")
         assert result == {"values": {"BTC": 80}}
 
 
-def test_prepare_message_for_timeframes_parallel_exception(handler, caplog):
+@pytest.mark.asyncio
+async def test_prepare_message_for_timeframes_parallel_exception(handler, caplog):
     """
     Test the prepare_message_for_timeframes_parallel method when an exception occurs.
     """
@@ -43,7 +45,7 @@ def test_prepare_message_for_timeframes_parallel_exception(handler, caplog):
         "src.handlers.crypto_rsi_handler.CryptoRSICalculator",
         side_effect=Exception("fail"),
     ):
-        result = handler.prepare_message_for_timeframes_parallel("1h")
+        result = await handler.prepare_message_for_timeframes_parallel("1h")
         assert result == {}
         assert "Error calculating RSI" in caplog.text
 

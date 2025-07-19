@@ -3,11 +3,13 @@ Price Alert Bot for Telegram
 This bot checks for significant price movements in cryptocurrencies
 """
 
-# pylint: disable=wrong-import-position
-
+import asyncio
 import logging
 import os
 import sys
+
+# pylint: disable=wrong-import-position,broad-exception-caught
+
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 
@@ -224,54 +226,70 @@ class PriceAlertBot:
 
         self.rsi_handler.reload_the_data()
 
+        timeframe = None
+
         if text == "⚡ Check 1h RSI":
             await update.message.reply_text("⚡ Checking RSI for 1h timeframe...")
 
-            await self.rsi_handler.send_rsi_for_timeframe(
-                timeframe="1h", bot=None, update=update
-            )
+            timeframe = "1h"
 
         elif text == "🔥 Check 4h RSI":
             await update.message.reply_text("🔥 Checking RSI for 4h timeframe...")
 
-            await self.rsi_handler.send_rsi_for_timeframe(
-                timeframe="4h", bot=None, update=update
-            )
+            timeframe = "4h"
 
         elif text == "⚠️ Check 1d RSI":
             await update.message.reply_text("⚠️ Checking RSI for 1d timeframe...")
 
-            await self.rsi_handler.send_rsi_for_timeframe(
-                timeframe="1d", bot=None, update=update
-            )
+            timeframe = "1d"
 
         elif text == "🚨 Check 1w RSI":
             await update.message.reply_text("🚨 Checking RSI for 1w timeframe...")
 
-            await self.rsi_handler.send_rsi_for_timeframe(
-                timeframe="1w", bot=None, update=update
-            )
+            timeframe = "1w"
 
         elif text == "📊 Check RSI for all timeframes" or text.lower() == "all":
+
             await update.message.reply_text("📊 Checking RSI for all timeframes...")
 
-            await self.rsi_handler.send_rsi_for_timeframe(
-                timeframe="1h", bot=None, update=update
-            )
-            await self.rsi_handler.send_rsi_for_timeframe(
-                timeframe="4h", bot=None, update=update
-            )
-            await self.rsi_handler.send_rsi_for_timeframe(
-                timeframe="1d", bot=None, update=update
-            )
-            await self.rsi_handler.send_rsi_for_timeframe(
-                timeframe="1w", bot=None, update=update
-            )
+            timeframe = "all"
 
+        if timeframe:
+            try:
+                if timeframe == "all":
+                    # Send RSI data to Telegram
+                    logger.info("Starting to send RSI for all timeframes...")
+                    timeframes = ["1h", "4h", "1d", "1w"]
+
+                    for timeframe in timeframes:
+                        await asyncio.wait_for(
+                            self.rsi_handler.send_rsi_for_timeframe(
+                                timeframe=timeframe, bot=None, update=update
+                            ),
+                            timeout=180,  # 3 minutes timeout
+                        )
+                else:
+                    # Send RSI data to Telegram
+                    await asyncio.wait_for(
+                        self.rsi_handler.send_rsi_for_timeframe(
+                            timeframe=timeframe, bot=None, update=update
+                        ),
+                        timeout=180,  # 3 minutes timeout
+                    )
+            except asyncio.TimeoutError:
+                logger.error("Timeout occurred while sending RSI data.")
+                await update.message.reply_text(
+                    "⏳ Timeout occurred while processing your request. Please try again."
+                )
+            except Exception as e:
+                logger.error("An error occurred while sending RSI data: %s", e)
+                await update.message.reply_text(
+                    "❌ An error occurred while processing your request. Please try again."
+                )
         else:
-            logger.error(" Invalid command. Please use the buttons below.")
+            logger.error(" Invalid timeframe specified.")
             await update.message.reply_text(
-                "❌ Invalid command. Please use the buttons below."
+                "❌ Invalid timeframe specified. Please use the buttons below."
             )
 
     # Handle button presses
@@ -292,7 +310,7 @@ class PriceAlertBot:
         elif "RSI" in text:
             await self.handle_rsi_buttons(update, context)
         else:
-            logger.error(" Invalid command. Please use the buttons below.")
+            logger.error("Invalid command. Please use the buttons below.")
             await update.message.reply_text(
                 "❌ Invalid command. Please use the buttons below."
             )
