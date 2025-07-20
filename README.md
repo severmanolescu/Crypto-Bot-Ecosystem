@@ -65,17 +65,22 @@ Central command center for advanced operations.
 ---
 
 ## Project Structure
-├── src/ \
-│ ├── bots/ # Main bot implementations \
-│ ├── data_base # Database handler \
-│ ├── handlers/ # Utility handlers for various operations \
-│ ├── scrapers/ # Scrapers for news pages \
-│ ├── utils/ # Helper functions and utilities \
-├── tests/ # Test suite \
-├── config/ # Configuration files \
-├── requirements.txt # Dependencies \
-├── dev_requirements.txt # Development dependencies \
-├── start_bots.sh # Script to start all bots
+
+```
+Crypto-Articles-Bots/
+├── src/
+│   ├── bots/              # Bot implementations
+│   ├── data_base/         # Database handlers
+│   ├── handlers/          # Utility handlers 
+│   ├── scrapers/          # News scrapers
+│   └── utils/             # Helper functions
+├── tests/                 # Test suite
+├── config/                # Configuration files
+├── scripts/               # Utility scripts
+├── requirements.txt       # Production dependencies
+├── dev_requirements.txt   # Development dependencies
+└── start_bots.sh          # Bot startup script 
+```
 
 ---
 
