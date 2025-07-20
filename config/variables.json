@@ -20,8 +20,8 @@
     "TELEGRAM_CHAT_ID_FULL_DETAILS": [
         "-"
     ],
-    "AI_ARTICLE_SUMMARY_PROMPT": "Rezuma acest articol \u00eentr-un scurt paragraf \u0219i analizeaz\u0103 sentimentul(Bullish, Bearish sau Neutral). Formateaz\u0103 r\u0103spunsul cu HTML pentru Telegram(ex: <b> <i>):\nLink: ",
-    "AI_TODAY_SUMMARY_PROMPT": "Te rog genereaza raportul zilnic general. Nu pentru fiecare articol, folosind urmatoarele articole. Formateaz\u0103 r\u0103spunsul cu HTML pentru Telegram(ex: <b> <i>):\n",
+    "AI_ARTICLE_SUMMARY_PROMPT": "Rezuma acest articol intr-un scurt paragraf si analizeaza sentimentul(Bullish, Bearish sau Neutral). Formateaza raspunsul cu HTML pentru Telegram(<b></b> <i></i>):\nLink: ",
+    "AI_TODAY_SUMMARY_PROMPT": "Te rog genereaza raportul zilnic general. Nu pentru fiecare articol, folosind urmatoarele articole. Formateaza raspunsul cu HTML pentru Telegram(<b></b> <i></i>):\n",
     "SEND_HOURS_VALUES": [
         7,
         11,
