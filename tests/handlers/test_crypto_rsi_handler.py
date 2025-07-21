@@ -32,7 +32,7 @@ async def test_prepare_message_for_timeframes_parallel_success(handler):
         mock_calc.return_value.calculate_rsi_for_timeframes_parallel = AsyncMock(
             return_value={"values": {"BTC": 80}}
         )
-        result = await handler.prepare_message_for_timeframes_parallel("1h")
+        result = await handler.prepare_rsi_timeframes_parallel("1h")
         assert result == {"values": {"BTC": 80}}
 
 
@@ -45,7 +45,7 @@ async def test_prepare_message_for_timeframes_parallel_exception(handler, caplog
         "src.handlers.crypto_rsi_handler.CryptoRSICalculator",
         side_effect=Exception("fail"),
     ):
-        result = await handler.prepare_message_for_timeframes_parallel("1h")
+        result = await handler.prepare_rsi_timeframes_parallel("1h")
         assert result == {}
         assert "Error calculating RSI" in caplog.text
 
@@ -55,8 +55,8 @@ def test_send_new_rsi_to_telegram_sets_message(handler):
     Test the send_new_rsi_to_telegram method sets the message correctly
     when RSI data is provided.
     """
-    rsi_data = {"values": {"BTC": 80, "ETH": 20, "XRP": 50}}
-    handler.prepare_new_rsi_message_for_telegram("1h", rsi_data)
+    rsi_data = {"BTC": 80, "ETH": 20, "XRP": 50}
+    handler.prepare_rsi_message_for_telegram("1h", rsi_data)
     assert "BTC" in handler.message
     assert "ETH" in handler.message
     assert "XRP" not in handler.message
@@ -66,27 +66,8 @@ def test_send_new_rsi_to_telegram_no_data(handler):
     """
     Test the send_new_rsi_to_telegram method when no RSI data is provided.
     """
-    handler.prepare_new_rsi_message_for_telegram("1h", {})
+    handler.prepare_rsi_message_for_telegram("1h", {})
     assert "error" in handler.message.lower()
-
-
-def test_send_json_rsi_to_telegram_sets_message(handler):
-    """
-    Test the send_json_rsi_to_telegram method sets the message correctly
-    when RSI data is provided in JSON format.
-    """
-    handler.json = {"1h": {"values": {"BTC": 70}}}
-    handler.prepare_old_rsi_message_for_telegram("1h")
-    assert "BTC" in handler.message
-
-
-def test_send_json_rsi_to_telegram_no_data(handler):
-    """
-    Test the send_json_rsi_to_telegram method when no RSI data is available.
-    """
-    handler.json = {}
-    handler.prepare_old_rsi_message_for_telegram("1h")
-    assert "no rsi values" in handler.message.lower()
 
 
 @pytest.mark.asyncio
@@ -150,10 +131,10 @@ async def test_send_rsi_for_timeframe_should_calculate(handler):
         handler, "check_if_should_calculate_rsi"
     ), patch.object(
         handler,
-        "prepare_message_for_timeframes_parallel",
+        "prepare_rsi_timeframes_parallel",
         return_value={"values": {"BTC": 80}},
     ), patch.object(
-        handler, "prepare_new_rsi_message_for_telegram"
+        handler, "prepare_rsi_message_for_telegram"
     ) as mock_send_new_rsi, patch(
         "src.handlers.crypto_rsi_handler.save_new_rsi_data"
     ), patch.object(
@@ -177,7 +158,7 @@ async def test_send_rsi_for_timeframe_should_not_calculate(handler):
     ), patch.object(handler, "reload_the_data"), patch.object(
         handler, "check_if_should_calculate_rsi"
     ), patch.object(
-        handler, "prepare_old_rsi_message_for_telegram"
+        handler, "prepare_rsi_message_for_telegram"
     ) as mock_send_json, patch.object(
         handler, "send_rsi_to_telegram", new=AsyncMock()
     ), patch.object(

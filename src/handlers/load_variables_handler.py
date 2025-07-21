@@ -258,3 +258,22 @@ def get_all_symbols():
             symbols.add(tx["symbol"])
 
     return list(symbols)
+
+
+def load_rsi_categories(filepath="./config/rsi_categories.json"):
+    with open(filepath, "r", encoding="utf-8") as f:
+        raw_categories = json.load(f)
+
+    # Add a dynamic `test` function to each category
+    for cat in raw_categories:
+        min_val = cat.get("min")
+        max_val = cat.get("max")
+        if min_val is not None and max_val is not None:
+            cat["test"] = lambda v, mi=min_val, ma=max_val: mi <= v < ma
+        elif min_val is not None:
+            cat["test"] = lambda v, mi=min_val: v >= mi
+        elif max_val is not None:
+            cat["test"] = lambda v, ma=max_val: v <= ma
+        else:
+            cat["test"] = lambda v: False  # fallback
+    return raw_categories

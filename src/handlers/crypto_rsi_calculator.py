@@ -118,6 +118,7 @@ def calculate_rsi_for_symbol_batch(args):
         return results
     except Exception as e:
         print("Exception in worker:", traceback.format_exc())
+        logger.error("Error in calculate_rsi_for_symbol_batch: %s", str(e))
         return []
 
 
