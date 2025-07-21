@@ -2,10 +2,12 @@
 Alerts module for monitoring significant price changes in cryptocurrencies.
 """
 
+import asyncio
 import logging
 from datetime import datetime
 
 from src.handlers import load_variables_handler as LoadVariables
+from src.handlers.crypto_rsi_handler import CryptoRSIHandler
 from src.handlers.send_telegram_message import TelegramMessagesHandler
 from src.utils.utils import format_change
 
@@ -13,7 +15,7 @@ logger = logging.getLogger(__name__)
 logger.info("Alerts script started")
 
 
-# pylint:disable=too-many-instance-attributes
+# pylint:disable=too-many-instance-attributes, broad-exception-caught
 class AlertsHandler:
     """
     Handles alerts for significant price changes in cryptocurrencies.
@@ -36,7 +38,12 @@ class AlertsHandler:
 
         self.last_hour_sent = None
 
+        self.send_rsi_alerts = None
+
         self.telegram_message = TelegramMessagesHandler()
+        self.rsi_handler = CryptoRSIHandler()
+
+        self.rsi_timeframes = []
 
         self.reload_the_data()
 
@@ -44,7 +51,7 @@ class AlertsHandler:
         """
         Reloads the configuration data for alerts from the variables file.
         """
-        variables = LoadVariables.load()
+        variables = LoadVariables.load_json()
 
         self.telegram_api_token_alerts = variables.get("TELEGRAM_API_TOKEN_ALERTS", "")
 
@@ -57,7 +64,12 @@ class AlertsHandler:
         self.alert_send_hours_7d = variables.get("7D_ALERTS_SEND_HOURS", "")
         self.alert_send_hours_30d = variables.get("30D_ALERTS_SEND_HOURS", "")
 
+        self.send_rsi_alerts = variables.get("SEND_RSI_ALERTS", False)
+
+        self.rsi_timeframes = variables.get("RSI_CHECK_TIMEFRAMES", ["1h"])
+
         self.telegram_message.reload_the_data()
+        self.rsi_handler.reload_the_data()
 
     # Check for alerts every 30 minutes
     async def check_for_major_updates_1h(self, top_100_crypto, update=None):
@@ -196,3 +208,40 @@ class AlertsHandler:
                 )
 
         return found_alerts
+
+    async def rsi_check(self):
+        """
+        Checks and sends RSI alerts for all timeframes if enabled.
+        """
+
+        if not self.send_rsi_alerts:
+            logger.info("RSI alerts are disabled.")
+            return
+
+        logger.info("Starting to send RSI for all timeframes...")
+
+        for timeframe in self.rsi_timeframes:
+            try:
+                # Send RSI data to Telegram
+                await asyncio.wait_for(
+                    self.rsi_handler.send_rsi_for_timeframe(
+                        timeframe=timeframe, bot=self.telegram_api_token_alerts
+                    ),
+                    timeout=180,  # 3 minutes timeout
+                )
+            except asyncio.TimeoutError:
+                logger.error("Timeout occurred while sending RSI data.")
+                await self.telegram_message.send_telegram_message(
+                    "⏳ Timeout occurred while sending RSI data for timeframe: "
+                    + timeframe
+                    + ". Please try again.",
+                    self.telegram_api_token_alerts,
+                )
+            except Exception as e:
+                logger.error("An error occurred while sending RSI data: %s", e)
+                await self.telegram_message.send_telegram_message(
+                    "❌ An error occurred while processing your request for timeframe: "
+                    + timeframe
+                    + ". Please try again.",
+                    self.telegram_api_token_alerts,
+                )

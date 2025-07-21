@@ -6,6 +6,7 @@ alerts users based on predefined thresholds.
 """
 
 import json
+import logging
 import os
 import time
 from datetime import datetime
@@ -24,6 +25,9 @@ from src.handlers.market_sentiment_handler import get_market_sentiment
 from src.handlers.news_check_handler import CryptoNewsCheck
 from src.handlers.portfolio_manager import PortfolioManager
 from src.handlers.send_telegram_message import TelegramMessagesHandler
+
+logger = logging.getLogger(__name__)
+logger.info("Load variables started")
 
 
 # pylint: disable=too-many-instance-attributes
@@ -75,7 +79,7 @@ class CryptoValueBot:
         Reloads the configuration data and initializes the bot's variables.
         This includes API tokens, cryptocurrency lists, and other settings.
         """
-        variables = src.handlers.load_variables_handler.load()
+        variables = src.handlers.load_variables_handler.load_json()
 
         self.market_update_api_token = variables.get("TELEGRAM_API_TOKEN_VALUE", "")
         self.articles_alert_api_token = variables.get("TELEGRAM_API_TOKEN_ARTICLES", "")
@@ -131,6 +135,12 @@ class CryptoValueBot:
             self.coinmarketcap_api_url, headers=headers, params=parameters, timeout=30
         )
         data = json.loads(response.text)
+
+        if not data:
+            logger.error(
+                "Error fetching data from CoinMarketCap API: %s", data.get("status", {})
+            )
+            return
 
         for crypto in data["data"]:
             symbol = crypto["symbol"]
@@ -256,29 +266,40 @@ class CryptoValueBot:
             await self.save_portfolio()
 
             if now_date.hour in self.send_hours:
+                logger.info("\nFetching the latest cryptocurrency data...")
                 await self.send_market_update(now_date)
 
+                logger.info("\nSending market update...")
                 await self.send_eth_gas_fee()
 
                 if now_date.hour == sorted(self.send_hours)[0]:
+                    logger.info("\nSending Fear and Greed Index...")
                     await self.show_fear_and_greed()
 
+                logger.info("\nChecking for major updates...")
                 await self.send_portfolio_update()
 
+            logger.info("\nChecking for major updates...")
             await self.check_for_major_updates(now_date)
 
             if now_date.hour in self.save_portfolio_hours:
+                logger.info("\nSaving the portfolio data...")
                 await self.send_portfolio_update(detailed=True, save_data=True)
 
             if now_date.hour in self.sentiment_hours:
+                logger.info("\nSending market sentiment...")
                 await self.send_market_sentiment()
 
             if now_date.hour in self.today_ai_summary:
+                logger.info("\nSending today's AI summary...")
                 await self.send_today_ai_summary()
 
             if now_date.hour in self.save_hours:
-                print("\nSaving the data...")
+                logger.info("\nSaving the data...")
                 await self.save_today_data()
+
+            logger.info("\nChecking RSI values...")
+            await self.alert_handler.rsi_check()
 
     async def check_for_major_updates(self, now_date, update=None):
         """

@@ -45,7 +45,7 @@ def test_check_if_special_user():
     Test the check_if_special_user function to ensure it correctly identifies special users.
     """
 
-    with patch("src.handlers.load_variables_handler.load") as mock_load:
+    with patch("src.handlers.load_variables_handler.load_json") as mock_load:
         mock_load.return_value = {"TELEGRAM_CHAT_ID_FULL_DETAILS": [12345, 67890]}
 
         # Test with a special user ID

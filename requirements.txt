@@ -11,3 +11,4 @@ beautifulsoup4~=4.13.3
 openai~=1.64.0
 aiosqlite~=0.21.0
 pytest~=8.4.0
+numpy~=2.2.3

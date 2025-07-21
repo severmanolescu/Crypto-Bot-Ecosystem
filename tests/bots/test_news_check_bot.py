@@ -295,7 +295,7 @@ def test_run_bot(news_bot):
     with patch(
         "src.bots.news_check_bot.Application.builder", return_value=mock_app_builder
     ), patch(
-        "src.bots.news_check_bot.src.handlers.load_variables_handler.load",
+        "src.bots.news_check_bot.src.handlers.load_variables_handler.load_json",
         return_value=mock_variables,
     ), patch.object(
         mock_app, "run_polling"

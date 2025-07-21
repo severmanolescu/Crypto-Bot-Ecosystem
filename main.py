@@ -6,7 +6,6 @@ This script is the main entry point for the Crypto Value Bot and News Check appl
 import argparse
 import asyncio
 import logging
-import signal
 from datetime import datetime
 from typing import NoReturn
 
@@ -45,6 +44,7 @@ class Application:
                 await self.crypto_news_check.run()
 
                 print("\n📤 Send crypto value!")
+                self.crypto_value_bot.reload_the_data()
                 await self.crypto_value_bot.fetch_data()
 
                 now_date = datetime.now()
@@ -61,11 +61,6 @@ class Application:
             except Exception as e:
                 self.logger.error("Error in main loop: %s", str(e))
                 await asyncio.sleep(5)
-
-    def handle_shutdown(self, *_) -> None:
-        """Handle graceful shutdown"""
-        print("\nShutting down...")
-        self.is_running = False
 
 
 def main() -> None:
@@ -86,8 +81,6 @@ def main() -> None:
         print("Recreating the data base...")
         asyncio.run(app.crypto_news_check.recreate_data_base())
     else:
-        signal.signal(signal.SIGINT, app.handle_shutdown)
-        signal.signal(signal.SIGTERM, app.handle_shutdown)
         asyncio.run(app.run_loop())
 
 

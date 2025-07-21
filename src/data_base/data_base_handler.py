@@ -94,6 +94,10 @@ class DataBaseHandler:
             link (str): The unique link of the article to update.
             summary (str): The new summary to set for the article.
         """
+        if not self.article_db_exists():
+            logger.warning("Articles database does not exist. Returning empty list.")
+            return []
+
         try:
             async with aiosqlite.connect(self.articles_db_path) as db:
                 await db.execute(
@@ -122,6 +126,10 @@ class DataBaseHandler:
         Returns:
             int: Number of rows inserted (1 if new, 0 if already exists).
         """
+        if not self.article_db_exists():
+            logger.warning("Articles database does not exist. Returning empty list.")
+            return []
+
         try:
             async with aiosqlite.connect(self.articles_db_path) as db:
                 # 1) Insert OR IGNORE
@@ -158,6 +166,10 @@ class DataBaseHandler:
         """
         today_date = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
 
+        if not self.article_db_exists():
+            logger.warning("Articles database does not exist. Returning empty list.")
+            return []
+
         async with aiosqlite.connect(self.articles_db_path) as conn:
             cursor = await conn.cursor()
 
@@ -182,6 +194,10 @@ class DataBaseHandler:
         Returns:
             list: List of tuples with article data matching the tag.
         """
+        if not self.article_db_exists():
+            logger.warning("Articles database does not exist. Returning empty list.")
+            return []
+
         async with aiosqlite.connect(self.articles_db_path) as db:
             cleaned_tag = tag.lstrip("#").lower() if tag else None
 
@@ -210,6 +226,10 @@ class DataBaseHandler:
             list: List of tuples with article data matching the tags.
         """
         if not tags:
+            return []
+
+        if not self.article_db_exists():
+            logger.warning("Articles database does not exist. Returning empty list.")
             return []
 
         if len(tags) == 1:
@@ -247,6 +267,11 @@ class DataBaseHandler:
             list: List of tuples with source and count of articles.
         """
         sources = {"crypto.news", "bitcoinmagazine", "cointelegraph"}
+
+        if not self.article_db_exists():
+            logger.warning("Articles database does not exist. Returning empty list.")
+            return []
+
         async with aiosqlite.connect(self.articles_db_path) as db:
             query = """
                 SELECT source, COUNT(*) 
@@ -272,6 +297,10 @@ class DataBaseHandler:
         Returns:
             list: List of tuples with source and count of articles in the last 7 days.
         """
+        if not self.article_db_exists():
+            logger.warning("Articles database does not exist. Returning empty list.")
+            return []
+
         async with aiosqlite.connect(self.articles_db_path) as db:
             query = """
                 SELECT source, COUNT(*) 
@@ -290,6 +319,10 @@ class DataBaseHandler:
         Returns:
             list: List of tuples with source and count of articles in the current month.
         """
+        if not self.article_db_exists():
+            logger.warning("Articles database does not exist. Returning empty list.")
+            return []
+
         async with aiosqlite.connect(self.articles_db_path) as db:
             query = """
                 SELECT source, COUNT(*)
@@ -336,6 +369,10 @@ class DataBaseHandler:
         """
         Stores the Fear & Greed index in an SQLite database.
         """
+        if not self.daily_stats_db_exists():
+            logger.warning("Daily stats database does not exist. Returning empty list.")
+            return
+
         async with aiosqlite.connect(self.daily_stats_db_path) as db:
             await db.execute(
                 """
@@ -369,6 +406,10 @@ class DataBaseHandler:
             index_text (str): The text description of the index value.
             last_updated (str): The timestamp when the index was last updated.
         """
+        if not self.fear_greed_db_exists():
+            logger.warning("Daily stats database does not exist. Returning empty list.")
+            return
+
         async with aiosqlite.connect(self.fear_greed_db_path) as db:
             await db.execute(
                 """
@@ -394,6 +435,10 @@ class DataBaseHandler:
             propose_gas (float): The proposed gas fee.
             fast_gas (float): The fast gas fee.
         """
+        if not self.eth_gas_fee_db_exists():
+            logger.warning("Daily stats database does not exist. Returning empty list.")
+            return
+
         async with aiosqlite.connect(self.eth_gas_fee_db_path) as db:
             await db.execute(
                 """
@@ -419,6 +464,10 @@ class DataBaseHandler:
             sentiment_counts (dict): A dictionary containing counts for each sentiment type.
                 Example: {"Unknown": 10, "Negative": 20, "Neutral": 30, "Positive": 40}
         """
+        if not self.market_sentiment_db_exists():
+            logger.warning("Daily stats database does not exist. Returning empty list.")
+            return
+
         async with aiosqlite.connect(self.market_sentiment_db_path) as db:
             await db.execute(
                 """
@@ -474,3 +523,11 @@ class DataBaseHandler:
             bool: True if the database file exists, False otherwise.
         """
         return os.path.exists(self.eth_gas_fee_db_path)
+
+    def market_sentiment_db_exists(self):
+        """
+        Check if the Market Sentiment database file exists.
+        Returns:
+            bool: True if the database file exists, False otherwise.
+        """
+        return os.path.exists(self.market_sentiment_db_path)

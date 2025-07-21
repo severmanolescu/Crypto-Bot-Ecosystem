@@ -64,7 +64,7 @@ async def test_telegram_messages_handler_init():
     """
     Test the initialization of the TelegramMessagesHandler class.
     """
-    with patch("src.handlers.send_telegram_message.load") as mock_load:
+    with patch("src.handlers.send_telegram_message.load_json") as mock_load:
         # Setup mock return value for load_variables
         mock_load.return_value = {
             "TELEGRAM_CHAT_ID_FULL_DETAILS": ["id1", "id2"],

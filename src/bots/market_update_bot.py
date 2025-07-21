@@ -73,7 +73,7 @@ class MarketUpdateBot:
         """
         Reloads the necessary data for the bot to function.
         """
-        variables = LoadVariables.load()
+        variables = LoadVariables.load_json()
 
         self.telegram_api_token = variables.get("TELEGRAM_API_TOKEN_VALUE", "")
 

@@ -25,7 +25,7 @@ def crypto_bot():
     ) as mock_telegram_class, patch(
         "src.bots.crypto_value_handler.CryptoNewsCheck"
     ) as mock_news_class, patch(
-        "src.bots.crypto_value_handler.src.handlers.load_variables_handler.load"
+        "src.bots.crypto_value_handler.src.handlers.load_variables_handler.load_json"
     ) as mock_load_vars:
         # Create mock instances
         mock_db = MagicMock()
@@ -47,6 +47,8 @@ def crypto_bot():
         mock_portfolio.send_portfolio_update = AsyncMock()
         mock_portfolio.save_portfolio_history_hourly = AsyncMock()
         mock_portfolio.reload_the_data = MagicMock()
+
+        mock_alerts.rsi_check = AsyncMock()
 
         mock_telegram = MagicMock()
         mock_telegram_class.return_value = mock_telegram

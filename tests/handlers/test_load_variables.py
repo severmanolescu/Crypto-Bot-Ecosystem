@@ -6,6 +6,7 @@ This module tests the loading, saving, and retrieval of variables
 import os
 
 import src.handlers.load_variables_handler
+import src.handlers.save_data_handler
 
 
 def test_load_variables():
@@ -15,7 +16,7 @@ def test_load_variables():
     print("Testing the loading of variables...")
 
     # Load the variables
-    variables = src.handlers.load_variables_handler.load()
+    variables = src.handlers.load_variables_handler.load_json()
 
     # Check if the variables are loaded correctly
     assert isinstance(variables, dict), "Variables should be loaded as a dictionary."
@@ -43,16 +44,16 @@ def test_save_variables():
     print("Testing the saving of variables...")
 
     # Load the variables
-    variables = src.handlers.load_variables_handler.load()
+    variables = src.handlers.load_variables_handler.load_json()
 
     # Modify a variable
     variables["TEST_VARIABLE"] = "Test Value"
 
     # Save the modified variables
-    src.handlers.load_variables_handler.save(variables)
+    src.handlers.save_data_handler.save_variables_json(variables)
 
     # Reload the variables to check if the change was saved
-    reloaded_variables = src.handlers.load_variables_handler.load()
+    reloaded_variables = src.handlers.load_variables_handler.load_json()
 
     assert (
         reloaded_variables["TEST_VARIABLE"] == "Test Value"
@@ -109,7 +110,7 @@ def test_save_transaction():
         os.remove(test_file_path)
 
     # Save the transaction
-    src.handlers.load_variables_handler.save_transaction(
+    src.handlers.save_data_handler.save_transaction(
         symbol="Test symbol",
         action="BUY",
         amount=100.0,
@@ -186,7 +187,7 @@ def test_save_keyword():
         os.remove(test_file_path)
 
     # Save the keyword
-    src.handlers.load_variables_handler.save_keywords(test_keyword, test_file_path)
+    src.handlers.save_data_handler.save_keywords(test_keyword, test_file_path)
 
     # Load the keywords to check if the keyword was saved
     keywords = src.handlers.load_variables_handler.load_keyword_list(test_file_path)

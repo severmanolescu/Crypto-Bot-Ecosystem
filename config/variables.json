@@ -65,5 +65,12 @@
         "LDO",
         "SEI",
         "SUI"
-    ]
+    ],
+    "RSI_CHECK_TIMEFRAMES": [
+        "1h",
+        "4h",
+        "1d",
+        "1w"
+    ],
+    "SEND_RSI_ALERTS": true
 }

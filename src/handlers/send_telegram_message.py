@@ -7,7 +7,7 @@ import logging
 from telegram import Bot
 
 from src.handlers.data_fetcher_handler import get_eth_gas_fee
-from src.handlers.load_variables_handler import load
+from src.handlers.load_variables_handler import load_json
 from src.utils.utils import format_change
 
 logger = logging.getLogger(__name__)
@@ -59,7 +59,7 @@ class TelegramMessagesHandler:
         Reload the data from the configuration file and update the Telegram chat IDs
         and Etherscan API URL.
         """
-        variables = load()
+        variables = load_json()
 
         self.telegram_important_chat_id = variables.get(
             "TELEGRAM_CHAT_ID_FULL_DETAILS", []
@@ -100,7 +100,7 @@ class TelegramMessagesHandler:
         print(f"To {len(self.telegram_not_important_chat_id)} not important users!")
 
         try:
-            if is_important is False:
+            if not is_important:
                 for chat_id in self.telegram_not_important_chat_id:
                     await bot.send_message(
                         chat_id=chat_id, text=message, parse_mode="HTML"

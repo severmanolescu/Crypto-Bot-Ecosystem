@@ -11,7 +11,7 @@ import os
 
 import pytz
 
-from src.handlers.load_variables_handler import load, load_portfolio_from_file
+from src.handlers.load_variables_handler import load_json, load_portfolio_from_file
 from src.handlers.send_telegram_message import TelegramMessagesHandler
 
 logger = logging.getLogger(__name__)
@@ -39,7 +39,7 @@ class PortfolioManager:
         """
         Reload the data from the configuration file and update the portfolio.
         """
-        variables = load()
+        variables = load_json()
 
         self.telegram_api_token = variables.get("TELEGRAM_API_TOKEN_VALUE", "")
 
