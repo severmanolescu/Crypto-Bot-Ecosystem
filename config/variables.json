@@ -4,7 +4,7 @@
     "CMC_URL_LISTINGS": "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest",
     "CMC_TOP10_URL": "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest",
     "ETHERSCAN_API_KEY": "-",
-    "ETHERSCAN_GAS_API_URL": "https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey=",
+    "ETHERSCAN_GAS_API_URL": "https://api.etherscan.io/v2/api?chainid=1&module=gastracker&action=gasoracle&apikey=",
     "TELEGRAM_API_TOKEN_SLAVE": "-",
     "TELEGRAM_API_TOKEN_ARTICLES": "-",
     "TELEGRAM_API_TOKEN_VALUE": "-",
