@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Extreme Overbought",
+    "emoji": "🔴",
+    "label": "RSI: [80, 100]",
+    "min": 80,
+    "max": null
+  },
+  {
+    "name": "Overbought",
+    "emoji": "🟠",
+    "label": "RSI: [75, 80)",
+    "min": 75,
+    "max": 80
+  },
+  {
+    "name": "Normal Overbought",
+    "emoji": "🟡",
+    "label": "RSI: [70, 75)",
+    "min": 70,
+    "max": 75
+  },
+  {
+    "name": "Normal Oversold",
+    "emoji": "🟢",
+    "label": "RSI: (25, 30]",
+    "min": 25.01,
+    "max": 30
+  },
+  {
+    "name": "Oversold",
+    "emoji": "🔵",
+    "label": "RSI: (20, 35]",
+    "min": 20.01,
+    "max": 25
+  },
+  {
+    "name": "Extreme Oversold",
+    "emoji": "🟣",
+    "label": "RSI: (0, 20]",
+    "min": null,
+    "max": 20
+  }
+]

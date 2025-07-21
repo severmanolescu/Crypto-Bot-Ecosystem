@@ -112,7 +112,7 @@ def save_new_rsi_data(
         current_json[timeframe]["values"] = {}
 
         for key, value in rsi_data["values"].items():
-            if value > 70 or value < 30:
+            if value >= 70 or value <= 30:
                 current_json[timeframe]["values"][key] = value
 
         if not os.path.exists(file_path):
