@@ -261,6 +261,11 @@ def get_all_symbols():
 
 
 def load_rsi_categories(filepath="./config/rsi_categories.json"):
+    """
+    Load RSI categories from a JSON file and add a dynamic test function to each category.
+    Args:
+        filepath (str): Path to the JSON file containing RSI categories.
+    """
     with open(filepath, "r", encoding="utf-8") as f:
         raw_categories = json.load(f)
 

@@ -64,6 +64,12 @@ class CryptoRSIHandler:
         return {}
 
     def prepare_rsi_message_for_telegram(self, timeframe, rsi_data):
+        """
+        Prepare the RSI message for Telegram based on the calculated RSI data.
+        Args:
+            timeframe (str): The timeframe for which the RSI data is calculated.
+            rsi_data (dict): The RSI data for the specified timeframe.
+        """
         if not rsi_data:
             logger.error("No RSI data available.")
             self.message = "An error occurred while fetching RSI data."
@@ -94,15 +100,15 @@ class CryptoRSIHandler:
             # Entries
             for symbol, value in sorted(entries, key=lambda x: -x[1]):
                 lines.append(f"- <i>{symbol}</i> — <b>{value:.2f}</b>")
-            lines.append("---------")
+            lines.append(
+                "---------------------------------------------------------------"
+            )
 
         if not any_found:
             lines.append("<i>No significant RSI values found.</i>")
 
         lines.append("#RSI")
         self.message = "\n".join(lines)
-
-        a = self.message.split("\n")
 
     async def send_rsi_to_telegram(self, bot, is_important=False, update=None):
         """
