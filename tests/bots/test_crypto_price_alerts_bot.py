@@ -11,8 +11,6 @@ from telegram import Chat, Message, Update, User
 
 from src.bots.crypto_price_alerts_bot import (
     MAIN_MENU,
-    RSI_MENU,
-    VALUE_MENU,
     PriceAlertBot,
 )
 
