@@ -14,7 +14,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 
-from telegram import ReplyKeyboardMarkup, Update
+from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -32,18 +32,28 @@ setup_logger(file_name="crypto_price_alerts_bot.log")
 logger = logging.getLogger(__name__)
 logger.info("Crypto price Alerts bot started")
 
-# Persistent buttons for news commands
-NEWS_KEYBOARD = ReplyKeyboardMarkup(
+MAIN_MENU = ReplyKeyboardMarkup(
     [
-        ["🚨 Check for 1h Alerts", "🔔 Check for 24h Alerts"],
-        ["⚠️ Check for 7d Alerts", "📢 Check for 30d Alerts"],
-        ["🌐 Check for all timeframes Alerts"],
-        ["⚡ Check 1h RSI", "🔥 Check 4h RSI"],
-        ["⚠️ Check 1d RSI", "🚨 Check 1w RSI"],
-        ["📊 Check RSI for all timeframes"],
+        ["📈 RSI", "📊 Value Check"],
+        ["🔙 Help"],
     ],
     resize_keyboard=True,
-    one_time_keyboard=False,
+)
+
+RSI_MENU = ReplyKeyboardMarkup(
+    [
+        ["RSI 1H", "RSI 4H", "RSI 1D", "RSI 1W"],
+        ["RSI all timeframes", "🔙 Back to Menu"],
+    ],
+    resize_keyboard=True,
+)
+
+VALUE_MENU = ReplyKeyboardMarkup(
+    [
+        ["Value 1H", "Value 1D", "Value 1W", "Value 1M"],
+        ["Value all timeframes", "🔙 Back to Menu"],
+    ],
+    resize_keyboard=True,
 )
 
 
@@ -70,7 +80,7 @@ class PriceAlertBot:
         """
         await update.message.reply_text(
             "🤖 Welcome to the Alert Bot! Use the buttons below to get started:",
-            reply_markup=NEWS_KEYBOARD,
+            reply_markup=MAIN_MENU,
         )
 
     async def start_the_alerts_check_1h(self, update=None):
@@ -151,7 +161,7 @@ class PriceAlertBot:
         """
         text = update.message.text
 
-        if text == "🚨 Check for 1h Alerts" or text.lower() == "1h":
+        if text.lower() == "value 1h" or text.lower() == "alerth":
             await update.message.reply_text(
                 "🚨 Searching for new alerts for 1h update..."
             )
@@ -163,7 +173,7 @@ class PriceAlertBot:
                     "😔 No major price movement for 1h timeframe"
                 )
 
-        elif text == "🔔 Check for 24h Alerts" or text.lower() == "24h":
+        elif text.lower() == "value 1d" or text.lower() == "alertd":
             await update.message.reply_text(
                 "🔔 Searching for new alerts for 24h update..."
             )
@@ -175,7 +185,7 @@ class PriceAlertBot:
                     "😔 No major price movement for 24h timeframe"
                 )
 
-        elif text == "⚠️ Check for 7d Alerts" or text.lower() == "7d":
+        elif text.lower() == "value 1w" or text.lower() == "alertw":
             await update.message.reply_text(
                 "⚠️ Searching for new alerts for 7d update..."
             )
@@ -187,7 +197,7 @@ class PriceAlertBot:
                     "😔 No major price movement for 7d timeframe"
                 )
 
-        elif text == "📢 Check for 30d Alerts" or text.lower() == "30d":
+        elif text.lower() == "value 1m" or text.lower() == "alertm":
             await update.message.reply_text(
                 "📢 Searching for new alerts for 30d update..."
             )
@@ -199,7 +209,7 @@ class PriceAlertBot:
                     "😔 No major price movement for 30d timeframe"
                 )
 
-        elif text == "🌐 Check for all timeframes Alerts" or text.lower() == "all":
+        elif text.lower() == "value all timeframes" or text.lower() == "alertall":
             await update.message.reply_text(
                 "🌐 Searching for new alerts for all timeframes..."
             )
@@ -228,27 +238,27 @@ class PriceAlertBot:
 
         timeframe = None
 
-        if text == "⚡ Check 1h RSI":
+        if text.lower() == "rsi 1h" or text == "1h":
             await update.message.reply_text("⚡ Checking RSI for 1h timeframe...")
 
             timeframe = "1h"
 
-        elif text == "🔥 Check 4h RSI":
+        elif text.lower() == "rsi 4h" or text == "4h":
             await update.message.reply_text("🔥 Checking RSI for 4h timeframe...")
 
             timeframe = "4h"
 
-        elif text == "⚠️ Check 1d RSI":
+        elif text.lower() == "rsi 1d" or text == "1d":
             await update.message.reply_text("⚠️ Checking RSI for 1d timeframe...")
 
             timeframe = "1d"
 
-        elif text == "🚨 Check 1w RSI":
+        elif text.lower() == "rsi 1w" or text == "1w":
             await update.message.reply_text("🚨 Checking RSI for 1w timeframe...")
 
             timeframe = "1w"
 
-        elif text == "📊 Check RSI for all timeframes" or text.lower() == "all":
+        elif text == " rsi all timeframes" or text.lower() == "all":
 
             await update.message.reply_text("📊 Checking RSI for all timeframes...")
 
@@ -303,11 +313,29 @@ class PriceAlertBot:
         """
         text = update.message.text
 
+        if text == "📈 RSI":
+            await update.message.reply_text(
+                "Choose RSI timeframe:", reply_markup=RSI_MENU
+            )
+            return
+
+        elif text == "📊 Value Check":
+            await update.message.reply_text(
+                "Choose Value timeframe:", reply_markup=VALUE_MENU
+            )
+            return
+
+        elif text == "🔙 Back to Menu":
+            await update.message.reply_text(
+                "Back to main menu.", reply_markup=MAIN_MENU
+            )
+            return
+
         logger.info(" Check for Alerts")
 
-        if "Alerts" in text:
+        if "value" in text.lower():
             await self.handle_alerts_buttons(update, context)
-        elif "RSI" in text:
+        elif "rsi" in text.lower():
             await self.handle_rsi_buttons(update, context)
         else:
             logger.error("Invalid command. Please use the buttons below.")

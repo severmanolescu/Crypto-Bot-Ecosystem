@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Directory where your bots are located
-BOT_DIR="/home/sever/repos/Crypto-Articles-Bots"
+BOT_DIR="/home/sever/repos/Crypto-Bot_Ecosystem"
 
 # List of bot scripts
 BOTS=(
