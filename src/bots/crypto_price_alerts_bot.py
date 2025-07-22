@@ -14,7 +14,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 
-from telegram import Update, ReplyKeyboardMarkup
+from telegram import ReplyKeyboardMarkup, Update
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -319,13 +319,13 @@ class PriceAlertBot:
             )
             return
 
-        elif text == "📊 Value Check":
+        if text == "📊 Value Check":
             await update.message.reply_text(
                 "Choose Value timeframe:", reply_markup=VALUE_MENU
             )
             return
 
-        elif text == "🔙 Back to Menu":
+        if text == "🔙 Back to Menu":
             await update.message.reply_text(
                 "Back to main menu.", reply_markup=MAIN_MENU
             )
