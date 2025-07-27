@@ -9,7 +9,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from telegram import Chat, Message, Update, User
 
-from src.bots.crypto_price_alerts_bot import NEWS_KEYBOARD, PriceAlertBot
+from src.bots.crypto_price_alerts_bot import (
+    MAIN_MENU,
+    PriceAlertBot,
+)
 
 
 @pytest.fixture
@@ -64,7 +67,7 @@ async def test_start_command(price_alert_bot, mock_update):
 
     mock_update.message.reply_text.assert_called_once_with(
         "🤖 Welcome to the Alert Bot! Use the buttons below to get started:",
-        reply_markup=NEWS_KEYBOARD,
+        reply_markup=MAIN_MENU,
     )
 
 
@@ -72,7 +75,7 @@ async def test_start_command(price_alert_bot, mock_update):
 async def test_handle_buttons_1h_alert(price_alert_bot, mock_update):
     """Test handling the 1h alert button press"""
     bot, mock_crypto_bot = price_alert_bot
-    mock_update.message.text = "🚨 Check for 1h Alerts"
+    mock_update.message.text = "Value 1H"
     context = MagicMock()
 
     # Configure the mock to return True (alerts available)
@@ -96,7 +99,7 @@ async def test_handle_buttons_1h_alert(price_alert_bot, mock_update):
 async def test_handle_buttons_1h_alert_no_alerts(price_alert_bot, mock_update):
     """Test handling the 1h alert button press when no alerts are available"""
     bot, mock_crypto_bot = price_alert_bot
-    mock_update.message.text = "🚨 Check for 1h Alerts"
+    mock_update.message.text = "Value 1H"
     context = MagicMock()
 
     # Configure the mock to return False (no alerts available)
@@ -120,7 +123,7 @@ async def test_handle_buttons_1h_alert_no_alerts(price_alert_bot, mock_update):
 async def test_handle_buttons_all_timeframes(price_alert_bot, mock_update):
     """Test handling the all timeframes alert button press"""
     bot, mock_crypto_bot = price_alert_bot
-    mock_update.message.text = "🌐 Check for all timeframes Alerts"
+    mock_update.message.text = "Value all timeframes"
     context = MagicMock()
 
     await bot.handle_buttons(mock_update, context)

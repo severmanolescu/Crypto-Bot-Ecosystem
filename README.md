@@ -225,12 +225,15 @@ Getting Started
 # Install development dependencies
 pip install -r dev_requirements.txt
 
-# Run tests in watch mode
-pytest tests/ --watch
+# Run tests
+pytest tests/
 
 # Code formatting
 black src/
-flake8 src/
+isort src/
+
+# Linting
+pylint src/
 ```
 
 ---
