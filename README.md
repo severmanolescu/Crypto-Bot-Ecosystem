@@ -7,6 +7,12 @@
 A comprehensive suite of intelligent Telegram bots for cryptocurrency trading, market analysis, and portfolio management.
 
 ---
+## Note
+
+If you’d like to receive news updates from this bot, please contact me directly.\
+A self-registration method is currently being developed, so you’ll soon be able to subscribe on your own.
+
+---
 
 ## Features
 
