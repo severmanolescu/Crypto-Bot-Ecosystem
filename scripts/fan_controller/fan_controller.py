@@ -31,6 +31,7 @@ def get_temp():
 
 
 try:
+    print("Fan controller started!")
     while True:
         temp = get_temp()
         if temp >= ON_TEMP and not FAN_ON:
