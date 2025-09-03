@@ -50,6 +50,9 @@ class TelegramMessagesHandler:
         self.telegram_not_important_chat_id = None
         self.telegram_important_chat_id = None
 
+        self.telegram_price_alerts_chat_id = None
+        self.telegram_news_check_chat_id = None
+
         self.etherscan_api_url = None
 
         self.reload_the_data()
@@ -68,6 +71,14 @@ class TelegramMessagesHandler:
             "TELEGRAM_CHAT_ID_PARTIAL_DATA", []
         )
 
+        self.telegram_price_alerts_chat_id = variables.get(
+            "TELEGRAM_CHAT_ID_PRICE_ALERTS", []
+        )
+
+        self.telegram_news_check_chat_id = variables.get(
+            "TELEGRAM_CHAT_ID_NEWS_CHECK", []
+        )
+
         # Etherscan API credentials
         self.etherscan_api_url = variables.get(
             "ETHERSCAN_GAS_API_URL", ""
@@ -75,13 +86,13 @@ class TelegramMessagesHandler:
 
     # Function to send a message via Telegram
     async def send_telegram_message(
-        self, message, bot, is_important=False, update=None
+        self, message, bot_token, is_important=False, update=None
     ):
         """
         Send a message to Telegram using the Bot API.
         Args:
             message (str): The message to send.
-            bot (str): The Telegram bot token.
+            bot_token (str): The Telegram bot token.
             is_important (bool): Flag to indicate if the message is important.
             update (Update, optional): The update object containing the message context.
         """
@@ -90,12 +101,9 @@ class TelegramMessagesHandler:
 
             return
 
-        bot = Bot(token=bot)
+        bot = Bot(token=bot_token)
 
-        # if message.count("*") % 2 == 1:
-        #    message = message.replace("*", "\*")
-
-        print(f"\n\nSent to Telegram:\n {message}")
+        print(f"\n\nSent to Telegram:\n")
         print(f"To {len(self.telegram_important_chat_id)} important users!")
         print(f"To {len(self.telegram_not_important_chat_id)} not important users!")
 
@@ -110,6 +118,58 @@ class TelegramMessagesHandler:
         # pylint:disable=broad-exception-caught
         except Exception as e:
             error_message = f" Error sending message: {e}"
+            logger.error(error_message)
+            print(error_message)
+
+    async def send_telegram_message_price_alerts(self, message, bot_token, update=None):
+        """
+        Send a price alert message to Telegram.
+        Args:
+            message (str): The message to send.
+            bot_token (str): The Telegram bot token.
+            update (Update, optional): The update object containing the message context.
+        """
+        if update is not None:
+            await send_telegram_message_update(message, update)
+            return
+
+        bot = Bot(token=bot_token)
+
+        print(f"\n\nSent to Telegram:\n")
+        print(f"To {len(self.telegram_price_alerts_chat_id)} users!")
+
+        try:
+            for chat_id in self.telegram_price_alerts_chat_id:
+                await bot.send_message(chat_id=chat_id, text=message, parse_mode="HTML")
+        # pylint:disable=broad-exception-caught
+        except Exception as e:
+            error_message = f" Error sending price alert message: {e}"
+            logger.error(error_message)
+            print(error_message)
+
+    async def send_telegram_message_news_check(self, message, bot_token, update=None):
+        """
+        Send a news check message to Telegram.
+        Args:
+            message (str): The message to send.
+            bot_token (str): The Telegram bot token.
+            update (Update, optional): The update object containing the message context.
+        """
+        if update is not None:
+            await send_telegram_message_update(message, update)
+            return
+
+        bot = Bot(token=bot_token)
+
+        print(f"\n\nSent to Telegram:\n")
+        print(f"To {len(self.telegram_news_check_chat_id)} users!")
+
+        try:
+            for chat_id in self.telegram_news_check_chat_id:
+                await bot.send_message(chat_id=chat_id, text=message, parse_mode="HTML")
+        # pylint:disable=broad-exception-caught
+        except Exception as e:
+            error_message = f" Error sending news check message: {e}"
             logger.error(error_message)
             print(error_message)
 
