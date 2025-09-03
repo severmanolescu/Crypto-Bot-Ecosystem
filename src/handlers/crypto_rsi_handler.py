@@ -123,8 +123,8 @@ class CryptoRSIHandler:
             self.message = "An error occurred while fetching RSI data."
 
         telegram_handler = TelegramMessagesHandler()
-        await telegram_handler.send_telegram_message(
-            self.message, bot, is_important, update
+        await telegram_handler.send_telegram_message_price_alerts(
+            self.message, bot, update
         )
 
     def check_if_should_calculate_rsi(self, timeframe):

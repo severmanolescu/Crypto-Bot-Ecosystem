@@ -6,6 +6,7 @@ notifying via Telegram, and optionally generating summaries using OpenAI.
 
 import asyncio
 import logging
+from datetime import datetime
 
 import cloudscraper
 import requests
@@ -18,8 +19,11 @@ from src.handlers.load_variables_handler import (
     load_json,
     load_keyword_list,
 )
+from src.handlers.market_sentiment_handler import get_market_sentiment
 from src.handlers.open_ai_prompt_handler import OpenAIPrompt
-from src.handlers.send_telegram_message import TelegramMessagesHandler
+from src.handlers.send_telegram_message import (
+    TelegramMessagesHandler,
+)
 from src.scrapers.bitcoin_magazine_scraper import BitcoinMagazineScraper
 from src.scrapers.cointelegraph_scraper import CoinTelegraphScraper
 
@@ -47,9 +51,11 @@ class CryptoNewsCheck:
         self.send_ai_summary = None
         self.open_ai_prompt = None
         self.keywords = None
-        self.telegram_not_important_chat_id = None
-        self.telegram_important_chat_id = None
+
         self.telegram_api_token = None
+
+        self.today_ai_summary = None
+        self.sentiment_hours = None
 
         # Database handler (see src/data_base_handler.py)
         self.data_base = DataBaseHandler(db_path)
@@ -75,17 +81,15 @@ class CryptoNewsCheck:
         """
         variables = load_json()
         self.telegram_api_token = variables.get("TELEGRAM_API_TOKEN_ARTICLES", "")
-        self.telegram_important_chat_id = variables.get(
-            "TELEGRAM_CHAT_ID_FULL_DETAILS", []
-        )
-        self.telegram_not_important_chat_id = variables.get(
-            "TELEGRAM_CHAT_ID_PARTIAL_DATA", []
-        )
-        self.keywords = load_keyword_list()
 
         open_ai_api = variables.get("OPEN_AI_API", "")
         self.open_ai_prompt = OpenAIPrompt(open_ai_api)
         self.send_ai_summary = variables.get("SEND_AI_SUMMARY", "False")
+
+        self.today_ai_summary = variables.get("TODAY_AI_SUMMARY", "")
+        self.sentiment_hours = variables.get("SENTIMENT_HOURS", "")
+
+        self.keywords = load_keyword_list()
 
         self.telegram_message.reload_the_data()
 
@@ -211,7 +215,7 @@ class CryptoNewsCheck:
                                 f"📰 <b>New Article Found!</b>\n"
                                 f"📌 {article['headline']}\n"
                                 f"🔗 {article['link']}\n"
-                                f"🤖 {summary_text}\n"
+                                f"🧠 {summary_text}\n"
                                 f"🔍 Highlights: {article['highlights']}\n"
                             )
                         else:
@@ -225,7 +229,7 @@ class CryptoNewsCheck:
                         found_articles = True
 
                         # Send Telegram message
-                        await self.telegram_message.send_telegram_message(
+                        await self.telegram_message.send_telegram_message_news_check(
                             message, self.telegram_api_token, update=update
                         )
                     else:
@@ -256,9 +260,19 @@ class CryptoNewsCheck:
 
             ai_message += "\n #DailyReport"
 
-            await self.telegram_message.send_telegram_message(
+            await self.telegram_message.send_telegram_message_news_check(
                 ai_message, self.telegram_api_token
             )
+
+    async def market_sentiment(self):
+        """
+        Handles the market sentiment command to calculate and send market sentiment.
+        """
+        message = await get_market_sentiment()
+
+        await self.telegram_message.send_telegram_message_news_check(
+            message, self.telegram_api_token
+        )
 
     async def recreate_data_base(self):
         """
@@ -300,3 +314,13 @@ class CryptoNewsCheck:
             self.check_news("bitcoinmagazine"),
         ]
         await asyncio.gather(*tasks)  # Run all scrapers in parallel
+
+        now_date = datetime.now()
+
+        if now_date.hour in self.sentiment_hours:
+            logger.info("\nSending market sentiment...")
+            await self.market_sentiment()
+
+        if now_date.hour in self.today_ai_summary:
+            logger.info("\nSending today's AI summary...")
+            await self.send_today_summary()
