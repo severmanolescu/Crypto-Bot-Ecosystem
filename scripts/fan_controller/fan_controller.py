@@ -30,8 +30,8 @@ logger = logging.getLogger(__name__)
 logger.info("Fan controller started")
 
 FAN_PIN = 4  # GPIO 4
-ON_TEMP = 80
-OFF_TEMP = 75
+ON_TEMP = 75
+OFF_TEMP = 60
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(FAN_PIN, GPIO.OUT)
