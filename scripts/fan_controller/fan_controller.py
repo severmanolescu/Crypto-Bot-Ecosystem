@@ -6,9 +6,21 @@ This script controls a fan based on the Raspberry Pi's CPU temperature.
 # pylint:disable=consider-using-from-import, import-error, unspecified-encoding, logging-fstring-interpolation
 
 import logging
+import os
 import time
 
 import RPi.GPIO as GPIO
+
+# Configure logging to save in the same directory as the script
+LOG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fan_controller.log")
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler(LOG_FILE),
+        logging.StreamHandler()  # also print to console
+    ]
+)
 
 logger = logging.getLogger(__name__)
 logger.info("Fan controller started")
@@ -38,7 +50,7 @@ try:
             GPIO.output(FAN_PIN, GPIO.HIGH)
             FAN_ON = True
             print(f"Fan ON - Temp: {temp:.1f}°C")
-            logger.info(f"Fan ON - Temp: {temp:.1f}°C")
+            logger.info("Fan ON - Temp: %.1f°C", temp)
         elif temp <= OFF_TEMP and FAN_ON:
             GPIO.output(FAN_PIN, GPIO.LOW)
             FAN_ON = False
