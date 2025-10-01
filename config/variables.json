@@ -17,11 +17,11 @@
     "ALERT_THRESHOLD_30D": 40,
     "SEND_AI_SUMMARY": "True",
     "TELEGRAM_CHAT_ID_PARTIAL_DATA": [],
-    "TELEGRAM_CHAT_ID_FULL_DETAILS": [
-        "-"
-    ],
-    "AI_ARTICLE_SUMMARY_PROMPT": "Rezuma acest articol intr-un scurt paragraf si analizeaza sentimentul(Bullish, Bearish sau Neutral). Formateaza raspunsul cu HTML pentru Telegram(<b></b> <i></i>):\nLink: ",
-    "AI_TODAY_SUMMARY_PROMPT": "Te rog genereaza raportul zilnic general. Nu pentru fiecare articol, folosind urmatoarele articole. Formateaza raspunsul cu HTML pentru Telegram(<b></b> <i></i>):\n",
+    "TELEGRAM_CHAT_ID_PRICE_ALERTS": [],
+    "TELEGRAM_CHAT_ID_NEWS_CHECK": [],
+    "TELEGRAM_CHAT_ID_FULL_DETAILS": [],
+    "AI_ARTICLE_SUMMARY_PROMPT": "Rezuma acest articol \u00eentr-un scurt paragraf \u0219i analizeaz\u0103 sentimentul(Bullish, Bearish sau Neutral). Formateaz\u0103 r\u0103spunsul cu HTML pentru Telegram(doar elemente <b></b> si <i></i>):\nLink: ",
+    "AI_TODAY_SUMMARY_PROMPT": "Te rog genereaza raportul zilnic general. Nu pentru fiecare articol, folosind urmatoarele articole. Formateaz\u0103 r\u0103spunsul cu HTML pentru Telegram(doar elemente <b></b> si <i></i>):\n",
     "SEND_HOURS_VALUES": [
         7,
         11,

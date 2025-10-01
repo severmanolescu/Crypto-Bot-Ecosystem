@@ -89,8 +89,8 @@ class AlertsHandler:
                 alert_message += f"<b>{symbol}</b> → {format_change(change_1h)}\n"
 
         if alerts_found:
-            await self.telegram_message.send_telegram_message(
-                alert_message, self.telegram_api_token_alerts, False, update
+            await self.telegram_message.send_telegram_message_price_alerts(
+                alert_message, self.telegram_api_token_alerts, update
             )
 
             return True
@@ -117,8 +117,8 @@ class AlertsHandler:
                 alert_message += f"<b>{symbol}</b> → {format_change(change_24h)}\n"
 
         if alerts_found:
-            await self.telegram_message.send_telegram_message(
-                alert_message, self.telegram_api_token_alerts, False, update
+            await self.telegram_message.send_telegram_message_price_alerts(
+                alert_message, self.telegram_api_token_alerts, update
             )
 
             return True
@@ -145,8 +145,8 @@ class AlertsHandler:
                 alert_message += f"<b>{symbol}</b> → {format_change(change_7d)}\n"
 
         if alerts_found:
-            await self.telegram_message.send_telegram_message(
-                alert_message, self.telegram_api_token_alerts, False, update
+            await self.telegram_message.send_telegram_message_price_alerts(
+                alert_message, self.telegram_api_token_alerts, update
             )
 
             return True
@@ -172,8 +172,8 @@ class AlertsHandler:
                 alert_message += f"<b>{symbol}</b> → {format_change(change_30d)}\n"
 
         if alerts_found:
-            await self.telegram_message.send_telegram_message(
-                alert_message, self.telegram_api_token_alerts, False, update
+            await self.telegram_message.send_telegram_message_price_alerts(
+                alert_message, self.telegram_api_token_alerts, update
             )
 
             return True
@@ -183,13 +183,15 @@ class AlertsHandler:
 
         return False
 
-    async def check_for_alerts(self, now_date, top_100_crypto, update=None):
+    async def check_for_alerts(self, top_100_crypto, update=None):
         """
         Checks for significant price changes in the top 100 cryptocurrencies
         """
         await self.check_for_major_updates_1h(top_100_crypto, update)
 
         found_alerts = False
+
+        now_date = datetime.now()
 
         if now_date is None or self.last_hour_sent != now_date.hour:
             self.last_hour_sent = datetime.now()
@@ -231,7 +233,7 @@ class AlertsHandler:
                 )
             except asyncio.TimeoutError:
                 logger.error("Timeout occurred while sending RSI data.")
-                await self.telegram_message.send_telegram_message(
+                await self.telegram_message.send_telegram_message_price_alerts(
                     "⏳ Timeout occurred while sending RSI data for timeframe: "
                     + timeframe
                     + ". Please try again.",
@@ -239,7 +241,7 @@ class AlertsHandler:
                 )
             except Exception as e:
                 logger.error("An error occurred while sending RSI data: %s", e)
-                await self.telegram_message.send_telegram_message(
+                await self.telegram_message.send_telegram_message_price_alerts(
                     "❌ An error occurred while processing your request for timeframe: "
                     + timeframe
                     + ". Please try again.",

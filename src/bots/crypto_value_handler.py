@@ -5,22 +5,18 @@ and sends updates via Telegram. It also checks for major price changes and
 alerts users based on predefined thresholds.
 """
 
-import json
 import logging
 import os
-import time
 from datetime import datetime
-
-import requests
 
 import src.handlers.load_variables_handler
 from src.data_base.data_base_handler import DataBaseHandler
-from src.handlers.alerts_handler import AlertsHandler
 from src.handlers.data_fetcher_handler import (
     get_eth_gas_fee,
     get_fear_and_greed,
     get_fear_and_greed_message,
 )
+from src.handlers.get_crypto_data import GetCryptoDataHandler
 from src.handlers.market_sentiment_handler import get_market_sentiment
 from src.handlers.news_check_handler import CryptoNewsCheck
 from src.handlers.portfolio_manager import PortfolioManager
@@ -41,13 +37,10 @@ class CryptoValueBot:
         Initializes the CryptoValueBot with default values and loads necessary configurations.
         """
         self.last_sent_hour = None
+
         self.my_crypto = None
-        self.top_100_crypto = None
 
         self.crypto_currencies = None
-
-        self.coinmarketcap_api_key = None
-        self.coinmarketcap_api_url = None
 
         self.etherscan_api_url = None
 
@@ -64,13 +57,11 @@ class CryptoValueBot:
 
         self.today_ai_summary = None
 
-        self.last_api_call = 0
-        self.cache_duration = 60
-
         self.db = DataBaseHandler()
-        self.alert_handler = AlertsHandler()
         self.portfolio = PortfolioManager()
         self.telegram_message = TelegramMessagesHandler()
+
+        self.get_crypto_data_handler = GetCryptoDataHandler()
 
         self.news_check = CryptoNewsCheck()
 
@@ -96,10 +87,6 @@ class CryptoValueBot:
         self.save_hours = variables.get("SAVE_HOURS", "")
 
         self.my_crypto = {}
-        self.top_100_crypto = {}
-
-        # Reload alerts thresholds
-        self.alert_handler.reload_the_data()
 
         # Reload portfolio from file
         self.portfolio.reload_the_data()
@@ -107,58 +94,23 @@ class CryptoValueBot:
         # Reload telegram message handler variables
         self.telegram_message.reload_the_data()
 
-        self.crypto_currencies = variables.get("CRYPTOCURRENCIES", "")
+        # Reload news check handler variables
+        self.news_check.reload_the_data()
 
-        # CoinMarketCap API credentials
-        self.coinmarketcap_api_key = variables.get("CMC_API_KEY", "")
-        self.coinmarketcap_api_url = variables.get("CMC_URL_LISTINGS", "")
+        # Reload crypto data handler variables
+        self.get_crypto_data_handler.reload_the_data()
+
+        self.crypto_currencies = variables.get("CRYPTOCURRENCIES", "")
 
     # Function to fetch cryptocurrency prices and price changes
     def get_my_crypto(self):
         """
         Fetches the latest cryptocurrency prices and changes from CoinMarketCap API.
         """
-        current_time = time.time()
-        if current_time - self.last_api_call < self.cache_duration:
-            return
 
-        headers = {
-            "Accepts": "application/json",
-            "X-CMC_PRO_API_KEY": self.coinmarketcap_api_key,
-        }
-        parameters = {
-            "start": "1",
-            "limit": "100",
-            "convert": "USD",
-        }
-        response = requests.get(
-            self.coinmarketcap_api_url, headers=headers, params=parameters, timeout=30
+        dummy, self.my_crypto = self.get_crypto_data_handler.get_crypto_data(
+            self.crypto_currencies
         )
-        data = json.loads(response.text)
-
-        if not data:
-            logger.error(
-                "Error fetching data from CoinMarketCap API: %s", data.get("status", {})
-            )
-            return
-
-        for crypto in data["data"]:
-            symbol = crypto["symbol"]
-            if symbol in self.crypto_currencies:
-                self.my_crypto[symbol] = {
-                    "price": crypto["quote"]["USD"]["price"],
-                    "change_1h": crypto["quote"]["USD"]["percent_change_1h"],
-                    "change_24h": crypto["quote"]["USD"]["percent_change_24h"],
-                    "change_7d": crypto["quote"]["USD"]["percent_change_7d"],
-                    "change_30d": crypto["quote"]["USD"]["percent_change_30d"],
-                }
-            self.top_100_crypto[symbol] = {
-                "price": crypto["quote"]["USD"]["price"],
-                "change_1h": crypto["quote"]["USD"]["percent_change_1h"],
-                "change_24h": crypto["quote"]["USD"]["percent_change_24h"],
-                "change_7d": crypto["quote"]["USD"]["percent_change_7d"],
-                "change_30d": crypto["quote"]["USD"]["percent_change_30d"],
-            }
 
     async def show_fear_and_greed(self, update=None):
         """
@@ -210,18 +162,6 @@ class CryptoValueBot:
         """
         await self.telegram_message.send_eth_gas_fee(
             self.market_update_api_token, update
-        )
-
-    async def send_market_sentiment(self, update=None):
-        """
-        Fetches the current market sentiment and sends it as a Telegram message.
-        Args:
-            update: Optional; if provided, the message will be sent as a reply to this update.
-        """
-        message = await get_market_sentiment()
-
-        await self.telegram_message.send_telegram_message(
-            message, self.articles_alert_api_token, False, update
         )
 
     async def send_today_ai_summary(self):
@@ -279,9 +219,6 @@ class CryptoValueBot:
                 logger.info("\nChecking for major updates...")
                 await self.send_portfolio_update()
 
-            logger.info("\nChecking for major updates...")
-            await self.check_for_major_updates(now_date)
-
             if now_date.hour in self.save_portfolio_hours:
                 logger.info("\nSaving the portfolio data...")
                 await self.send_portfolio_update(detailed=True, save_data=True)
@@ -297,65 +234,6 @@ class CryptoValueBot:
             if now_date.hour in self.save_hours:
                 logger.info("\nSaving the data...")
                 await self.save_today_data()
-
-            logger.info("\nChecking RSI values...")
-            await self.alert_handler.rsi_check()
-
-    async def check_for_major_updates(self, now_date, update=None):
-        """
-        Checks for major price changes in the top 100 cryptocurrencies and
-        sends alerts if any are found.
-        Args:
-            now_date: The current date and time.
-            update: Optional; if provided, the message will be sent as a reply to this update.
-        """
-        return await self.alert_handler.check_for_alerts(
-            now_date, self.top_100_crypto, update
-        )
-
-    async def check_for_major_updates_1h(self, update=None):
-        """
-        Checks for major price changes in the top 100 cryptocurrencies over the last hour
-        and sends alerts if any are found.
-        Args:
-            update: Optional; if provided, the message will be sent as a reply to this update.
-        """
-        return await self.alert_handler.check_for_major_updates_1h(
-            self.top_100_crypto, update
-        )
-
-    async def check_for_major_updates_24h(self, update=None):
-        """
-        Checks for major price changes in the top 100 cryptocurrencies over the last 24 hours
-        and sends alerts if any are found.
-        Args:
-            update: Optional; if provided, the message will be sent as a reply to this update.
-        """
-        return await self.alert_handler.check_for_major_updates_24h(
-            self.top_100_crypto, update
-        )
-
-    async def check_for_major_updates_7d(self, update=None):
-        """
-        Checks for major price changes in the top 100 cryptocurrencies over the last 7 days
-        and sends alerts if any are found.
-        Args:
-            update: Optional; if provided, the message will be sent as a reply to this update.
-        """
-        return await self.alert_handler.check_for_major_updates_7d(
-            self.top_100_crypto, update
-        )
-
-    async def check_for_major_updates_30d(self, update=None):
-        """
-        Checks for major price changes in the top 100 cryptocurrencies over the last 30 days
-        and sends alerts if any are found.
-        Args:
-            update: Optional; if provided, the message will be sent as a reply to this update.
-        """
-        return await self.alert_handler.check_for_major_updates_30d(
-            self.top_100_crypto, update
-        )
 
     async def fetch_data(self):
         """
