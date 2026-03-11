@@ -134,7 +134,7 @@ crontab -e
 ### 2. Add the following line at the end
 
 ```bash
-@reboot /mnt/data/Crypto-Bot-Ecosystem/scripts/fan_controller/start_fan_controller.sh
+@reboot /mnt/data/Crypto-Bot-Ecosystem/scripts/fan_controller/start_controller.sh
 ```
 
 ### 3. Save and exit the editor
