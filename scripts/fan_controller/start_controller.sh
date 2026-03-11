@@ -10,4 +10,5 @@ PYTHON_SCRIPT="fan_controller.py"
 VENV_PYTHON="venv/bin/python"
 
 # Start the screen session and run the Python script
+export TERM=xterm
 screen -dmS "$SESSION_NAME" "$VENV_PYTHON" "$PYTHON_SCRIPT"
