@@ -108,6 +108,7 @@ The `start_fan_controller.sh` script:
 SESSION_NAME="fan_controller"
 PYTHON_SCRIPT="fan_controller.py"
 VENV_PYTHON="/mnt/data/Crypto-Bot-Ecosystem/scripts/fan_controller/venv/bin/python"
+export TERM=xterm
 screen -dmS "$SESSION_NAME" "$VENV_PYTHON" "$PYTHON_SCRIPT"
 ```
 
