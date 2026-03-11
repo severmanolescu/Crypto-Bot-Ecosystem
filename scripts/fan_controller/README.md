@@ -8,8 +8,8 @@ This Python script automatically controls a fan connected to your Raspberry Pi b
 
 The script reads the CPU temperature from the Pi's thermal zone and toggles a GPIO pin (connected to the fan) accordingly:
 
-- Fan **ON** at or above **80°C**
-- Fan **OFF** at or below **75°C**
+- Fan **ON** at or above **75°C**
+- Fan **OFF** at or below **60°C**
 
 Uses **GPIO 4** (`BCM mode`) for fan control.
 
@@ -23,7 +23,7 @@ Uses **GPIO 4** (`BCM mode`) for fan control.
 | 5V Fan           | 2-pin                      | Cooling                              |
 | NPN Transistor   | 2N2222 or similar          | Switch for fan control               |
 | Resistor         | For transistor base        | Current limiting for transistor base |
-| Diode (optional) | 1N5819(optional)           | Flyback protection                   |
+| Diode (optional) | 1N5819 (optional)          | Flyback protection                   |
 | Wires/Breadboard | Jumper wires or breadboard | Connections setup                    |
 
 **Diagram:** \
@@ -47,61 +47,129 @@ Uses **GPIO 4** (`BCM mode`) for fan control.
 
 ## Software Setup
 
-### 1. Enable GPIO and install dependencies
+### 1. Install dependencies
 
 ```bash
 sudo apt update
-sudo apt install python3-rpi.gpio
-```
-For this script, you also need to install the `RPi.GPIO` library if it's not already installed:
-
-```bash
-pip install RPi.GPIO
-```
-or:
-```bash
-python -m pip install RPi.GPIO
+sudo apt install screen -y
 ```
 
 ### 2. Clone the repository
 
-```bash  
-git clone git@github.com:severmanolescu/Crypto-Articles-Bots.git  
+```bash
+git clone git@github.com:severmanolescu/Crypto-Articles-Bots.git
 cd Crypto-Articles-Bots
 ```
 
-### 3. Run the script
+### 3. Create and activate a virtual environment
 
 ```bash
-python ./scripts/fan_controller/fan_controller.py
+cd scripts/fan_controller
+python3 -m venv venv
+source venv/bin/activate
 ```
+
+### 4. Install Python dependencies
+
+```bash
+pip install RPi.GPIO
+```
+
+### 5. Deactivate the virtual environment
+
+```bash
+deactivate
+```
+
 ---
+
+## Running the Script
+
+### Manual run
+
+```bash
+source venv/bin/activate
+python fan_controller.py
+```
+
+### Run in background using screen
+
+Use the provided start script to run the fan controller in a detached screen session:
+
+```bash
+chmod +x start_fan_controller.sh
+./start_fan_controller.sh
+```
+
+The `start_fan_controller.sh` script:
+
+```bash
+#!/bin/bash
+SESSION_NAME="fan_controller"
+PYTHON_SCRIPT="fan_controller.py"
+VENV_PYTHON="/mnt/data/Crypto-Bot-Ecosystem/scripts/fan_controller/venv/bin/python"
+screen -dmS "$SESSION_NAME" "$VENV_PYTHON" "$PYTHON_SCRIPT"
+```
+
+### Useful screen commands
+
+| Command                    | Description                        |
+|----------------------------|------------------------------------|
+| `screen -ls`               | List all active screen sessions    |
+| `screen -r fan_controller` | Attach to the fan controller session |
+| `Ctrl+A then D`            | Detach from session without killing it |
+
+---
+
 ## Auto-Start on Boot
+
 To run the script automatically on boot:
-### 1. Open the crontab editor:
+
+### 1. Open the crontab editor
+
 ```bash
 crontab -e
 ```
-### 2. Add the following line at the end:
+
+### 2. Add the following line at the end
+
 ```bash
-@reboot /path/to/your/start_controller.py
+@reboot /mnt/data/Crypto-Bot-Ecosystem/scripts/fan_controller/start_fan_controller.sh
 ```
-### 3. Save and exit the editor.
+
+### 3. Save and exit the editor
 
 ---
+
 ## Script Details
+
 ```python
 FAN_PIN = 4  # GPIO 4
-ON_TEMP = 80
-OFF_TEMP = 75
+ON_TEMP = 75
+OFF_TEMP = 60
 ```
-Change `FAN_PIN` to the GPIO pin you are using for the fan control. Adjust `ON_TEMP` and `OFF_TEMP` as needed.
+
+Change `FAN_PIN` to the GPIO pin you are using for fan control. Adjust `ON_TEMP` and `OFF_TEMP` as needed.
+
+---
+
+## Logs
+
+The script logs fan activity to `fan_controller.log` in the same directory as the script, and also prints to the console.
+
+Example log output:
+```
+2026-03-11 22:00:00 [INFO] Fan controller started
+2026-03-11 22:05:12 [INFO] Fan ON - Temp: 75.2°C
+2026-03-11 22:10:45 [INFO] Fan OFF - Temp: 59.8°C
+```
 
 ---
 
 ## Notes
+
 - Ensure the fan is rated for 5V operation.
-- The script requires root privileges to access GPIO pins. You can run it with `sudo` or set up the script to run as a service.
+- The script requires root privileges to access GPIO pins. Run it with `sudo` or set up the script to run as a service.
 - Test the fan operation manually before relying on the script to ensure everything is wired correctly.
-- The project uses a 5V fan, a 3.3V maybe can work with a transistor, but it's not recommended as it may not provide sufficient power.
-- The script is designed to run continuously, monitoring the CPU temperature and controlling the fan accordingly.
+- The project uses a 5V fan. A 3.3V fan may work with a transistor but is not recommended as it may not provide sufficient power.
+- The script runs continuously, monitoring CPU temperature and controlling the fan accordingly.
