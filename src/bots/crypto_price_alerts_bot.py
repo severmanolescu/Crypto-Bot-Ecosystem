@@ -34,7 +34,8 @@ setup_logger(file_name="crypto_price_alerts_bot.log")
 logger = logging.getLogger(__name__)
 logger.info("Crypto price Alerts bot started")
 
-UPTIME_KUMA_URL = "kuma_url_here"  # Replace with your actual Uptime Kuma heartbeat URL
+# Uptime Kuma heartbeat URL (replace with your actual URL)
+UPTIME_KUMA_URL = ""
 
 MAIN_MENU = ReplyKeyboardMarkup(
     [

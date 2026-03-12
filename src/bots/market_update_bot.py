@@ -50,7 +50,8 @@ NEWS_KEYBOARD = ReplyKeyboardMarkup(
     one_time_keyboard=False,  # Buttons stay visible after being clicked
 )
 
-UPTIME_KUMA_URL = "kuma_url_here"  # Replace with your actual Uptime Kuma heartbeat URL
+# Uptime Kuma heartbeat URL (replace with your actual URL)
+UPTIME_KUMA_URL = ""
 
 
 class MarketUpdateBot:

@@ -16,7 +16,8 @@ from src.handlers.load_variables_handler import get_int_variable
 from src.handlers.logger_handler import setup_logger
 from src.handlers.news_check_handler import CryptoNewsCheck
 
-UPTIME_KUMA_URL = "kuma_url_here"  # Replace with your actual Uptime Kuma heartbeat URL
+# Uptime Kuma heartbeat URL (replace with your actual URL)
+UPTIME_KUMA_URL = ""
 
 
 class Application:
