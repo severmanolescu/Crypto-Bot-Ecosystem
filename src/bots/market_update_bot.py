@@ -277,7 +277,11 @@ class MarketUpdateBot:
         """
         variables = LoadVariables.load_json()
 
-        threading.Thread(target=heartbeat, args=(variables.get("UPTIME_KUMA_VALUE_URL", ""),), daemon=True).start()
+        threading.Thread(
+            target=heartbeat,
+            args=(variables.get("UPTIME_KUMA_VALUE_URL", ""),),
+            daemon=True,
+        ).start()
 
     # Main function to start the bot
     def run_bot(self):

@@ -355,8 +355,11 @@ class PriceAlertBot:
 
         bot_token = variables.get("TELEGRAM_API_TOKEN_ALERTS", "")
 
-        threading.Thread(target=heartbeat, args=(variables.get("UPTIME_KUMA_ALERTS_URL", ""),),
-                         daemon=True).start()
+        threading.Thread(
+            target=heartbeat,
+            args=(variables.get("UPTIME_KUMA_ALERTS_URL", ""),),
+            daemon=True,
+        ).start()
 
         app = Application.builder().token(bot_token).build()
 

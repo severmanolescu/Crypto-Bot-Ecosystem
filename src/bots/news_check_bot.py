@@ -190,7 +190,11 @@ Example:
         """
         variables = src.handlers.load_variables_handler.load_json()
 
-        threading.Thread(target=heartbeat, args=(variables.get("UPTIME_KUMA_ARTICLES_URL", ""),), daemon=True).start()
+        threading.Thread(
+            target=heartbeat,
+            args=(variables.get("UPTIME_KUMA_ARTICLES_URL", ""),),
+            daemon=True,
+        ).start()
 
         bot_token = variables.get("TELEGRAM_API_TOKEN_ARTICLES", "")
 

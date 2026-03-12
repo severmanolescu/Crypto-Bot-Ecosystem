@@ -70,7 +70,12 @@ class Application:
         """
         variables = load_json()
 
-        threading.Thread(target=heartbeat, args=(variables.get("UPTIME_KUMA_MAIN_URL", ""),), daemon=True).start()
+        threading.Thread(
+            target=heartbeat,
+            args=(variables.get("UPTIME_KUMA_MAIN_URL", ""),),
+            daemon=True,
+        ).start()
+
 
 def main() -> None:
     """
