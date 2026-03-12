@@ -3,7 +3,7 @@ fan_controller.py
 This script controls a fan based on the Raspberry Pi's CPU temperature.
 """
 
-# pylint:disable=consider-using-from-import, import-error, unspecified-encoding, logging-fstring-interpolation
+# pylint:disable=consider-using-from-import, import-error, unspecified-encoding, logging-fstring-interpolation, invalid-name, wrong-import-position
 
 
 import logging
