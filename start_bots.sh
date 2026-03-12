@@ -1,7 +1,14 @@
 #!/bin/bash
 
+# Wait for network
+echo "Waiting for network..."
+until ping -c1 api.telegram.org &>/dev/null 2>&1; do
+    sleep 2
+done
+echo "Network is up!"
+
 # Directory where your bots are located
-BOT_DIR="/home/sever/repos/Crypto-Bot_Ecosystem"
+BOT_DIR="/mnt/data/Crypto-Bot-Ecosystem"
 
 # List of bot scripts
 BOTS=(
@@ -15,8 +22,8 @@ BOTS=(
 # Function to start a bot in a detached screen session
 start_bot() {
     local bot_script="$1"
-    local bot_name=$(basename "${bot_script%.py}")  # Use only the filename without .py for screen name
-    screen -dmS "$bot_name" bash -c "cd $BOT_DIR && python3 $bot_script"
+    local bot_name=$(basename "${bot_script%.py}")
+    screen -dmS "$bot_name" bash -c "cd $BOT_DIR && python3 $bot_script >> /mnt/Crypto_Bot_ecosystem/logs/${bot_name}.log 2>&1"
     echo "✅ Started $bot_name in a new screen session."
 }
 

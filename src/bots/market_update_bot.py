@@ -11,6 +11,7 @@ and portfolio history.
 import logging
 import os
 import sys
+import threading
 from datetime import datetime
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -27,6 +28,7 @@ from telegram.ext import (
 
 from src.bots.crypto_value_handler import CryptoValueBot
 from src.handlers import load_variables_handler as LoadVariables
+from src.handlers.heartbeat_kuma import heartbeat
 from src.handlers.logger_handler import setup_logger
 from src.handlers.send_telegram_message import TelegramMessagesHandler
 from src.utils.plot_crypto_trades import PlotTrades
@@ -269,12 +271,26 @@ class MarketUpdateBot:
                 "❌ Invalid command. Please use the buttons below."
             )
 
+    def initialize_uptime_kuma(self):
+        """
+        Initializes the Uptime Kuma heartbeat in a separate thread.
+        """
+        variables = LoadVariables.load_json()
+
+        threading.Thread(
+            target=heartbeat,
+            args=(variables.get("UPTIME_KUMA_VALUE_URL", ""),),
+            daemon=True,
+        ).start()
+
     # Main function to start the bot
     def run_bot(self):
         """
         Starts the Market Update Bot and sets up the command handlers.
         """
         self.reload_the_data()
+
+        self.initialize_uptime_kuma()
 
         app = Application.builder().token(self.telegram_api_token).build()
 
@@ -295,6 +311,6 @@ class MarketUpdateBot:
 
 # Run the bot
 if __name__ == "__main__":
-    updateBot = MarketUpdateBot()
+    UPDATE_BOT = MarketUpdateBot()
 
-    updateBot.run_bot()
+    UPDATE_BOT.run_bot()

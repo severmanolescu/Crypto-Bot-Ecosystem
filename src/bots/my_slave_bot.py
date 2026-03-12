@@ -8,6 +8,7 @@ My Slave Bot
 import logging
 import os
 import sys
+import threading
 from datetime import datetime, timezone
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -22,6 +23,7 @@ from telegram.ext import (
     filters,
 )
 
+from src.handlers.heartbeat_kuma import heartbeat
 from src.handlers.load_variables_handler import (
     load_json,
     load_keyword_list,
@@ -896,6 +898,12 @@ class SlaveBot:
         bot_token = variables.get("TELEGRAM_API_TOKEN_SLAVE", "")
 
         app = Application.builder().token(bot_token).build()
+
+        threading.Thread(
+            target=heartbeat,
+            args=(variables.get("UPTIME_KUMA_SLAVE_URL", ""),),
+            daemon=True,
+        ).start()
 
         # Add command handlers
         app.add_handler(CommandHandler("start", self.start))

@@ -8,6 +8,7 @@ This bot checks for crypto news articles and provides market sentiment analysis.
 import logging
 import os
 import sys
+import threading
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 
@@ -23,6 +24,7 @@ from telegram.ext import (
 
 import src.handlers.load_variables_handler
 from src.data_base.data_base_handler import DataBaseHandler
+from src.handlers.heartbeat_kuma import heartbeat
 from src.handlers.logger_handler import setup_logger
 from src.handlers.market_sentiment_handler import get_market_sentiment
 from src.handlers.news_check_handler import CryptoNewsCheck
@@ -188,6 +190,12 @@ Example:
         """
         variables = src.handlers.load_variables_handler.load_json()
 
+        threading.Thread(
+            target=heartbeat,
+            args=(variables.get("UPTIME_KUMA_ARTICLES_URL", ""),),
+            daemon=True,
+        ).start()
+
         bot_token = variables.get("TELEGRAM_API_TOKEN_ARTICLES", "")
 
         app = Application.builder().token(bot_token).build()
@@ -206,6 +214,7 @@ Example:
 
 
 if __name__ == "__main__":
+
     news_bot = NewsBot()
 
     news_bot.run_bot()

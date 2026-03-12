@@ -3,14 +3,20 @@ fan_controller.py
 This script controls a fan based on the Raspberry Pi's CPU temperature.
 """
 
-# pylint:disable=consider-using-from-import, import-error, unspecified-encoding, logging-fstring-interpolation
+# pylint:disable=consider-using-from-import, import-error, unspecified-encoding, logging-fstring-interpolation, invalid-name, wrong-import-position
 
 
 import logging
 import os
+import sys
+import threading
 import time
 
 import RPi.GPIO as GPIO
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+
+from src.handlers.heartbeat_kuma import heartbeat
 
 # Configure logging to save in the same directory as the script
 
@@ -36,6 +42,11 @@ OFF_TEMP = 60
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(FAN_PIN, GPIO.OUT)
 FAN_ON = False
+
+# Uptime Kuma heartbeat URL (replace with your actual URL)
+UPTIME_KUMA_URL = ""
+
+threading.Thread(target=heartbeat, args=(UPTIME_KUMA_URL,), daemon=True).start()
 
 
 def get_temp():

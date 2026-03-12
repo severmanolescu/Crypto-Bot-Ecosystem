@@ -7,6 +7,7 @@ import asyncio
 import logging
 import os
 import sys
+import threading
 
 # pylint: disable=wrong-import-position,broad-exception-caught
 
@@ -26,6 +27,7 @@ from telegram.ext import (
 from src.bots.crypto_value_handler import CryptoValueBot
 from src.handlers import load_variables_handler
 from src.handlers.crypto_rsi_handler import CryptoRSIHandler
+from src.handlers.heartbeat_kuma import heartbeat
 from src.handlers.logger_handler import setup_logger
 
 setup_logger(file_name="crypto_price_alerts_bot.log")
@@ -352,6 +354,12 @@ class PriceAlertBot:
         variables = load_variables_handler.load_json()
 
         bot_token = variables.get("TELEGRAM_API_TOKEN_ALERTS", "")
+
+        threading.Thread(
+            target=heartbeat,
+            args=(variables.get("UPTIME_KUMA_ALERTS_URL", ""),),
+            daemon=True,
+        ).start()
 
         app = Application.builder().token(bot_token).build()
 

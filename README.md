@@ -107,6 +107,7 @@ You'll need accounts and API keys for:
 - **CoinMarketCap API** - [Get API Key](https://coinmarketcap.com/api/) 
 - **Etherscan API** - [Register Here](https://etherscan.io/apis) 
 - **OpenAI API** - [OpenAI Platform](https://platform.openai.com/docs/api-reference)
+- **Uptime Kuma** (optional for monitoring) - [Uptime Kuma](https://github.com/louislam/uptime-kuma)(
 
 ### Quick Setup
 ```bash  
@@ -142,20 +143,24 @@ To run the bots, you need to configure the environment variables and API keys. T
 
 ### Configuration Options 
 
-| Setting                           | Description                                     | Access Level                                                           |
-|-----------------------------------|-------------------------------------------------|------------------------------------------------------------------------|
-| **CMC_API_KEY**                   | API key for CoinMarketCap                       | Required for market data retrieval.                                    |
-| **ETHERSCAN_API_KEY**             | API key for Etherscan                           | Required for blockchain data retrieval.                                |
-| **OPEN_AI_API**                   | API key for OpenAI                              | Required for AI-powered features like article summarization.           |
-| **TELEGRAM_API_TOKEN_SLAVE**      | Token for the Slave Bot                         | Required for management operations.                                    |
-| **TELEGRAM_API_TOKEN_ARTICLES**   | Token for the News Bot                          | Required for news aggregation and summarization.                       |
-| **TELEGRAM_API_TOKEN_VALUE**      | Token for the Market Value Bot                  | Required for market tracking and portfolio management.                 |
-| **TELEGRAM_API_TOKEN_ALERTS**     | Token for the Alerts Bot                        | Required for price alerts and notifications.                           |
-| **TELEGRAM_CHAT_ID_FULL_DETAILS** | Users with complete bot access                  | Full access to all commands and features.                              |
-| **TELEGRAM_CHAT_ID_PARTIAL_DATA** | Users with limited bot access                   | Limited access to basic commands and features.                         |
-| **AI_ARTICLE_SUMMARY_PROMPT**     | Customizable AI prompt for article summaries    | Used by the news bot to summarize articles in a specific language.     |
-| **AI_TODAY_SUMMARY_PROMPT**       | Customizable AI prompt for daily news summaries | Used by the news bot to summarize today's news in a specific language. |
-
+| Setting                           | Description                                     | Access Level                                                                |
+|-----------------------------------|-------------------------------------------------|-----------------------------------------------------------------------------|
+| **CMC_API_KEY**                   | API key for CoinMarketCap                       | Required for market data retrieval.                                         |
+| **ETHERSCAN_API_KEY**             | API key for Etherscan                           | Required for blockchain data retrieval.                                     |
+| **OPEN_AI_API**                   | API key for OpenAI                              | Required for AI-powered features like article summarization.                |
+| **TELEGRAM_API_TOKEN_SLAVE**      | Token for the Slave Bot                         | Required for management operations.                                         |
+| **TELEGRAM_API_TOKEN_ARTICLES**   | Token for the News Bot                          | Required for news aggregation and summarization.                            |
+| **TELEGRAM_API_TOKEN_VALUE**      | Token for the Market Value Bot                  | Required for market tracking and portfolio management.                      |
+| **TELEGRAM_API_TOKEN_ALERTS**     | Token for the Alerts Bot                        | Required for price alerts and notifications.                                |
+| **TELEGRAM_CHAT_ID_FULL_DETAILS** | Users with complete bot access                  | Full access to all commands and features.                                   |
+| **TELEGRAM_CHAT_ID_PARTIAL_DATA** | Users with limited bot access                   | Limited access to basic commands and features.                              |
+| **AI_ARTICLE_SUMMARY_PROMPT**     | Customizable AI prompt for article summaries    | Used by the news bot to summarize articles in a specific language.          |
+| **AI_TODAY_SUMMARY_PROMPT**       | Customizable AI prompt for daily news summaries | Used by the news bot to summarize today's news in a specific language.      |
+| **UPTIME_KUMA_MAIN_URL**          | Uptime Kuma URL for main bot                    | Used by the main bot to send heartbeats to the Uptime Kuma application.     |
+| **UPTIME_KUMA_ALERTS_URL**        | Uptime Kuma URL for alerts bot                  | Used by the alerts bot to send heartbeats to the Uptime Kuma application.   |
+| **UPTIME_KUMA_VALUE_URL**         | Uptime Kuma URL for value bot                   | Used by the value bot to send heartbeats to the Uptime Kuma application.    |
+| **UPTIME_KUMA_SLAVE_URL**         | Uptime Kuma URL for slave bot                   | Used by the slave bot to send heartbeats to the Uptime Kuma application.    |
+| **UPTIME_KUMA_ARTICLES_URL**      | Uptime Kuma URL for articles bot                | Used by the articles bot to send heartbeats to the Uptime Kuma application. |
 
 ---
 

@@ -6,11 +6,13 @@ This script is the main entry point for the Crypto Value Bot and News Check appl
 import argparse
 import asyncio
 import logging
+import threading
 from datetime import datetime
 from typing import NoReturn
 
 from src.bots.crypto_value_handler import CryptoValueBot
-from src.handlers.load_variables_handler import get_int_variable
+from src.handlers.heartbeat_kuma import heartbeat
+from src.handlers.load_variables_handler import get_int_variable, load_json
 from src.handlers.logger_handler import setup_logger
 from src.handlers.news_check_handler import CryptoNewsCheck
 
@@ -62,6 +64,18 @@ class Application:
                 self.logger.error("Error in main loop: %s", str(e))
                 await asyncio.sleep(5)
 
+    def initialize_uptime_kuma(self):
+        """
+        Initializes the Uptime Kuma heartbeat in a separate thread.
+        """
+        variables = load_json()
+
+        threading.Thread(
+            target=heartbeat,
+            args=(variables.get("UPTIME_KUMA_MAIN_URL", ""),),
+            daemon=True,
+        ).start()
+
 
 def main() -> None:
     """
@@ -76,6 +90,8 @@ def main() -> None:
     args = parser.parse_args()
 
     app = Application()
+
+    app.initialize_uptime_kuma()
 
     if args.recreate:
         print("Recreating the data base...")
