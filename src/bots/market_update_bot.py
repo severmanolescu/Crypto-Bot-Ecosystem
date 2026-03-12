@@ -50,9 +50,6 @@ NEWS_KEYBOARD = ReplyKeyboardMarkup(
     one_time_keyboard=False,  # Buttons stay visible after being clicked
 )
 
-# Uptime Kuma heartbeat URL (replace with your actual URL)
-UPTIME_KUMA_URL = ""
-
 
 class MarketUpdateBot:
     """
@@ -274,12 +271,22 @@ class MarketUpdateBot:
                 "❌ Invalid command. Please use the buttons below."
             )
 
+    def initialize_uptime_kuma(self):
+        """
+        Initializes the Uptime Kuma heartbeat in a separate thread.
+        """
+        variables = LoadVariables.load_json()
+
+        threading.Thread(target=heartbeat, args=(variables.get("UPTIME_KUMA_VALUE_URL", ""),), daemon=True).start()
+
     # Main function to start the bot
     def run_bot(self):
         """
         Starts the Market Update Bot and sets up the command handlers.
         """
         self.reload_the_data()
+
+        self.initialize_uptime_kuma()
 
         app = Application.builder().token(self.telegram_api_token).build()
 
@@ -300,8 +307,6 @@ class MarketUpdateBot:
 
 # Run the bot
 if __name__ == "__main__":
-    threading.Thread(target=heartbeat, args=(UPTIME_KUMA_URL,), daemon=True).start()
-
     UPDATE_BOT = MarketUpdateBot()
 
     UPDATE_BOT.run_bot()

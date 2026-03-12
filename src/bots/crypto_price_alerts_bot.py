@@ -34,9 +34,6 @@ setup_logger(file_name="crypto_price_alerts_bot.log")
 logger = logging.getLogger(__name__)
 logger.info("Crypto price Alerts bot started")
 
-# Uptime Kuma heartbeat URL (replace with your actual URL)
-UPTIME_KUMA_URL = ""
-
 MAIN_MENU = ReplyKeyboardMarkup(
     [
         ["📈 RSI", "📊 Value Check"],
@@ -358,6 +355,9 @@ class PriceAlertBot:
 
         bot_token = variables.get("TELEGRAM_API_TOKEN_ALERTS", "")
 
+        threading.Thread(target=heartbeat, args=(variables.get("UPTIME_KUMA_ALERTS_URL", ""),),
+                         daemon=True).start()
+
         app = Application.builder().token(bot_token).build()
 
         # Add command and message handlers
@@ -372,8 +372,6 @@ class PriceAlertBot:
 
 
 if __name__ == "__main__":
-    threading.Thread(target=heartbeat, args=(UPTIME_KUMA_URL,), daemon=True).start()
-
     price_alert_bot = PriceAlertBot()
 
     price_alert_bot.run_bot()

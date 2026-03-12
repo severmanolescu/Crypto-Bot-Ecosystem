@@ -81,11 +81,11 @@ pip install RPi.GPIO
 deactivate
 ```
 
-### 6. Set-up the variables:
-Add the Uptime Kuma URL if you want to send notifications to it:
-```python
-UPTIME_KUMA_URL = ""
-```
+### 6. Uptime Kuma
+To monitor the uptime of your bots, you can use [Uptime Kuma](https://github.com/louislam/uptime-kuma). Here's how to set it up:
+1. Install [Uptime Kuma](https://github.com/louislam/uptime-kuma) on your server or Raspberry Pi.
+2. Generate a unique URL using Uptime Kuma's monitoring feature (PUSH Type).
+3. Add the generated URLs to the script to send heartbeat signals, ensuring you receive notifications if the script goes down.
 
 ---
 

@@ -50,9 +50,6 @@ NEWS_KEYBOARD = ReplyKeyboardMarkup(
     one_time_keyboard=False,  # Buttons stay visible after being clicked
 )
 
-# Uptime Kuma heartbeat URL (replace with your actual URL)
-UPTIME_KUMA_URL = ""
-
 
 # pylint: disable=too-many-public-methods
 class SlaveBot:
@@ -902,6 +899,8 @@ class SlaveBot:
 
         app = Application.builder().token(bot_token).build()
 
+        threading.Thread(target=heartbeat, args=(variables.get("UPTIME_KUMA_SLAVE_URL", ""),), daemon=True).start()
+
         # Add command handlers
         app.add_handler(CommandHandler("start", self.start))
         app.add_handler(CommandHandler("details", self.details))
@@ -927,8 +926,6 @@ class SlaveBot:
 
 
 if __name__ == "__main__":
-    threading.Thread(target=heartbeat, args=(UPTIME_KUMA_URL,), daemon=True).start()
-
     slave_bot = SlaveBot()
 
     slave_bot.run_bot()

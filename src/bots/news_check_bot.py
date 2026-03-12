@@ -44,9 +44,6 @@ NEWS_KEYBOARD = ReplyKeyboardMarkup(
     one_time_keyboard=False,  # Buttons stay visible after being clicked
 )
 
-# Uptime Kuma heartbeat URL (replace with your actual URL)
-UPTIME_KUMA_URL = ""
-
 
 class NewsBot:
     """
@@ -193,6 +190,8 @@ Example:
         """
         variables = src.handlers.load_variables_handler.load_json()
 
+        threading.Thread(target=heartbeat, args=(variables.get("UPTIME_KUMA_ARTICLES_URL", ""),), daemon=True).start()
+
         bot_token = variables.get("TELEGRAM_API_TOKEN_ARTICLES", "")
 
         app = Application.builder().token(bot_token).build()
@@ -211,7 +210,6 @@ Example:
 
 
 if __name__ == "__main__":
-    threading.Thread(target=heartbeat, args=(UPTIME_KUMA_URL,), daemon=True).start()
 
     news_bot = NewsBot()
 
