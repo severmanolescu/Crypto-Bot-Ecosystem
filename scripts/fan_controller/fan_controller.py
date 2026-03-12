@@ -14,7 +14,7 @@ import time
 
 import RPi.GPIO as GPIO
 
-sys.path.append("/path/to/your/project")  # Adjust this path to your project root
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 from src.handlers.heartbeat_kuma import heartbeat
 
