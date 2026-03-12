@@ -157,6 +157,20 @@ To run the bots, you need to configure the environment variables and API keys. T
 | **AI_TODAY_SUMMARY_PROMPT**       | Customizable AI prompt for daily news summaries | Used by the news bot to summarize today's news in a specific language. |
 
 
+### Uptime Kuma
+To monitor the uptime of your bots, you can use Uptime Kuma. Here's how to set it up:
+1. Install Uptime Kuma on your server or Raspberry Pi.
+2. Generate a unique URL for each bot using Uptime Kuma's monitoring feature (PUSH Type).
+3. Add the generated URLs to your bot's configuration to send heartbeat signals, ensuring you receive notifications if any bot goes down.
+
+Where to add the Uptime Kuma URLs:
+- In each bot's main script (`main.py`, `news_check_bot.py`, `market_update_bot.py`, `crypto_price_alerts_bot.py`, `my_slave_bot.py`)
+- Update UPTIME_KUMA_URL variable with the generated URL for that specific bot.
+- Example:
+```python
+UPTIME_KUMA_URL = "https://your-uptime-kuma-instance.com/monitoring/your-unique-url"
+```
+
 ---
 
 ## Running the Bots
