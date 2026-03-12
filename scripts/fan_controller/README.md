@@ -81,6 +81,17 @@ pip install RPi.GPIO
 deactivate
 ```
 
+### 6. Set-up the variables:
+Change the path in the `fan_controller.py` script to include the project path:
+```python
+sys.path.append("/path/to/your/project")
+```
+
+Add the Uptime Kuma URL if you want to send notifications to it:
+```python
+UPTIME_KUMA_URL = ""
+```
+
 ---
 
 ## Running the Script

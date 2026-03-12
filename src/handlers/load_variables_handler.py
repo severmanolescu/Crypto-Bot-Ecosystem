@@ -103,7 +103,9 @@ def get_int_variable(var_name, default=1800, file_path="./config/variables.json"
     logger.warning(
         " Warning: %s is not a valid type. Using default {default}.", var_name
     )
-    print("⚠️ Warning: ", var_name, " is not a valid type. Using default ", default, ".")
+    print(
+        "⚠️ Warning: ", var_name, " is not a valid type. Using default ", default, "."
+    )
     return default
 
 

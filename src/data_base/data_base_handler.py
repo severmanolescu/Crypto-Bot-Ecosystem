@@ -55,8 +55,7 @@ class DataBaseHandler:
             async with aiosqlite.connect(self.articles_db_path) as db:
                 # If the file doesn't exist, we create the table for the first time
                 if not db_file_exists:
-                    await db.execute(
-                        """
+                    await db.execute("""
                         CREATE TABLE IF NOT EXISTS articles (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             source TEXT NOT NULL,
@@ -66,8 +65,7 @@ class DataBaseHandler:
                             openai_summary TEXT,
                             date_scraped TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                         );
-                    """
-                    )
+                    """)
                     await db.commit()
                     print("Database and table created successfully.")
                 else:
@@ -374,8 +372,7 @@ class DataBaseHandler:
             return
 
         async with aiosqlite.connect(self.daily_stats_db_path) as db:
-            await db.execute(
-                """
+            await db.execute("""
                         CREATE TABLE IF NOT EXISTS daily_stats (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             crypto_news INTEGER,
@@ -383,8 +380,7 @@ class DataBaseHandler:
                             bitcoinmagazine INTEGER,
                             last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                         )
-                    """
-            )
+                    """)
             daily = dict(await self.get_daily_article_counts())
 
             await db.execute(
@@ -411,16 +407,14 @@ class DataBaseHandler:
             return
 
         async with aiosqlite.connect(self.fear_greed_db_path) as db:
-            await db.execute(
-                """
+            await db.execute("""
                 CREATE TABLE IF NOT EXISTS fear_greed (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     index_value INTEGER,
                     index_text TEXT,
                     last_updated TEXT
                 )
-            """
-            )
+            """)
             await db.execute(
                 "INSERT INTO fear_greed (index_value, index_text, last_updated) VALUES (?, ?, ?)",
                 (index_value, index_text, last_updated),
@@ -440,8 +434,7 @@ class DataBaseHandler:
             return
 
         async with aiosqlite.connect(self.eth_gas_fee_db_path) as db:
-            await db.execute(
-                """
+            await db.execute("""
                 CREATE TABLE IF NOT EXISTS fear_greed (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     safe_gas REAL,
@@ -449,8 +442,7 @@ class DataBaseHandler:
                     fast_gas REAL,
                     saved_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
-            """
-            )
+            """)
             await db.execute(
                 "INSERT INTO fear_greed (safe_gas, propose_gas, fast_gas) VALUES (?, ?, ?)",
                 (safe_gas, propose_gas, fast_gas),
@@ -469,8 +461,7 @@ class DataBaseHandler:
             return
 
         async with aiosqlite.connect(self.market_sentiment_db_path) as db:
-            await db.execute(
-                """
+            await db.execute("""
                 CREATE TABLE IF NOT EXISTS fear_greed (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     unknown INTEGER,
@@ -479,8 +470,7 @@ class DataBaseHandler:
                     positive INTEGER,
                     saved_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
-            """
-            )
+            """)
             await db.execute(
                 "INSERT INTO fear_greed (unknown, negative, neutral, positive) VALUES (?, ?, ?, ?)",
                 (
