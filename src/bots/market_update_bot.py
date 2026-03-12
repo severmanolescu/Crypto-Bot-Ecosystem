@@ -11,6 +11,7 @@ and portfolio history.
 import logging
 import os
 import sys
+import threading
 from datetime import datetime
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -27,6 +28,7 @@ from telegram.ext import (
 
 from src.bots.crypto_value_handler import CryptoValueBot
 from src.handlers import load_variables_handler as LoadVariables
+from src.handlers.heartbeat_kuma import heartbeat
 from src.handlers.logger_handler import setup_logger
 from src.handlers.send_telegram_message import TelegramMessagesHandler
 from src.utils.plot_crypto_trades import PlotTrades
@@ -47,6 +49,8 @@ NEWS_KEYBOARD = ReplyKeyboardMarkup(
     resize_keyboard=True,  # Makes the buttons smaller and fit better
     one_time_keyboard=False,  # Buttons stay visible after being clicked
 )
+
+UPTIME_KUMA_URL = "kuma_url_here"  # Replace with your actual Uptime Kuma heartbeat URL
 
 
 class MarketUpdateBot:
@@ -295,6 +299,8 @@ class MarketUpdateBot:
 
 # Run the bot
 if __name__ == "__main__":
+    threading.Thread(target=heartbeat, args=(UPTIME_KUMA_URL,), daemon=True).start()
+
     UPDATE_BOT = MarketUpdateBot()
 
     UPDATE_BOT.run_bot()

@@ -8,6 +8,7 @@ This bot checks for crypto news articles and provides market sentiment analysis.
 import logging
 import os
 import sys
+import threading
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 
@@ -23,6 +24,7 @@ from telegram.ext import (
 
 import src.handlers.load_variables_handler
 from src.data_base.data_base_handler import DataBaseHandler
+from src.handlers.heartbeat_kuma import heartbeat
 from src.handlers.logger_handler import setup_logger
 from src.handlers.market_sentiment_handler import get_market_sentiment
 from src.handlers.news_check_handler import CryptoNewsCheck
@@ -41,6 +43,8 @@ NEWS_KEYBOARD = ReplyKeyboardMarkup(
     resize_keyboard=True,  # Makes the buttons smaller and fit better
     one_time_keyboard=False,  # Buttons stay visible after being clicked
 )
+
+UPTIME_KUMA_URL = "kuma_url_here"  # Replace with your actual Uptime Kuma heartbeat URL
 
 
 class NewsBot:
@@ -206,6 +210,8 @@ Example:
 
 
 if __name__ == "__main__":
+    threading.Thread(target=heartbeat, args=(UPTIME_KUMA_URL,), daemon=True).start()
+
     news_bot = NewsBot()
 
     news_bot.run_bot()

@@ -7,6 +7,7 @@ import asyncio
 import logging
 import os
 import sys
+import threading
 
 # pylint: disable=wrong-import-position,broad-exception-caught
 
@@ -26,11 +27,14 @@ from telegram.ext import (
 from src.bots.crypto_value_handler import CryptoValueBot
 from src.handlers import load_variables_handler
 from src.handlers.crypto_rsi_handler import CryptoRSIHandler
+from src.handlers.heartbeat_kuma import heartbeat
 from src.handlers.logger_handler import setup_logger
 
 setup_logger(file_name="crypto_price_alerts_bot.log")
 logger = logging.getLogger(__name__)
 logger.info("Crypto price Alerts bot started")
+
+UPTIME_KUMA_URL = "kuma_url_here"  # Replace with your actual Uptime Kuma heartbeat URL
 
 MAIN_MENU = ReplyKeyboardMarkup(
     [
@@ -367,6 +371,8 @@ class PriceAlertBot:
 
 
 if __name__ == "__main__":
+    threading.Thread(target=heartbeat, args=(UPTIME_KUMA_URL,), daemon=True).start()
+
     price_alert_bot = PriceAlertBot()
 
     price_alert_bot.run_bot()

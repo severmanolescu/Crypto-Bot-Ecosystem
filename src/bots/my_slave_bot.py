@@ -8,6 +8,7 @@ My Slave Bot
 import logging
 import os
 import sys
+import threading
 from datetime import datetime, timezone
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -22,6 +23,7 @@ from telegram.ext import (
     filters,
 )
 
+from src.handlers.heartbeat_kuma import heartbeat
 from src.handlers.load_variables_handler import (
     load_json,
     load_keyword_list,
@@ -47,6 +49,8 @@ NEWS_KEYBOARD = ReplyKeyboardMarkup(
     resize_keyboard=True,  # Makes the buttons smaller and fit better
     one_time_keyboard=False,  # Buttons stay visible after being clicked
 )
+
+UPTIME_KUMA_URL = "kuma_url_here"  # Replace with your actual Uptime Kuma heartbeat URL
 
 
 # pylint: disable=too-many-public-methods
@@ -922,6 +926,8 @@ class SlaveBot:
 
 
 if __name__ == "__main__":
+    threading.Thread(target=heartbeat, args=(UPTIME_KUMA_URL,), daemon=True).start()
+
     slave_bot = SlaveBot()
 
     slave_bot.run_bot()
