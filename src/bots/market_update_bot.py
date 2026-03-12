@@ -295,6 +295,6 @@ class MarketUpdateBot:
 
 # Run the bot
 if __name__ == "__main__":
-    updateBot = MarketUpdateBot()
+    UPDATE_BOT = MarketUpdateBot()
 
-    updateBot.run_bot()
+    UPDATE_BOT.run_bot()

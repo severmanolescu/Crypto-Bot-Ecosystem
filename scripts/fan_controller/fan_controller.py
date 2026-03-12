@@ -14,7 +14,7 @@ import time
 
 import RPi.GPIO as GPIO
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 
 from src.handlers.heartbeat_kuma import heartbeat
 
@@ -61,14 +61,14 @@ try:
     print("Fan controller started!")
     while True:
         temp = get_temp()
-        if temp >= ON_TEMP and not FAN_ON:
+        if temp >= ON_TEMP and not fan_on:
             GPIO.output(FAN_PIN, GPIO.HIGH)
-            FAN_ON = True
+            fan_on = True
             print(f"Fan ON - Temp: {temp:.1f}°C")
             logger.info("Fan ON - Temp: %.1f°C", temp)
-        elif temp <= OFF_TEMP and FAN_ON:
+        elif temp <= OFF_TEMP and fan_on:
             GPIO.output(FAN_PIN, GPIO.LOW)
-            FAN_ON = False
+            fan_on = False
             print(f"Fan OFF - Temp: {temp:.1f}°C")
             logger.info("Fan OFF - Temp: %.1f°C", temp)
         time.sleep(5)
