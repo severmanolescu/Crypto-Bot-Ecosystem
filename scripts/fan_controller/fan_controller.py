@@ -61,14 +61,14 @@ try:
     print("Fan controller started!")
     while True:
         temp = get_temp()
-        if temp >= ON_TEMP and not fan_on:
+        if temp >= ON_TEMP and not FAN_ON:
             GPIO.output(FAN_PIN, GPIO.HIGH)
-            fan_on = True
+            FAN_ON = True
             print(f"Fan ON - Temp: {temp:.1f}°C")
             logger.info("Fan ON - Temp: %.1f°C", temp)
-        elif temp <= OFF_TEMP and fan_on:
+        elif temp <= OFF_TEMP and FAN_ON:
             GPIO.output(FAN_PIN, GPIO.LOW)
-            fan_on = False
+            FAN_ON = False
             print(f"Fan OFF - Temp: {temp:.1f}°C")
             logger.info("Fan OFF - Temp: %.1f°C", temp)
         time.sleep(5)
