@@ -16,11 +16,12 @@ A self-registration method is currently being developed, so you’ll soon be abl
 
 ## Features
 
-- Real-time cryptocurrency news with AI-powered summaries
-- Advanced market analysis and price tracking
-- Smart price alerts with technical indicators
-- Portfolio management with P/L tracking and analytics
-- Multi-bot architecture for specialized functionality
+- Real-time cryptocurrency news with AI-powered summaries;
+- Advanced market analysis and price tracking;
+- Smart price alerts with technical indicators;
+- Portfolio management with P/L tracking and analytics;
+- Multi-bot architecture for specialized functionality;
+- Uptime Kuma integration for monitoring bot health.
 
 ---
 
@@ -33,40 +34,40 @@ Intelligent news aggregation and analysis from premium sources.
   - [CoinTelegraph](https://cointelegraph.com/)
   - [Bitcoin Magazine](https://bitcoinmagazine.com/articles)
 - **Key Features:**
-  - AI-powered article summarization
-  - Tag-based article search
-  - Daily statistics reporting
-  - Market sentiment analysis
-  - Keyword-based news filtering
-  - Real-time news updates
+  - AI-powered article summarization;
+  - Tag-based article search;
+  - Daily statistics reporting;
+  - Market sentiment analysis;
+  - Keyword-based news filtering;
+  - Real-time news updates.
 
 ### 2. Crypto Market Value Bot
 Comprehensive market tracking and portfolio management.
 - **Core Features:**
-  - Real-time market updates for selected coins
-  - ETH gas fee tracking
-  - Fear and Greed Index monitoring
-  - Portfolio tracking (P/L, holdings, average buy price)
-  - Visual analytics (P/L, holdings, averages)
-  - AI-powered article summarization for market news
+  - Real-time market updates for selected coins;
+  - ETH gas fee tracking;
+  - Fear and Greed Index monitoring;
+  - Portfolio tracking (P/L, holdings, average buy price);
+  - Visual analytics (P/L, holdings, averages);
+  - AI-powered article summarization for market news.
 
 ### 3. Crypto Alerts Bot
 Smart notification system for market movements.
 - **Alert Types:**
-  - Price change notifications (1h, 24h, 7d, 30d)
-  - RSI (Relative Strength Index) tracking 
-  - Custom threshold alerts 
-  - Real-time market movement detection
+  - Price change notifications (1h, 24h, 7d, 30d);
+  - RSI (Relative Strength Index) tracking;
+  - Custom threshold alerts;
+  - Real-time market movement detection.
 
 ### 4. Slave Bot (Management Bot)
 Central command center for advanced operations.
 - **Management Tools:**
-  - Detailed coin analysis 
-  - Top 10 rankings and comparisons 
-  - Currency conversion 
-  - ROI calculator 
-  - System configuration 
-  - News bot keyword management
+  - Detailed coin analysis;
+  - Top 10 rankings and comparisons;
+  - Currency conversion;
+  - ROI calculator;
+  - System configuration;
+  - News bot keyword management,
 
 ---
 
@@ -100,14 +101,15 @@ Before installation, ensure you have:
 | Git                 | Latest  | Version control system for cloning the repository |
 | Linux/Raspberry Pi  | Any     | Optional, for automated startup scripts           |
 | Internet Connection | Stable  | Required for API calls and news scraping          |
+| Uptime Kuma         | Latest  | Optional for monitoring the bots                  |
 
 ### Api Keys Required
 You'll need accounts and API keys for:
-- **Telegram Bot API** - [BotFather Guide](https://core.telegram.org/bots#botfather)
-- **CoinMarketCap API** - [Get API Key](https://coinmarketcap.com/api/) 
-- **Etherscan API** - [Register Here](https://etherscan.io/apis) 
-- **OpenAI API** - [OpenAI Platform](https://platform.openai.com/docs/api-reference)
-- **Uptime Kuma** (optional for monitoring) - [Uptime Kuma](https://github.com/louislam/uptime-kuma)(
+- **Telegram Bot API** - [BotFather Guide](https://core.telegram.org/bots#botfather);
+- **CoinMarketCap API** - [Get API Key](https://coinmarketcap.com/api/);
+- **Etherscan API** - [Register Here](https://etherscan.io/apis); 
+- **OpenAI API** - [OpenAI Platform](https://platform.openai.com/docs/api-reference);
+- **Uptime Kuma** (optional for monitoring) - [Uptime Kuma](https://github.com/louislam/uptime-kuma).
 
 ### Quick Setup
 ```bash  
@@ -137,7 +139,12 @@ To run the bots, you need to configure the environment variables and API keys. T
   "TELEGRAM_CHAT_ID_FULL_DETAILS": ["list_of_user_ids_full_details"], 
   "TELEGRAM_CHAT_ID_PARTIAL_DATA": ["list_of_user_ids_partial_data"], 
   "AI_ARTICLE_SUMMARY_PROMPT": "AI Prompt for summarizing articles",
-  "AI_TODAY_SUMMARY_PROMPT": "AI Prompt for summarizing today's news"
+  "AI_TODAY_SUMMARY_PROMPT": "AI Prompt for summarizing today's news",
+    "UPTIME_KUMA_MAIN_URL": "uptime_kuma_url_for_main_bot",
+    "UPTIME_KUMA_ALERTS_URL": "uptime_kuma_url_for_alerts_bot",
+    "UPTIME_KUMA_VALUE_URL": "uptime_kuma_url_for_value_bot",
+    "UPTIME_KUMA_SLAVE_URL": "uptime_kuma_url_for_slave_bot",
+    "UPTIME_KUMA_ARTICLES_URL": "uptime_kuma_url_for_article_bot"
 }
 ```
 
@@ -156,11 +163,11 @@ To run the bots, you need to configure the environment variables and API keys. T
 | **TELEGRAM_CHAT_ID_PARTIAL_DATA** | Users with limited bot access                   | Limited access to basic commands and features.                              |
 | **AI_ARTICLE_SUMMARY_PROMPT**     | Customizable AI prompt for article summaries    | Used by the news bot to summarize articles in a specific language.          |
 | **AI_TODAY_SUMMARY_PROMPT**       | Customizable AI prompt for daily news summaries | Used by the news bot to summarize today's news in a specific language.      |
-| **UPTIME_KUMA_MAIN_URL**          | Uptime Kuma URL for main bot                    | Used by the main bot to send heartbeats to the Uptime Kuma application.     |
-| **UPTIME_KUMA_ALERTS_URL**        | Uptime Kuma URL for alerts bot                  | Used by the alerts bot to send heartbeats to the Uptime Kuma application.   |
-| **UPTIME_KUMA_VALUE_URL**         | Uptime Kuma URL for value bot                   | Used by the value bot to send heartbeats to the Uptime Kuma application.    |
-| **UPTIME_KUMA_SLAVE_URL**         | Uptime Kuma URL for slave bot                   | Used by the slave bot to send heartbeats to the Uptime Kuma application.    |
-| **UPTIME_KUMA_ARTICLES_URL**      | Uptime Kuma URL for articles bot                | Used by the articles bot to send heartbeats to the Uptime Kuma application. |
+| **UPTIME_KUMA_MAIN_URL**          | Uptime Kuma URL for main bot (Optional)         | Used by the main bot to send heartbeats to the Uptime Kuma application.     |
+| **UPTIME_KUMA_ALERTS_URL**        | Uptime Kuma URL for alerts bot (Optional)       | Used by the alerts bot to send heartbeats to the Uptime Kuma application.   |
+| **UPTIME_KUMA_VALUE_URL**         | Uptime Kuma URL for value bot (Optional)        | Used by the value bot to send heartbeats to the Uptime Kuma application.    |
+| **UPTIME_KUMA_SLAVE_URL**         | Uptime Kuma URL for slave bot (Optional)        | Used by the slave bot to send heartbeats to the Uptime Kuma application.    |
+| **UPTIME_KUMA_ARTICLES_URL**      | Uptime Kuma URL for articles bot (Optional)     | Used by the articles bot to send heartbeats to the Uptime Kuma application. |
 
 ---
 
@@ -223,10 +230,10 @@ pytest tests/test_bots.py
 ## Usage Examples
 ### Getting Started
 Getting Started
-- Add bots to Telegram using their respective tokens 
-- Send **/start** to initialize each bot
-- Use the buttons in the bot interface to use the features
-- Use **/help** to see available commands
+- Add bots to Telegram using their respective tokens; 
+- Send **/start** to initialize each bot;
+- Use the buttons in the bot interface to use the features;
+- Use **/help** to see available commands.
 
 ---
 
